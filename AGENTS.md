@@ -70,6 +70,25 @@ aligned with the product description.
 4. Update `README.md` wherever the change is user-visible, and
    `docs/ARCHITECTURE.md` when structure changes.
 
+## Commits
+
+- Commit only when asked. Never add yourself as a co-author: no
+  `Co-Authored-By` trailer and no "Generated with …" line in commit messages
+  or PR descriptions (explicit owner request).
+- Follow commitlint rules (`@commitlint/config-conventional`, Conventional
+  Commits): `type(scope): subject`, where `type` is one of `feat`, `fix`,
+  `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`,
+  `revert`; optional lowercase `scope` (e.g. `translate`, `settings`, `media`,
+  `i18n`); imperative subject in lower case, no trailing period, header up to
+  100 characters; blank line before the body and footer, body lines up to 100
+  characters. Breaking changes: `!` after the type/scope or a
+  `BREAKING CHANGE:` footer.
+- Write the message from the actual diff (`git status` / `git diff --stat`
+  first). It must describe everything that is staged, including changes you
+  did not make yourself; split unrelated changes into separate commits.
+- Rebuild (`npm run build`) before committing source changes so the committed
+  `x-plus.user.js` / `x-plus.meta.js` match `src/`.
+
 ## Do not
 
 - Hand-edit `x-plus.user.js` / `x-plus.meta.js`.
