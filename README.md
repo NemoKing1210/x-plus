@@ -3,7 +3,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.2.0-green?style=for-the-badge)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.2.1-green?style=for-the-badge)](CHANGELOG.md)
 
 A userscript for [X](https://x.com) that adds **in-place post translation**,
 **video / GIF / photo download** and a set of **interface clean-ups** — all
@@ -40,10 +40,10 @@ userscript manager's menu command.
 Same engine as [x-translator](https://github.com/NemoKing1210/x-translator):
 
 - **Translate** control in the header of every post, reply and quoted post
-- **X Articles**: a Translate button above the article translates it paragraph by paragraph (title, lists and captions included) — links, line breaks and bold headings survive; shown under each paragraph or in its place
+- **X Articles**: the Translate button in the article header (next to Grok) translates it paragraph by paragraph (title, lists and captions included) — links, line breaks and bold headings survive; shown under each paragraph or in its place
 - Modes — on button click, or **automatic** as soon as a post is visible
   (optionally only for selected accounts)
-- Display — separate panel, or **replace** the text in place with *Show
+- Display — **replace** the text in place (default), or a separate panel with *Show
   original*, *peek original on hover* or a *split* original + translation view
 - Providers — Google (no key), DeepL, Microsoft, OpenAI-compatible, Yandex,
   LibreTranslate

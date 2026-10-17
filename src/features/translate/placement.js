@@ -72,6 +72,9 @@ function findQuoteHeaderActionsSlot(postEl) {
   return null;
 }
 
+/** A header actions row (Grok + ⋮) is a few icons wide; the whole name row is not. */
+const COMPACT_ACTIONS_ROW_MAX_WIDTH = 120;
+
 /**
  * Tweet header actions row: Grok + caret (More). Insert our control as a
  * sibling before Grok (or before caret if no Grok).
@@ -86,9 +89,13 @@ function findHeaderActionsSlot(postEl) {
   const article = getTweetArticle(postEl);
   if (!article) return null;
 
+  // Only this tweet's own chrome counts: not quote cards, and not posts nested
+  // inside it (an X Article embeds whole posts, each with its own Grok / ⋮).
+  const isOwn = (node) => !isInQuoteEmbed(node, article) && node.closest('article') === article;
+
   let grokBtn = null;
   for (const btn of article.querySelectorAll('button[aria-label]')) {
-    if (isInQuoteEmbed(btn, article)) continue;
+    if (!isOwn(btn)) continue;
     if (/grok/i.test(btn.getAttribute('aria-label') || '')) {
       grokBtn = btn;
       break;
@@ -101,11 +108,14 @@ function findHeaderActionsSlot(postEl) {
     if (row && article.contains(row)) return { row, before: wrap };
   }
 
-  const caret = [...article.querySelectorAll(SEL.caret)].find(
-    (node) => !isInQuoteEmbed(node, article),
-  );
+  const caret = [...article.querySelectorAll(SEL.caret)].find(isOwn);
   if (!caret) return null;
 
+  // Walk up from the caret through flex rows. The Grok button is labelled in the
+  // UI language ("Составить сводку", …), so it cannot be found by name: prefer the
+  // compact row that holds *both* actions (Grok + ⋮) and insert before the first.
+  let first = null;
+  let compact = null;
   let node = caret;
   while (node.parentElement && node.parentElement !== article) {
     const parent = node.parentElement;
@@ -115,11 +125,20 @@ function findHeaderActionsSlot(postEl) {
       String(style.flexDirection || '').startsWith('row');
     if (isRow && parent.children.length >= 1 && parent.children.length <= 4) {
       const before = [...parent.children].find((child) => child.contains(caret));
-      if (before) return { row: parent, before };
+      if (before) {
+        first ??= { row: parent, before };
+        if (
+          !compact &&
+          parent.children.length >= 2 &&
+          parent.getBoundingClientRect().width <= COMPACT_ACTIONS_ROW_MAX_WIDTH
+        ) {
+          compact = { row: parent, before: parent.firstElementChild };
+        }
+      }
     }
     node = parent;
   }
-  return null;
+  return compact || first;
 }
 
 /* ------------------------------------------------------------------ */
@@ -178,34 +197,45 @@ export function ensureToolbar(postEl) {
   return bar;
 }
 
+/**
+ * Put `btn` into a header slot (wrapped in .xp-header-action). Shared by posts
+ * and articles. Quote embeds always take the last position of the row.
+ */
+export function mountHeaderButton(slot, btn, inQuote = false) {
+  btn.classList.add('xp-btn--header');
+  btn.setAttribute('data-xp-header', '1');
+
+  let wrap = btn.closest('.xp-header-action');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.className = 'xp-header-action';
+    wrap.setAttribute(UI_ATTR, '');
+    wrap.appendChild(btn);
+  } else if (btn.parentElement !== wrap) {
+    wrap.appendChild(btn);
+  }
+  wrap.classList.toggle('xp-header-action--quote', inQuote);
+
+  if (inQuote || !slot.before) {
+    if (wrap.parentElement !== slot.row || slot.row.lastElementChild !== wrap) {
+      slot.row.appendChild(wrap);
+    }
+  } else if (wrap.parentElement !== slot.row || wrap.nextElementSibling !== slot.before) {
+    slot.row.insertBefore(wrap, slot.before);
+  }
+  const label = btn.getAttribute('aria-label');
+  if (label) btn.title = label;
+}
+
+/** Header slot (before Grok / caret) of a whole tweet article, for article translation. */
+export function findArticleHeaderSlot(tweetArticle) {
+  return findHeaderActionsSlot(tweetArticle);
+}
+
 export function placeTranslateButton(postEl, btn) {
   const slot = findHeaderActionsSlot(postEl);
   if (slot) {
-    btn.classList.add('xp-btn--header');
-    btn.setAttribute('data-xp-header', '1');
-
-    let wrap = btn.closest('.xp-header-action');
-    if (!wrap) {
-      wrap = document.createElement('div');
-      wrap.className = 'xp-header-action';
-      wrap.setAttribute(UI_ATTR, '');
-      wrap.appendChild(btn);
-    } else if (btn.parentElement !== wrap) {
-      wrap.appendChild(btn);
-    }
-    const inQuote = Boolean(getQuoteCard(postEl));
-    wrap.classList.toggle('xp-header-action--quote', inQuote);
-
-    // Quotes: always append as last *direct* child of the header row.
-    if (inQuote || !slot.before) {
-      if (wrap.parentElement !== slot.row || slot.row.lastElementChild !== wrap) {
-        slot.row.appendChild(wrap);
-      }
-    } else if (wrap.parentElement !== slot.row || wrap.nextElementSibling !== slot.before) {
-      slot.row.insertBefore(wrap, slot.before);
-    }
-    const label = btn.getAttribute('aria-label');
-    if (label) btn.title = label;
+    mountHeaderButton(slot, btn, Boolean(getQuoteCard(postEl)));
     return;
   }
 

@@ -1,6 +1,7 @@
 import { GM_registerMenuCommand } from '$';
 import { on } from '../../core/bus.js';
 import { registerFeature } from '../../core/features.js';
+import { cacheTab } from '../translate/settings.js';
 import { t } from '../../i18n/index.js';
 import { ensureNavButton, setNavButtonHandler } from './nav-button.js';
 import { openSettings } from './panel.js';
@@ -11,14 +12,14 @@ export { openSettings } from './panel.js';
 
 /**
  * The settings UI itself is a feature: it owns no settings, but contributes
- * the Backup / About tabs, the userscript-manager menu command and the
+ * the Cache / Backup / About tabs, the userscript-manager menu command and the
  * sidebar entry point.
  */
 registerFeature({
   id: 'settings',
   order: 900,
   fields: {},
-  tabs: [backupTab, aboutTab],
+  tabs: [cacheTab, backupTab, aboutTab],
 
   init() {
     setNavButtonHandler(() => openSettings());

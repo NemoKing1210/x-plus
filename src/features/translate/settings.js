@@ -168,7 +168,7 @@ function renderClearCache(ctx) {
 const isAuto = (s) => s.translateMode === 'auto';
 const isAllowlistScope = (s) => isAuto(s) && s.autoScope === 'allowlist';
 
-export const translateTabs = [
+const allTabs = [
   {
     id: 'translate',
     titleKey: 'translate.sectionTranslation',
@@ -342,3 +342,7 @@ export const translateTabs = [
     ],
   },
 ];
+
+export const translateTabs = allTabs.filter((tab) => tab.id !== 'translate-cache');
+/** Listed by the settings feature so the tab sits right before Backup. */
+export const cacheTab = allTabs.find((tab) => tab.id === 'translate-cache');

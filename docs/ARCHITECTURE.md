@@ -158,7 +158,7 @@ scan → findPostTextRoots() → enhancePost(el)
 | `native.js` | Detection of X's own auto-translation bar |
 | `author.js`, `filters.js`, `allowlist.js` | Author handle, blocklists, language filters |
 | `post-menu.js` | Entries in a post's ⋮ menu |
-| `article.js` | X Articles: toolbar, block extraction (lines / links / bold), per-block translation with retries, panel or in-place display |
+| `article.js` | X Articles: header button (shared slot with posts) + progress bar, block extraction (lines / links / bold), per-block translation with retries, panel or in-place display |
 | `api.js`, `cache.js`, `providers/` | Translation requests, GM cache with TTL + budget, provider clients |
 
 **New provider:** describe it in `providers/registry.js` (fields + defaults →

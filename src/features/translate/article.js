@@ -1,4 +1,4 @@
-import { UI_ATTR } from '../../core/constants.js';
+import { SEL, UI_ATTR } from '../../core/constants.js';
 import { Codes, logWarn } from '../../core/debug.js';
 import { getLocale, resolveTargetLang } from '../../i18n/index.js';
 import { fmt } from '../../utils/format.js';
@@ -13,6 +13,7 @@ import { translateText } from './api.js';
 import { setButtonLabel } from './button.js';
 import { cfg, isAutoMode, isReplaceMode, replaceRevealMode, tr } from './config.js';
 import { getLanguageSkipReason, isAccountBlocked } from './filters.js';
+import { findArticleHeaderSlot, mountHeaderButton } from './placement.js';
 
 /**
  * X Articles (long-form posts) translated block by block.
@@ -198,7 +199,8 @@ function articleHandle() {
  * @property {HTMLElement} root
  * @property {HTMLElement} bar
  * @property {HTMLButtonElement} button
- * @property {HTMLElement} status
+ * @property {HTMLElement} status    - error / notice text
+ * @property {HTMLElement} progress  - "Translating… 3/12" while the button is icon-only
  * @property {number} runId
  * @property {Array<{ el: Element, box: Element | null }>} painted
  */
@@ -210,12 +212,14 @@ let autoObserver = null;
 
 /** Button states. The article button is never hidden (unlike the per-post one). */
 function setIdle(state) {
+  setProgress(state, '');
   state.button.dataset.xpState = '';
   state.button.hidden = false;
   setButtonLabel(state.button, tr('btnTranslate'));
 }
 
 function setShown(state) {
+  setProgress(state, '');
   const swapped = isReplaceMode() && replaceRevealMode() !== 'split';
   state.button.dataset.xpState = 'shown';
   state.button.hidden = false;
@@ -224,10 +228,64 @@ function setShown(state) {
   });
 }
 
+/** The bar only exists visually while it holds the button or some text. */
+function updateBar(state) {
+  const holdsButton = state.button.parentElement === state.bar;
+  state.bar.hidden = !holdsButton && state.status.hidden && state.progress.hidden;
+}
+
 function setStatus(state, text, error = false) {
   state.status.textContent = text || '';
   state.status.hidden = !text;
   state.status.classList.toggle('is-error', error);
+  updateBar(state);
+}
+
+function setProgress(state, text) {
+  state.progress.textContent = text || '';
+  state.progress.hidden = !text;
+  updateBar(state);
+}
+
+/** The tweet article that owns the page header (avatar, name, Grok, ⋮) of this article. */
+function findHostArticle(root) {
+  const own = root.closest(SEL.article);
+  if (own) return own;
+  let scope = root;
+  for (let depth = 0; depth < 8; depth += 1) {
+    scope = scope.parentElement;
+    if (!scope) return null;
+    const host = [...scope.querySelectorAll(SEL.article)].find(
+      (candidate) =>
+        !root.contains(candidate) &&
+        // the header precedes the article body in the document
+        candidate.compareDocumentPosition(root) & Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    if (host) return host;
+  }
+  return null;
+}
+
+/**
+ * Place the button where the Translate button of a post lives (header row,
+ * before Grok / ⋮); fall back to the bar above the article body.
+ */
+function mountButton(state) {
+  const { button } = state;
+  const host = findHostArticle(state.root);
+  const slot = host && findArticleHeaderSlot(host);
+  if (slot) {
+    button.classList.remove('xp-article-bar__btn');
+    mountHeaderButton(slot, button);
+  } else {
+    button.classList.add('xp-article-bar__btn');
+    button.classList.remove('xp-btn--header');
+    button.removeAttribute('data-xp-header');
+    const wrap = button.closest('.xp-header-action');
+    if (button.parentElement !== state.bar) state.bar.prepend(button);
+    wrap?.remove();
+  }
+  updateBar(state);
 }
 
 /* ------------------------------------------------------------------ */
@@ -331,8 +389,11 @@ async function run(state) {
   let failed = 0;
   let missingConfig = false;
 
-  const progress = () =>
-    setButtonLabel(state.button, fmt(tr('articleProgress'), { done, total }), { loading: true });
+  const progress = () => {
+    const label = fmt(tr('articleProgress'), { done, total });
+    setButtonLabel(state.button, label, { loading: true });
+    setProgress(state, label);
+  };
   setStatus(state, '');
   progress();
   state.painted = [];
@@ -437,10 +498,14 @@ function createBar(root) {
   status.className = 'xp-article-bar__status';
   status.setAttribute(UI_ATTR, '');
   status.hidden = true;
-  bar.append(button, status);
+  const progress = document.createElement('span');
+  progress.className = 'xp-article-bar__status';
+  progress.setAttribute(UI_ATTR, '');
+  progress.hidden = true;
+  bar.append(button, progress, status);
 
   /** @type {ArticleState} */
-  const state = { root, bar, button, status, runId: 0, painted: [] };
+  const state = { root, bar, button, status, progress, runId: 0, painted: [], autoDone: false };
   setButtonLabel(button, tr('btnTranslate'));
   button.addEventListener('click', (event) => {
     event.preventDefault();
@@ -449,23 +514,24 @@ function createBar(root) {
   });
   root.insertAdjacentElement('beforebegin', bar);
   states.set(root, state);
+  mountButton(state);
   return state;
 }
 
 function observeForAuto(state) {
   if (!isAutoMode() || !isAutoTranslateAllowedForHandle(articleHandle())) return;
-  if (state.bar.dataset.xpAutoDone === '1') return;
+  if (state.autoDone) return;
   autoObserver ??= new IntersectionObserver((entries) => {
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
       autoObserver.unobserve(entry.target);
-      const owner = [...states.values()].find((s) => s.bar === entry.target);
-      if (!owner || owner.bar.dataset.xpAutoDone === '1') continue;
-      owner.bar.dataset.xpAutoDone = '1';
+      const owner = states.get(entry.target);
+      if (!owner || owner.autoDone) continue;
+      owner.autoDone = true;
       if (owner.button.dataset.xpState !== 'shown') run(owner);
     }
   });
-  autoObserver.observe(state.bar);
+  autoObserver.observe(state.root);
 }
 
 function removeState(root) {
@@ -473,7 +539,8 @@ function removeState(root) {
   if (!state) return;
   state.runId += 1;
   clearPainted(state);
-  autoObserver?.unobserve(state.bar);
+  autoObserver?.unobserve(state.root);
+  state.button.closest('.xp-header-action')?.remove();
   state.bar.remove();
   states.delete(root);
 }
@@ -503,6 +570,7 @@ export function scanArticles() {
     } else if (!state.bar.isConnected) {
       root.insertAdjacentElement('beforebegin', state.bar);
     }
+    mountButton(state);
     const { button } = state;
     if (!button.classList.contains('is-loading')) {
       if (button.dataset.xpState === 'shown') setShown(state);

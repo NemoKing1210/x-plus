@@ -425,3 +425,7 @@
   outline: 1px solid var(--xp-border);
   outline-offset: 4px;
 }
+
+.xp-article-bar[hidden] {
+  display: none;
+}

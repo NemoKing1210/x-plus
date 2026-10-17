@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-17
+
+### Fixed
+
+- The Translate button of an X Article now lands in the header of the article's own post, before the Grok summary button: posts embedded inside the article (each with its own Grok / ⋮) are ignored, and the Grok button is found by its position even when it is labelled in another UI language (e.g. "Составить сводку")
+
+[0.2.1]: https://github.com/NemoKing1210/x-plus/releases/tag/v0.2.1
+
 ## [0.2.0] - 2026-10-17
 
 ### Added
 
-- **X Articles translation**: a toolbar above the article body with a Translate button (or automatic translation on open); title, paragraphs, headings, list items and captions are translated block by block with the configured provider, keeping links, line breaks and bold / italic lines; shown under each block or in place (button / hover peek / split); embedded posts are left untouched; respects the account blocklist, language filters and the cache; works with both the signed-out (Tailwind) and signed-in (draft-js) article markup; new **Translate articles** switch
+- **X Articles translation**: a Translate button in the header of the article page next to Grok (a bar above the body when no header is found), or automatic translation on open; title, paragraphs, headings, list items and captions are translated block by block with the configured provider, keeping links, line breaks and bold / italic lines; shown under each block or in place (button / hover peek / split); embedded posts are left untouched; respects the account blocklist, language filters and the cache; works with both the signed-out (Tailwind) and signed-in (draft-js) article markup; new **Translate articles** switch
 - Blocks are retried with a growing pause and translated two at a time, so public endpoints that throttle bursts do not break long articles
 
 [0.2.0]: https://github.com/NemoKing1210/x-plus/releases/tag/v0.2.0
@@ -32,5 +40,5 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.2.1...HEAD
 [0.1.0]: https://github.com/NemoKing1210/x-plus/releases/tag/v0.1.0

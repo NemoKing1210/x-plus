@@ -30,7 +30,7 @@ registerFeature({
     /** `button` = Translate on click; `auto` = translate when the post enters the viewport. */
     translateMode: field.enum(['button', 'auto'], 'button'),
     /** `panel` = result below the post; `replace` = swap the post text in place. */
-    displayMode: field.enum(['panel', 'replace'], 'panel'),
+    displayMode: field.enum(['panel', 'replace'], 'replace'),
     /** Replace mode: `button` = Show original; `hover` = peek original; `split` = both together. */
     replaceReveal: field.enum(['button', 'hover', 'split'], 'button'),
     /** Auto mode scope: every visible post, or only listed accounts. */
