@@ -14,6 +14,14 @@ function ruleFields() {
   );
 }
 
+const WIDTH_PRESETS = [
+  { value: 0, labelKey: 'interface.width.default' },
+  { value: 500, labelKey: 'interface.width.narrow' },
+  { value: 750, labelKey: 'interface.width.wide' },
+  { value: 1000, labelKey: 'interface.width.wider' },
+  { value: 1400, labelKey: 'interface.width.full' },
+];
+
 const countEnabled = (draft) => {
   const cfg = draft.interface;
   if (!cfg.enabled) return t('common.off');
@@ -45,6 +53,10 @@ registerFeature({
 
   fields: {
     enabled: field.bool(true),
+    menuLeft: field.bool(false),
+    sidebarRight: field.bool(false),
+    centerContent: field.bool(false),
+    contentWidth: field.int(0, { min: 0, max: 1600 }),
     ...ruleFields(),
   },
 
@@ -54,6 +66,40 @@ registerFeature({
       titleKey: 'interface.title',
       badge: countEnabled,
       sections: [
+        {
+          titleKey: 'interface.sectionLayout',
+          controls: [
+            {
+              type: 'slider',
+              path: 'contentWidth',
+              labelKey: 'interface.contentWidth',
+              hintKey: 'interface.contentWidthHint',
+              zeroKey: 'interface.width.default',
+              min: 0,
+              max: 1600,
+              step: 10,
+              presets: WIDTH_PRESETS,
+            },
+            {
+              type: 'switch',
+              path: 'menuLeft',
+              labelKey: 'interface.menuLeft',
+              hintKey: 'interface.menuLeftHint',
+            },
+            {
+              type: 'switch',
+              path: 'sidebarRight',
+              labelKey: 'interface.sidebarRight',
+              hintKey: 'interface.sidebarRightHint',
+            },
+            {
+              type: 'switch',
+              path: 'centerContent',
+              labelKey: 'interface.centerContent',
+              hintKey: 'interface.centerContentHint',
+            },
+          ],
+        },
         {
           titleKey: 'interface.sectionMain',
           descKey: 'interface.sectionMainDesc',

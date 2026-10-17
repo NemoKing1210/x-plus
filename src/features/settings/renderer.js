@@ -14,6 +14,7 @@ import {
   createRow,
   createSection,
   createSelect,
+  createSlider,
   createSwitch,
   createTextInput,
   fillSelect,
@@ -33,6 +34,7 @@ import {
  *   { type: 'switch',  path, labelKey, hintKey? }
  *   { type: 'select',  path, labelKey, hintKey?, options | () => options, onChange? }
  *   { type: 'number',  path, labelKey, hintKey?, min?, max?, step? }
+ *   { type: 'slider',  path, labelKey, hintKey?, min, max, step?, presets?: [{ value, labelKey }], formatKey? }
  *   { type: 'text' | 'password' | 'url', path, labelKey, hintKey?, placeholder? }
  *   { type: 'list',    path, kind: 'handle' | 'lang', titleKey, hintKey?, ... }
  *   { type: 'hint',    textKey }
@@ -121,6 +123,18 @@ export function renderTab(tab, { draft, featureId, onChange, rerender }) {
           min: spec.min,
           max: spec.max,
           step: spec.step,
+          onChange: (value) => set(spec, value),
+        }).row;
+      case 'slider':
+        return createSlider({
+          label: label(spec.labelKey),
+          hint: label(spec.hintKey),
+          value: get(spec),
+          min: spec.min,
+          max: spec.max,
+          step: spec.step,
+          presets: (spec.presets ?? []).map((p) => ({ value: p.value, label: t(p.labelKey) })),
+          format: (v) => (v === 0 && spec.zeroKey ? t(spec.zeroKey) : `${v} px`),
           onChange: (value) => set(spec, value),
         }).row;
       case 'text':

@@ -88,6 +88,51 @@ export function createNumber({ label, hint, value, min, max, step = 1, onChange 
   return { row: fieldShell(label, hint, input), input };
 }
 
+/**
+ * Range slider with a live value readout and preset chips.
+ * `format(value)` renders the readout; `presets` is [{ value, label }].
+ */
+export function createSlider({ label, hint, value, min, max, step = 1, presets = [], format, onChange }) {
+  const show = format ?? String;
+  const input = document.createElement('input');
+  input.type = 'range';
+  input.min = String(min);
+  input.max = String(max);
+  input.step = String(step);
+  const readout = el('span', 'xp-slider__value');
+  const chips = el('div', 'xp-slider__presets');
+  const buttons = presets.map((preset) => {
+    const chip = createButton({
+      label: preset.label,
+      compact: true,
+      onClick: () => update(preset.value, true),
+    });
+    chips.appendChild(chip);
+    return { chip, value: preset.value };
+  });
+
+  function update(next, notify) {
+    input.value = String(next);
+    readout.textContent = show(Number(next));
+    for (const { chip, value: v } of buttons) {
+      chip.classList.toggle('is-active', v === Number(next));
+    }
+    if (notify) onChange(Number(next));
+  }
+  input.addEventListener('input', () => update(input.value, true));
+  update(value ?? min, false);
+
+  const head = el('div', 'xp-slider__head');
+  head.append(el('span', 'xp-field__label', label), readout);
+  const row = createRow();
+  const wrap = el('div', 'xp-field xp-slider');
+  wrap.append(head, input);
+  if (presets.length) wrap.appendChild(chips);
+  if (hint) wrap.appendChild(el('span', 'xp-field__hint', hint));
+  row.appendChild(wrap);
+  return { row, input };
+}
+
 /** @param {'text'|'password'|'url'} type */
 export function createTextInput({ label, hint, value, type = 'text', placeholder, onChange }) {
   const input = document.createElement('input');

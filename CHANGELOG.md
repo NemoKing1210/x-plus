@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Interface settings: adjustable width of the central content column: a slider plus presets (default, narrow, wide, wider, full width)
+- Interface settings: option to move the left navigation menu to the left edge of the screen
+- Interface settings: option to move the right column (search, trends, suggestions) to the right edge of the screen
+- Interface settings: option to centre the feed exactly in the middle of the screen
 - Smooth animations: translated text un-blurs and rises into place, the result panel and split view fade in with a shimmer, and the settings dialog, confirmations, popups and toasts animate in (disabled with the system “reduce motion” setting)
 
 ## [0.2.1] - 2026-10-17
