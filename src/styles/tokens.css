@@ -1,0 +1,86 @@
+/* X Plus — theme tokens (data-xp-theme mirrors X: light | dim | dark) */
+/* ── Theme tokens (data-xp-theme) ── */
+html[data-xp-theme='light'] {
+  --xp-accent: #1d9bf0;
+  --xp-accent-hover: #1a8cd8;
+  --xp-danger: #f4212e;
+  --xp-danger-bg: rgba(244, 33, 46, 0.1);
+  --xp-danger-border: rgba(244, 33, 46, 0.4);
+  --xp-success: #00ba7c;
+  --xp-warn: #ffd400;
+  --xp-fg: #0f1419;
+  --xp-fg-muted: #536471;
+  --xp-surface: #ffffff;
+  --xp-elevated: #f7f9f9;
+  --xp-border: #eff3f4;
+  --xp-hover: rgba(15, 20, 25, 0.1);
+  --xp-inset: rgba(15, 20, 25, 0.03);
+  --xp-shadow: 0 0 15px rgba(101, 119, 134, 0.2), 0 0 3px 1px rgba(101, 119, 134, 0.15);
+  --xp-backdrop: rgba(0, 0, 0, 0.6);
+  --xp-scroll-thumb: rgba(15, 20, 25, 0.22);
+  --xp-scroll-thumb-hover: rgba(15, 20, 25, 0.42);
+  --xp-input-bg: #ffffff;
+  --xp-input-border: #cfd9de;
+  --xp-option-bg: #ffffff;
+  --xp-toggle-off: #cfd9de;
+  --xp-chrome-fg: #0f1419;
+  --xp-nav-hover: rgba(15, 20, 25, 0.1);
+  --xp-link: #1d9bf0;
+}
+
+html[data-xp-theme='dim'] {
+  --xp-accent: #1d9bf0;
+  --xp-accent-hover: #1a8cd8;
+  --xp-danger: #f4212e;
+  --xp-danger-bg: rgba(244, 33, 46, 0.12);
+  --xp-danger-border: rgba(244, 33, 46, 0.45);
+  --xp-success: #00ba7c;
+  --xp-warn: #ffd400;
+  --xp-fg: #f7f9f9;
+  --xp-fg-muted: #8b98a5;
+  --xp-surface: #15202b;
+  --xp-elevated: #1e2732;
+  --xp-border: #38444d;
+  --xp-hover: rgba(247, 249, 249, 0.1);
+  --xp-inset: rgba(255, 255, 255, 0.03);
+  --xp-shadow: 0 0 15px rgba(0, 0, 0, 0.4), 0 0 3px 1px rgba(0, 0, 0, 0.25);
+  --xp-backdrop: rgba(0, 0, 0, 0.72);
+  --xp-scroll-thumb: rgba(247, 249, 249, 0.2);
+  --xp-scroll-thumb-hover: rgba(247, 249, 249, 0.38);
+  --xp-input-bg: #15202b;
+  --xp-input-border: #38444d;
+  --xp-option-bg: #1e2732;
+  --xp-toggle-off: #38444d;
+  --xp-chrome-fg: #f7f9f9;
+  --xp-nav-hover: rgba(247, 249, 249, 0.1);
+  --xp-link: #1d9bf0;
+}
+
+html[data-xp-theme='dark'],
+html:not([data-xp-theme]) {
+  --xp-accent: #1d9bf0;
+  --xp-accent-hover: #1a8cd8;
+  --xp-danger: #f4212e;
+  --xp-danger-bg: rgba(244, 33, 46, 0.12);
+  --xp-danger-border: rgba(244, 33, 46, 0.45);
+  --xp-success: #00ba7c;
+  --xp-warn: #ffd400;
+  --xp-fg: #e7e9ea;
+  --xp-fg-muted: #71767b;
+  --xp-surface: #000000;
+  --xp-elevated: #16181c;
+  --xp-border: #2f3336;
+  --xp-hover: rgba(231, 233, 234, 0.1);
+  --xp-inset: rgba(255, 255, 255, 0.03);
+  --xp-shadow: 0 0 15px rgba(255, 255, 255, 0.08), 0 0 3px 1px rgba(255, 255, 255, 0.05);
+  --xp-backdrop: rgba(0, 0, 0, 0.78);
+  --xp-scroll-thumb: rgba(231, 233, 234, 0.2);
+  --xp-scroll-thumb-hover: rgba(231, 233, 234, 0.38);
+  --xp-input-bg: #000000;
+  --xp-input-border: #333639;
+  --xp-option-bg: #16181c;
+  --xp-toggle-off: #333639;
+  --xp-chrome-fg: #e7e9ea;
+  --xp-nav-hover: rgba(231, 233, 234, 0.1);
+  --xp-link: #1d9bf0;
+}

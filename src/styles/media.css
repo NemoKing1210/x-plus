@@ -1,0 +1,122 @@
+/* Media download: action-bar button and over-media buttons */
+
+/* Action bar button (next to Share) */
+.xp-action {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.xp-action__btn {
+  appearance: none;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--xp-fg-muted);
+  font-size: 15px;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.xp-action__btn:hover {
+  color: var(--xp-accent);
+  background-color: rgba(29, 155, 240, 0.1);
+}
+
+.xp-action__btn:focus-visible {
+  outline: 2px solid var(--xp-accent);
+  outline-offset: 0;
+}
+
+.xp-action__btn .xp-icon {
+  width: 1.25em;
+  height: 1.25em;
+}
+
+.xp-action__spinner {
+  display: none;
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: xp-spin 0.65s linear infinite;
+}
+
+.xp-action__btn.is-loading > .xp-icon,
+.xp-media-btn.is-loading > .xp-icon {
+  opacity: 0;
+}
+
+.xp-action__btn.is-loading > .xp-action__spinner,
+.xp-media-btn.is-loading > .xp-action__spinner {
+  display: block;
+}
+
+.xp-action__btn.is-loading,
+.xp-media-btn.is-loading {
+  pointer-events: none;
+}
+
+/* Over-media button */
+.xp-media-host {
+  position: relative;
+}
+
+.xp-media-btn {
+  appearance: none;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 20, 25, 0.75);
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.xp-media-btn .xp-icon {
+  width: 18px;
+  height: 18px;
+}
+
+:hover > .xp-media-btn,
+.xp-media-btn:focus-visible,
+.xp-media-btn.is-loading {
+  opacity: 1;
+}
+
+.xp-media-btn:hover {
+  background: rgba(29, 155, 240, 0.9);
+}
+
+@media (hover: none) {
+  .xp-media-btn {
+    opacity: 1;
+  }
+}

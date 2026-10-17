@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en" style="color-scheme: dark">
+<head>
+<meta charset="utf-8" />
+<title>X Plus harness</title>
+<style>
+  body { margin: 0; background: #000; color: #e7e9ea; font: 15px/20px -apple-system, "Segoe UI", sans-serif; }
+  header[role="banner"] { position: fixed; left: 0; top: 0; bottom: 0; width: 240px; padding: 8px; box-sizing: border-box; }
+  nav a, nav button { display: block; color: inherit; text-decoration: none; background: none; border: 0; font: inherit; cursor: pointer; width: 100%; text-align: left; }
+  nav .pill { display: flex; gap: 20px; align-items: center; padding: 12px; border-radius: 999px; }
+  nav .pill.r-1hdo0pc, nav a:hover .pill { background: rgba(231,233,234,.1); }
+  nav svg { width: 26px; height: 26px; fill: currentColor; }
+  nav div[dir] { font-size: 20px; }
+  main { margin-left: 260px; display: flex; gap: 30px; }
+  [data-testid="primaryColumn"] { width: 600px; border-left: 1px solid #2f3336; border-right: 1px solid #2f3336; }
+  [data-testid="sidebarColumn"] { width: 350px; padding-top: 12px; }
+  [data-testid="cellInnerDiv"] { border-bottom: 1px solid #2f3336; }
+  article { padding: 12px 16px; }
+  .head { display: flex; align-items: flex-start; gap: 12px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: #333; flex: none; }
+  .meta { flex: 1; min-width: 0; display: flex; justify-content: space-between; }
+  .meta .actions { display: flex; align-items: center; }
+  .meta .actions > div { display: flex; }
+  .meta button { background: none; border: 0; color: #71767b; width: 34px; height: 34px; }
+  [data-testid="tweetText"] { margin-top: 4px; white-space: pre-wrap; }
+  [role="group"] { display: flex; justify-content: space-between; margin-top: 12px; max-width: 425px; color: #71767b; }
+  [role="group"] > div { display: flex; }
+  [role="group"] button, [role="group"] a { color: inherit; background: none; border: 0; padding: 6px; text-decoration: none; }
+  [data-testid="videoPlayer"] { margin-top: 12px; border-radius: 16px; overflow: hidden; background: #111; aspect-ratio: 16/9; position: relative; display: grid; place-items: center; }
+  [data-testid="tweetPhoto"] { margin-top: 12px; width: 100%; height: 160px; background: #1b1b1b; border-radius: 16px; display: grid; place-items: center; position: relative; }
+  [data-testid="quoteTweet"] { margin-top: 12px; border: 1px solid #2f3336; border-radius: 16px; padding: 12px; }
+  [data-testid="sidebarColumn"] aside, [data-testid="sidebarColumn"] section { border: 1px solid #2f3336; border-radius: 16px; padding: 12px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<header role="banner">
+  <nav role="navigation" aria-label="Primary" data-testid="AppTabBar">
+    <a href="/home" data-testid="AppTabBar_Home_Link" role="link" aria-current="page"><div class="pill"><svg viewBox="0 0 24 24"><g><path d="M12 1.696L.622 8.807l1.06 1.696L3 9.679V19.5C3 20.881 4.119 22 5.5 22h13c1.381 0 2.5-1.119 2.5-2.5V9.679l1.318.824 1.06-1.696L12 1.696z"/></g></svg><div dir="ltr" style="font-weight:700"><span>Home</span></div></div></a>
+    <a href="/explore" data-testid="AppTabBar_Explore_Link" role="link"><div class="pill"><svg viewBox="0 0 24 24"><g><path d="M10.25 3.75a6.5 6.5 0 100 13 6.5 6.5 0 000-13z"/></g></svg><div dir="ltr"><span>Explore</span></div></div></a>
+    <a href="/i/grok" role="link"><div class="pill"><svg viewBox="0 0 24 24"><g><path d="M4 4h16v16H4z"/></g></svg><div dir="ltr"><span>Grok</span></div></div></a>
+    <a href="/i/bookmarks" role="link"><div class="pill"><svg viewBox="0 0 24 24"><g><path d="M6 4h12v17l-6-4-6 4z"/></g></svg><div dir="ltr"><span>Bookmarks</span></div></div></a>
+    <a href="/i/premium_sign_up" role="link"><div class="pill"><svg viewBox="0 0 24 24"><g><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></g></svg><div dir="ltr"><span>Premium</span></div></div></a>
+    <button data-testid="AppTabBar_More_Menu" role="button"><div class="pill"><svg viewBox="0 0 24 24"><g><path d="M3 12a2 2 0 104 0 2 2 0 00-4 0zm7 0a2 2 0 104 0 2 2 0 00-4 0zm7 0a2 2 0 104 0 2 2 0 00-4 0z"/></g></svg><div dir="ltr"><span>More</span></div></div></button>
+  </nav>
+</header>
+
+<main>
+<div data-testid="primaryColumn">
+  <!-- 1: plain English post -->
+  <div data-testid="cellInnerDiv"><article data-testid="tweet" tabindex="0">
+    <div class="head"><div class="avatar" data-testid="Tweet-User-Avatar"></div><div style="flex:1;min-width:0">
+      <div class="meta">
+        <div data-testid="User-Name"><a href="/jack"><span>Jack</span></a> <a href="/jack"><span>@jack</span></a> · <a href="/jack/status/20"><time datetime="2006-03-21T20:50:14.000Z">Mar 21, 2006</time></a></div>
+        <div class="actions"><div><button aria-label="Grok actions"><svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M4 4h16v16H4z"/></svg></button></div><div><button data-testid="caret" aria-label="More" aria-haspopup="menu">…</button></div></div>
+      </div>
+      <div data-testid="tweetText" lang="en"><span>just setting up my twttr and this is a longer English sentence that should be translated into another language.</span></div>
+      <div role="group"><div><button data-testid="reply" aria-label="Reply">↩</button></div><div><button data-testid="retweet" aria-label="Repost">⟲</button></div><div><button data-testid="like" aria-label="Like">♥</button></div><div><a href="/jack/status/20/analytics">1.2M</a></div><div><button aria-label="Share">⇪</button></div></div>
+    </div></div>
+  </article></div>
+
+  <!-- 2: video post (real id so the API can be exercised) -->
+  <div data-testid="cellInnerDiv"><article data-testid="tweet" tabindex="0">
+    <div class="head"><div class="avatar" data-testid="Tweet-User-Avatar"></div><div style="flex:1;min-width:0">
+      <div class="meta">
+        <div data-testid="User-Name"><a href="/elonmusk"><span>Elon Musk</span></a> <a href="/elonmusk"><span>@elonmusk</span></a> · <a href="/elonmusk/status/1585341984679469056"><time datetime="2022-10-26T18:45:58.000Z">Oct 26, 2022</time></a></div>
+        <div class="actions"><div><button aria-label="Grok actions"><svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M4 4h16v16H4z"/></svg></button></div><div><button data-testid="caret" aria-label="More" aria-haspopup="menu">…</button></div></div>
+      </div>
+      <div data-testid="tweetText" lang="en"><span>Entering Twitter HQ – let that sink in!</span></div>
+      <div data-testid="videoPlayer"><video></video><span>▶ video</span></div>
+      <div role="group"><div><button data-testid="reply" aria-label="Reply">↩</button></div><div><button data-testid="retweet" aria-label="Repost">⟲</button></div><div><button data-testid="like" aria-label="Like">♥</button></div><div><a href="/elonmusk/status/1585341984679469056/analytics">99M</a></div><div><button aria-label="Share">⇪</button></div></div>
+    </div></div>
+  </article></div>
+
+  <!-- 3: Russian post with a quoted post -->
+  <div data-testid="cellInnerDiv"><article data-testid="tweet" tabindex="0">
+    <div class="head"><div class="avatar" data-testid="Tweet-User-Avatar"></div><div style="flex:1;min-width:0">
+      <div class="meta">
+        <div data-testid="User-Name"><a href="/durov"><span>Pavel</span></a> <a href="/durov"><span>@durov</span></a> · <a href="/durov/status/2"><time datetime="2024-01-01T10:00:00.000Z">Jan 1</time></a></div>
+        <div class="actions"><div><button aria-label="Grok actions"><svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M4 4h16v16H4z"/></svg></button></div><div><button data-testid="caret" aria-label="More" aria-haspopup="menu">…</button></div></div>
+      </div>
+      <div data-testid="tweetText" lang="ru"><span>Привет, мир! Это тестовый пост на русском языке, который можно перевести.</span></div>
+      <div data-testid="quoteTweet" role="link">
+        <div style="display:flex;gap:8px" class="r-1awozwy r-18u37iz r-1wbh5a2"><div class="avatar" data-testid="Tweet-User-Avatar" style="width:20px;height:20px"></div><div data-testid="User-Name"><a href="/nasa"><span>NASA</span></a> <a href="/nasa"><span>@nasa</span></a></div></div>
+        <div data-testid="tweetText" lang="en"><span>Quoted English post about space exploration and the moon.</span></div>
+      </div>
+      <div role="group"><div><button data-testid="reply" aria-label="Reply">↩</button></div><div><button data-testid="retweet" aria-label="Repost">⟲</button></div><div><button data-testid="like" aria-label="Like">♥</button></div><div><button aria-label="Share">⇪</button></div></div>
+    </div></div>
+  </article></div>
+
+  <!-- 4: promoted -->
+  <div data-testid="cellInnerDiv"><article data-testid="tweet" tabindex="0">
+    <div class="head"><div class="avatar" data-testid="Tweet-User-Avatar"></div><div style="flex:1;min-width:0">
+      <div class="meta"><div data-testid="User-Name"><a href="/brand"><span>Brand</span></a> <a href="/brand"><span>@brand</span></a> · <span>Ad</span></div></div>
+      <div data-testid="tweetText" lang="en"><span>Buy our amazing product today!</span></div>
+    </div></div>
+  </article></div>
+</div>
+
+<div data-testid="sidebarColumn">
+  <aside aria-label="Subscribe to Premium" role="complementary"><h2>Subscribe to Premium</h2><a href="/i/premium_sign_up">Subscribe</a></aside>
+  <section aria-labelledby="t" role="region"><h2 id="t">Trends</h2><div data-testid="trend">#Moon</div></section>
+  <aside aria-label="Who to follow" role="complementary"><h2>Who to follow</h2><div data-testid="UserCell">@someone</div></aside>
+  <nav aria-label="Footer"><a href="/tos">Terms of Service</a> <a href="/privacy">Privacy</a></nav>
+</div>
+</main>
+
+<div role="menu" id="fake-menu" style="display:none;position:fixed;left:700px;top:100px;background:#000;border:1px solid #333;width:260px">
+  <div role="menuitem" data-testid="mute" style="padding:12px">Mute @jack</div>
+  <div role="menuitem" data-testid="block" style="padding:12px">Block @jack</div>
+</div>
+
+<script src="/shims.js"></script>
+<script>
+  // Open the tweet menu like X does (caret click → portaled role=menu).
+  document.addEventListener('click', (e) => {
+    const caret = e.target.closest('[data-testid="caret"]');
+    const menu = document.getElementById('fake-menu');
+    if (caret) { caret.setAttribute('aria-expanded', 'true'); menu.style.display = 'block'; }
+    else if (!e.target.closest('#fake-menu')) { document.querySelectorAll('[data-testid="caret"]').forEach((c) => c.removeAttribute('aria-expanded')); menu.style.display = 'none'; }
+  });
+</script>
+<script src="/x-plus.user.js"></script>
+</body>
+</html>

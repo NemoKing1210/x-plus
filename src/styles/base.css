@@ -1,0 +1,331 @@
+/* X Plus — shared UI: icons, toasts, popup, scroll lock */
+
+.xp-icon {
+  display: block;
+  flex: 0 0 auto;
+  width: 1.25em;
+  height: 1.25em;
+}
+
+/* ── Scroll lock (modal overlays) ── */
+html.xp-scroll-lock,
+html.xp-scroll-lock body.xp-scroll-lock {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+body.xp-scroll-lock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
+/* ── Toasts (X elevated chrome) ── */
+.xp-toast-host {
+  position: fixed;
+  z-index: 2147483200;
+  display: flex;
+  gap: 12px;
+  width: min(356px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.xp-toast-host--top-right {
+  top: 16px;
+  right: 16px;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+}
+
+.xp-toast-host--top-left {
+  top: 16px;
+  left: 16px;
+  flex-direction: column-reverse;
+  align-items: flex-start;
+}
+
+.xp-toast-host--bottom-right {
+  bottom: 16px;
+  right: 16px;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.xp-toast-host--bottom-left {
+  bottom: 16px;
+  left: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.xp-toast {
+  pointer-events: auto;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 8px 12px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--xp-border);
+  background: var(--xp-surface);
+  color: var(--xp-fg);
+  box-shadow: var(--xp-shadow);
+  font: inherit;
+  letter-spacing: normal;
+  opacity: 0;
+  transform: translateX(12px);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+  overflow: hidden;
+}
+
+.xp-toast-host--top-left .xp-toast,
+.xp-toast-host--bottom-left .xp-toast {
+  transform: translateX(-12px);
+}
+
+.xp-toast.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.xp-toast.is-leaving {
+  opacity: 0;
+  transform: translateX(12px);
+}
+
+.xp-toast__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: rgba(29, 155, 240, 0.12);
+  color: var(--xp-accent);
+}
+
+.xp-toast__icon .xp-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.xp-toast--success .xp-toast__icon {
+  background: rgba(0, 186, 124, 0.12);
+  color: var(--xp-success);
+}
+
+.xp-toast--warning .xp-toast__icon {
+  background: rgba(255, 212, 0, 0.14);
+  color: #ca8a04;
+}
+
+html[data-xp-theme='dim'] .xp-toast--warning .xp-toast__icon,
+html[data-xp-theme='dark'] .xp-toast--warning .xp-toast__icon,
+html:not([data-xp-theme]) .xp-toast--warning .xp-toast__icon {
+  color: var(--xp-warn);
+}
+
+.xp-toast--error .xp-toast__icon {
+  background: var(--xp-danger-bg);
+  color: var(--xp-danger);
+}
+
+.xp-toast__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 2px 0;
+}
+
+.xp-toast__title {
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 20px;
+  color: var(--xp-fg);
+}
+
+.xp-toast__text {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--xp-fg-muted);
+  overflow-wrap: anywhere;
+}
+
+.xp-toast__title[hidden],
+.xp-toast__text[hidden],
+.xp-toast__bar[hidden] {
+  display: none;
+}
+
+.xp-toast__close {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  align-self: start;
+  width: 34px;
+  height: 34px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--xp-fg);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.xp-toast__close:hover {
+  background: var(--xp-hover);
+}
+
+.xp-toast__close:focus-visible {
+  outline: 2px solid var(--xp-accent);
+  outline-offset: 2px;
+}
+
+.xp-toast__close .xp-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.xp-toast__bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  transform-origin: left center;
+  background: var(--xp-accent);
+  opacity: 0.85;
+  animation: xp-toast-bar linear forwards;
+  transition: width 0.2s ease;
+}
+
+.xp-toast--success .xp-toast__bar {
+  background: var(--xp-success);
+}
+
+.xp-toast--warning .xp-toast__bar {
+  background: var(--xp-warn);
+}
+
+.xp-toast--error .xp-toast__bar {
+  background: var(--xp-danger);
+}
+
+@keyframes xp-toast-bar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* ── Anchored popup menu ── */
+.xp-popup {
+  position: fixed;
+  z-index: 2147483150;
+  min-width: 220px;
+  max-width: min(340px, calc(100vw - 16px));
+  max-height: min(60vh, 420px);
+  overflow: auto;
+  padding: 4px 0;
+  border-radius: 12px;
+  border: 1px solid var(--xp-border);
+  background: var(--xp-surface);
+  color: var(--xp-fg);
+  box-shadow: var(--xp-shadow);
+  font-size: 15px;
+}
+
+.xp-popup__title {
+  padding: 8px 16px 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--xp-fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xp-popup__sep {
+  height: 1px;
+  margin: 4px 0;
+  background: var(--xp-border);
+}
+
+.xp-popup__item {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  padding: 10px 16px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.xp-popup__item:hover:not(:disabled),
+.xp-popup__item:focus-visible {
+  background: var(--xp-hover);
+  outline: none;
+}
+
+.xp-popup__item:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.xp-popup__icon {
+  display: grid;
+  place-items: center;
+  color: var(--xp-fg-muted);
+}
+
+.xp-popup__icon .xp-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.xp-popup__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 700;
+}
+
+.xp-popup__hint {
+  flex: 0 0 auto;
+  font-size: 13px;
+  color: var(--xp-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 720px) {
+  .xp-toast-host {
+    width: min(356px, calc(100vw - 24px));
+  }
+
+  .xp-toast-host--top-right,
+  .xp-toast-host--top-left {
+    top: 12px;
+  }
+
+  .xp-toast-host--bottom-right,
+  .xp-toast-host--bottom-left {
+    bottom: 12px;
+  }
+}
