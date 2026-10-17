@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Smooth animations: translated text un-blurs and rises into place, the result panel and split view fade in with a shimmer, and the settings dialog, confirmations, popups and toasts animate in (disabled with the system “reduce motion” setting)
+
 ## [0.2.1] - 2026-10-17
 
 ### Fixed

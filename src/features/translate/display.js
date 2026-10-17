@@ -22,7 +22,26 @@ const TEXT_STATE_CLASSES = [
   'xp-text--hover-peek',
   'xp-text--translating',
   'xp-text--blur-ready',
+  'xp-text--reveal',
+  'xp-text--swap',
 ];
+
+/** Play a one-shot CSS animation class on `node` (restarts if already running). */
+function playAnimation(node, className) {
+  node.classList.remove('xp-text--reveal', 'xp-text--swap');
+  void node.offsetWidth;
+  node.classList.add(className);
+  const done = (event) => {
+    if (event.target !== node) return;
+    node.classList.remove(className);
+    node.removeEventListener('animationend', done);
+  };
+  node.addEventListener('animationend', done);
+  setTimeout(() => {
+    node.classList.remove(className);
+    node.removeEventListener('animationend', done);
+  }, 900);
+}
 
 /* ------------------------------------------------------------------ */
 /* Toolbar visibility                                                  */
@@ -153,6 +172,7 @@ function bindReplaceHover(postEl) {
     if (original == null) return;
     postEl.innerHTML = original;
     postEl.classList.add('xp-text--peeking');
+    playAnimation(postEl, 'xp-text--swap');
     const lang = postEl.getAttribute(ATTR.sourceLang);
     if (lang) showFloatingPeekBadge(postEl, lang);
   });
@@ -168,6 +188,7 @@ function bindReplaceHover(postEl) {
     postEl.innerHTML = translated;
     postEl.classList.remove('xp-text--peeking');
     postEl.classList.add('xp-text--translated', 'xp-text--hover-peek');
+    playAnimation(postEl, 'xp-text--swap');
   });
 }
 
@@ -191,11 +212,13 @@ function paintTranslatedBody(postEl, translatedHtml) {
       `</div>` +
       `</div>`;
     postEl.classList.add('xp-text--translated', 'xp-text--split');
+    playAnimation(postEl, 'xp-text--swap');
     return;
   }
 
   postEl.innerHTML = translatedHtml;
   postEl.classList.add('xp-text--translated');
+  playAnimation(postEl, 'xp-text--reveal');
   if (reveal === 'hover') {
     postEl.classList.add('xp-text--hover-peek');
     bindReplaceHover(postEl);

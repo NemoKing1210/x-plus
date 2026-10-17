@@ -3,6 +3,7 @@ import './styles/base.css';
 import './styles/translate.css';
 import './styles/media.css';
 import './styles/settings.css';
+import './styles/motion.css';
 
 import { emit, on } from './core/bus.js';
 import { ROOT_ATTR } from './core/constants.js';

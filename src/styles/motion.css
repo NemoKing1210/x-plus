@@ -1,0 +1,275 @@
+/* X Plus — motion: keyframes and entrance animations (all disabled for reduced motion) */
+
+@keyframes xp-reveal {
+  0% {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(6px) scale(0.985);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0.8px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
+  }
+}
+
+@keyframes xp-swap {
+  from {
+    opacity: 0.2;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes xp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes xp-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes xp-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes xp-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes xp-shake {
+  20%,
+  60% {
+    transform: translateX(-4px);
+  }
+  40%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes xp-shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+/* Translated text appears / swaps */
+.xp-text--reveal {
+  animation: xp-reveal 0.6s var(--xp-ease-out) both;
+}
+
+.xp-text--swap {
+  animation: xp-swap 0.22s var(--xp-ease-out) both;
+}
+
+.xp-split__pane {
+  animation: xp-rise 0.42s var(--xp-ease-out) both;
+}
+
+.xp-split__pane--translated {
+  animation-delay: 0.12s;
+}
+
+/* Result panel content */
+.xp-result.is-open .xp-result__label,
+.xp-result.is-open .xp-result__meta,
+.xp-result.is-open .xp-result__text,
+.xp-result.is-open .xp-result__error,
+.xp-result.is-open .xp-btn--retry {
+  animation: xp-rise 0.4s var(--xp-ease-out) both;
+}
+
+.xp-result.is-open .xp-result__meta {
+  animation-delay: 0.05s;
+}
+
+.xp-result.is-open .xp-result__text,
+.xp-result.is-open .xp-btn--retry {
+  animation-delay: 0.1s;
+}
+
+.xp-result.is-open .xp-result__error {
+  animation-name: xp-rise, xp-shake;
+  animation-duration: 0.4s, 0.4s;
+  animation-delay: 0s, 0.35s;
+}
+
+.xp-result__inner {
+  position: relative;
+  overflow: hidden;
+}
+
+.xp-result.is-open .xp-result__inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgba(29, 155, 240, 0.14) 50%, transparent 65%);
+  background-size: 250% 100%;
+  animation: xp-shimmer 0.9s var(--xp-ease-out) 0.1s 1 both;
+}
+
+/* Article translation + peek badge */
+.xp-article-tr {
+  animation: xp-rise 0.45s var(--xp-ease-out) both;
+}
+
+.xp-peek-badge {
+  animation: xp-pop 0.2s var(--xp-ease-spring) both;
+}
+
+/* Loading shimmer while a translation is in flight */
+.xp-text--translating {
+  transition:
+    filter 0.55s var(--xp-ease-out),
+    opacity 0.55s var(--xp-ease-out);
+}
+
+/* Buttons: tactile press */
+.xp-btn,
+.xp-action__btn,
+.xp-btn-ui {
+  transition-property: color, background-color, transform, box-shadow, opacity;
+  transition-duration: 0.15s;
+}
+
+.xp-btn--header:active:not(:disabled),
+.xp-action__btn:active,
+.xp-btn-ui:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.xp-btn--header .xp-btn__icon,
+.xp-action__btn .xp-icon {
+  transition: transform 0.25s var(--xp-ease-spring);
+}
+
+.xp-btn--header:hover:not(:disabled) .xp-btn__icon,
+.xp-action__btn:hover .xp-icon {
+  transform: scale(1.12) rotate(-6deg);
+}
+
+/* Toasts: springy slide */
+.xp-toast {
+  transition:
+    opacity 0.22s ease,
+    transform 0.38s var(--xp-ease-spring);
+}
+
+/* Popup menu */
+.xp-popup {
+  transform-origin: top right;
+  animation: xp-pop 0.18s var(--xp-ease-out) both;
+}
+
+.xp-popup__item {
+  animation: xp-fade 0.2s ease both;
+}
+
+.xp-popup__item:nth-child(2) {
+  animation-delay: 0.03s;
+}
+.xp-popup__item:nth-child(3) {
+  animation-delay: 0.06s;
+}
+.xp-popup__item:nth-child(4) {
+  animation-delay: 0.09s;
+}
+.xp-popup__item:nth-child(n + 5) {
+  animation-delay: 0.12s;
+}
+
+/* Settings dialog + confirm */
+.xp-settings-backdrop,
+.xp-confirm-overlay {
+  animation: xp-fade 0.2s ease both;
+}
+
+.xp-settings,
+.xp-confirm {
+  animation: xp-dialog-in 0.32s var(--xp-ease-out) both;
+}
+
+.xp-settings__panel {
+  animation: xp-rise 0.28s var(--xp-ease-out) both;
+}
+
+.xp-section {
+  animation: xp-rise 0.35s var(--xp-ease-out) both;
+}
+
+.xp-section:nth-child(2) {
+  animation-delay: 0.04s;
+}
+.xp-section:nth-child(3) {
+  animation-delay: 0.08s;
+}
+.xp-section:nth-child(4) {
+  animation-delay: 0.12s;
+}
+.xp-section:nth-child(n + 5) {
+  animation-delay: 0.16s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xp-text--reveal,
+  .xp-text--swap,
+  .xp-split__pane,
+  .xp-result.is-open *,
+  .xp-result.is-open .xp-result__inner::after,
+  .xp-article-tr,
+  .xp-peek-badge,
+  .xp-popup,
+  .xp-popup__item,
+  .xp-settings-backdrop,
+  .xp-confirm-overlay,
+  .xp-settings,
+  .xp-confirm,
+  .xp-settings__panel,
+  .xp-section {
+    animation: none !important;
+  }
+
+  .xp-toast,
+  .xp-btn--header .xp-btn__icon,
+  .xp-action__btn .xp-icon {
+    transition-duration: 0.01s !important;
+  }
+}
