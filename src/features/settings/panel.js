@@ -8,6 +8,7 @@ import { showToast } from '../../ui/toast.js';
 import { el } from '../../utils/dom.js';
 import { confirmDialog } from './confirm.js';
 import { endPeek, renderTab } from './renderer.js';
+import { buildIndex, highlight, searchIndex, tokenize } from './search.js';
 
 /**
  * Settings dialog shell: header, scrollable tab strip, lazily rendered tab
@@ -20,7 +21,9 @@ const ROOT_ID = 'xp-settings-root';
 /** @type {null | {
  *   root: HTMLElement, dialog: HTMLElement, draft: object,
  *   tabs: object[], active: string,
- *   rendered: Map<string, { panel: HTMLElement, view: ReturnType<typeof renderTab> }>
+ *   rendered: Map<string, { panel: HTMLElement, view: ReturnType<typeof renderTab> }>,
+ *   search: null | { input: HTMLInputElement, clear: HTMLElement, results: HTMLElement,
+ *     index: object[] | null, found: object[], active: number }
  * }} */
 let state = null;
 
@@ -136,6 +139,144 @@ function rerenderAll() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Search                                                              */
+/* ------------------------------------------------------------------ */
+
+function setActiveResult(index, scroll = true) {
+  const { search } = state;
+  const items = [...search.results.querySelectorAll('.xp-hit')];
+  search.active = items.length ? Math.max(0, Math.min(items.length - 1, index)) : -1;
+  items.forEach((item, i) => {
+    const on = i === search.active;
+    item.classList.toggle('is-active', on);
+    item.setAttribute('aria-selected', on ? 'true' : 'false');
+    if (on) {
+      search.input.setAttribute('aria-activedescendant', item.id);
+      if (scroll) item.scrollIntoView({ block: 'nearest' });
+    }
+  });
+}
+
+function renderResults() {
+  const { search } = state;
+  const query = search.input.value;
+  const tokens = tokenize(query);
+  search.clear.hidden = !query;
+  if (tokens.length) endPeek();
+  state.dialog.classList.toggle('is-searching', tokens.length > 0);
+  search.results.replaceChildren();
+  state.dialog.querySelector('.xp-settings__body').scrollTop = 0;
+  search.found = [];
+  search.active = -1;
+  if (!tokens.length) return;
+
+  search.index ??= buildIndex(state.tabs);
+  search.found = searchIndex(search.index, query);
+  if (!search.found.length) {
+    search.results.appendChild(el('p', 'xp-hits__empty', t('panel.searchEmpty')));
+    return;
+  }
+  search.found.forEach((entry, i) => {
+    const item = el('button', 'xp-hit');
+    item.type = 'button';
+    item.id = `xp-hit-${i}`;
+    item.setAttribute('role', 'option');
+    item.tabIndex = -1;
+    const crumb = [entry.tabTitle, entry.sectionTitle].filter((part) => part && part !== entry.label).join(' › ');
+    const title = el('span', 'xp-hit__title');
+    title.appendChild(highlight(entry.label, tokens));
+    item.appendChild(title);
+    if (crumb) item.appendChild(el('span', 'xp-hit__crumb', crumb));
+    if (entry.hint) {
+      const hint = el('span', 'xp-hit__hint');
+      hint.appendChild(highlight(entry.hint, tokens));
+      item.appendChild(hint);
+    }
+    item.addEventListener('mousemove', () => {
+      if (search.active !== i) setActiveResult(i, false);
+    });
+    item.addEventListener('click', () => jumpTo(entry));
+    search.results.appendChild(item);
+  });
+  setActiveResult(0, false);
+}
+
+function clearSearch() {
+  if (!state?.search) return;
+  state.search.input.value = '';
+  renderResults();
+}
+
+/** Open the tab of a result, scroll to the setting and flash it. */
+function jumpTo(entry) {
+  clearSearch();
+  activateTab(entry.tabId);
+  if (entry.kind === 'tab') return;
+  const panel = state.rendered.get(entry.tabId)?.panel;
+  if (!panel) return;
+  const visible = (node) => {
+    for (let n = node; n && n !== panel; n = n.parentElement) if (n.hidden) return false;
+    return true;
+  };
+  const pick = (id) => panel.querySelector(`[data-xp-find="${id}"]`);
+  let node = pick(entry.id);
+  // Hidden by a condition (e.g. its parent switch is off): show the section instead.
+  if (!node || !visible(node)) node = entry.sectionId ? pick(entry.sectionId) : null;
+  if (!node || !visible(node)) return;
+  node.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  node.classList.remove('is-found');
+  void node.offsetWidth;
+  node.classList.add('is-found');
+  node.addEventListener('animationend', () => node.classList.remove('is-found'), { once: true });
+}
+
+function buildSearch() {
+  const row = el('div', 'xp-settings__search');
+  const box = el('div', 'xp-search');
+  const glyph = el('span', 'xp-search__icon');
+  glyph.innerHTML = icon('search');
+  const input = el('input', 'xp-search__input');
+  input.type = 'text';
+  input.autocomplete = 'off';
+  input.spellcheck = false;
+  input.placeholder = `${t('panel.search')}  ( / )`;
+  input.setAttribute('role', 'combobox');
+  input.setAttribute('aria-label', t('panel.search'));
+  input.setAttribute('aria-expanded', 'true');
+  input.setAttribute('aria-controls', 'xp-settings-results');
+  const clear = el('button', 'xp-search__clear');
+  clear.type = 'button';
+  clear.hidden = true;
+  clear.innerHTML = icon('close');
+  clear.setAttribute('aria-label', t('panel.searchClear'));
+  clear.title = t('panel.searchClear');
+  box.append(glyph, input, clear);
+  row.appendChild(box);
+
+  const results = el('div', 'xp-hits');
+  results.id = 'xp-settings-results';
+  results.setAttribute('role', 'listbox');
+  results.setAttribute('aria-label', t('panel.search'));
+
+  input.addEventListener('input', renderResults);
+  clear.addEventListener('click', () => {
+    clearSearch();
+    input.focus();
+  });
+  input.addEventListener('keydown', (event) => {
+    const search = state?.search;
+    if (!search) return;
+    if (event.key === 'ArrowDown') setActiveResult(search.active + 1);
+    else if (event.key === 'ArrowUp') setActiveResult(search.active - 1);
+    else if (event.key === 'Enter' && search.found[search.active]) jumpTo(search.found[search.active]);
+    else return;
+    event.preventDefault();
+  });
+
+  return { row, results, search: { input, clear, results, index: null, found: [], active: -1 } };
+}
+
+/* ------------------------------------------------------------------ */
 /* Actions                                                             */
 /* ------------------------------------------------------------------ */
 
@@ -143,18 +284,38 @@ export const isSettingsOpen = () => Boolean(state);
 
 export function closeSettings() {
   if (!state) return;
-  document.removeEventListener('keydown', onEscape, true);
+  document.removeEventListener('keydown', onKeyDown, true);
   endPeek();
   state.root.remove();
   state = null;
   unlockPageScroll();
 }
 
-function onEscape(event) {
-  if (event.key !== 'Escape' || !state) return;
-  // A confirm dialog / popup handles its own Escape first.
+function onKeyDown(event) {
+  if (!state) return;
+  // A confirm dialog / popup handles its own keys first.
   if (document.querySelector('.xp-confirm-overlay, .xp-popup')) return;
+  const search = state.search?.input;
+
+  // "/" or Ctrl/Cmd+K jumps to the search box (not while typing elsewhere).
+  const typing = event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable="true"]');
+  const shortcut = (event.key === '/' && !typing && !event.ctrlKey && !event.metaKey && !event.altKey)
+    || ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === 'k');
+  if (shortcut && search) {
+    event.preventDefault();
+    event.stopPropagation();
+    search.focus();
+    search.select();
+    return;
+  }
+
+  if (event.key !== 'Escape') return;
   event.stopPropagation();
+  // First Escape clears the search, the next one closes the dialog.
+  if (search?.value) {
+    clearSearch();
+    return;
+  }
   closeSettings();
 }
 
@@ -218,6 +379,8 @@ function buildDialog(tabs, active) {
   for (const tab of tabs) strip.appendChild(tabButton(tab, tab.id === active));
 
   const body = el('div', 'xp-settings__body');
+  const searchUi = buildSearch();
+  body.appendChild(searchUi.results);
 
   const actions = el('div', 'xp-settings__actions');
   const resetButton = el('button', 'xp-btn-ui xp-btn-ui--ghost xp-btn-ui--danger', t('panel.reset'));
@@ -230,7 +393,7 @@ function buildDialog(tabs, active) {
   saveButton.addEventListener('click', save);
   actions.append(resetButton, spacer, cancelButton, saveButton);
 
-  dialog.append(header, strip, body, actions);
+  dialog.append(header, searchUi.row, strip, body, actions);
   root.appendChild(dialog);
 
   root.addEventListener('click', (event) => {
@@ -258,7 +421,7 @@ function buildDialog(tabs, active) {
     buttons[next].focus();
   });
 
-  return { root, dialog };
+  return { root, dialog, search: searchUi.search };
 }
 
 /** Open the settings dialog (optionally on a given tab id). */
@@ -268,7 +431,7 @@ export function openSettings(tabId) {
   if (!tabs.length) return;
   const active = tabs.some((tab) => tab.id === tabId) ? tabId : tabs[0].id;
 
-  const { root, dialog } = buildDialog(tabs, active);
+  const { root, dialog, search } = buildDialog(tabs, active);
   state = {
     root,
     dialog,
@@ -276,9 +439,10 @@ export function openSettings(tabId) {
     tabs,
     active,
     rendered: new Map(),
+    search,
   };
 
-  document.addEventListener('keydown', onEscape, true);
+  document.addEventListener('keydown', onKeyDown, true);
   (document.body || document.documentElement).appendChild(root);
   lockPageScroll();
   activateTab(active);

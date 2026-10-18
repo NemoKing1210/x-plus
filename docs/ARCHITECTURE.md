@@ -126,6 +126,8 @@ registry (feature `order`, then declaration order). A tab is either a spec
 (`sections` → `controls`, rendered by `renderer.js`) or fully custom
 (`render(ctx)`).
 
+**Search** (`settings/search.js`): the index is built from the tab specs (labels, hints, section titles, select options), so it covers tabs that were never opened and needs no extra declaration — a new control is searchable as soon as it has a `labelKey`. The renderer tags every control / section with `data-xp-find`; a result opens its tab, scrolls to that node and flashes it (falling back to the section when a `showIf` hides the control).
+
 Control types: `switch`, `select`, `number`, `text` / `password` / `url`,
 `list` (chips for handles / languages), `hint`, `button`, `group`, `custom`.
 `path` is relative to the feature's section and may be dotted. Any control or

@@ -5,6 +5,7 @@ import { el } from '../../utils/dom.js';
 import { fmt } from '../../utils/format.js';
 import { normalizeHandle, formatHandleDisplay } from '../../utils/handle.js';
 import { normalizeLangCode } from '../../utils/lists.js';
+import { findId } from './search.js';
 import {
   createButton,
   createButtonRow,
@@ -268,6 +269,7 @@ export function renderTab(tab, { draft, featureId, onChange, rerender }) {
   function appendControl(parent, spec) {
     const node = build(spec);
     if (!node) return;
+    node.dataset.xpFind = findId(spec);
     if (spec.peek) attachPeek(node, spec);
     if (spec.showIf) visibility.push({ node, showIf: spec.showIf });
     if (spec.disabledIf) locks.push({ node, disabledIf: spec.disabledIf });
@@ -295,6 +297,7 @@ export function renderTab(tab, { draft, featureId, onChange, rerender }) {
       title: label(sectionSpec.titleKey),
       desc: label(sectionSpec.descKey),
     });
+    section.dataset.xpFind = findId(sectionSpec);
     if (sectionSpec.showIf) visibility.push({ node: section, showIf: sectionSpec.showIf });
     for (const control of sectionSpec.controls) appendControl(body, control);
     rootEl.appendChild(section);
