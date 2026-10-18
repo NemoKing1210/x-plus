@@ -56,6 +56,12 @@ const MENU_CENTER_CSS = [
   'header[role="banner"] div:has(> nav[role="navigation"]){display:flex!important;flex-direction:column!important;justify-content:center!important}',
 ].join('\n');
 
+/** Remove the whole left menu from the page. */
+const MENU_HIDE_CSS = `header[role="banner"]:not([${PEEK_ATTR}]){display:none!important}`;
+
+/** Remove the whole right column from the page. */
+const SIDEBAR_HIDE_CSS = `${SEL.sidebar}:not([${PEEK_ATTR}]){display:none!important}`;
+
 /** Let the feed tabs scroll away with the page instead of floating at the top. */
 const FEED_TABS_STATIC_CSS = `[${STICKY_ATTR}]{position:static!important}`;
 
@@ -86,6 +92,8 @@ export function applyRuleStyles() {
   ensureStyle().textContent = [rules, contentWidthCss(cfg.contentWidth), cfg.menuLeft ? MENU_LEFT_CSS : '',
     cfg.menuCenter ? MENU_CENTER_CSS : '',
     cfg.enabled && cfg.feedTabsStatic ? FEED_TABS_STATIC_CSS : '',
+    cfg.enabled && cfg.sidebarHide ? SIDEBAR_HIDE_CSS : '',
+    cfg.enabled && cfg.menuHide ? MENU_HIDE_CSS : '',
     cfg.sidebarRight || cfg.centerContent ? SIDEBAR_RIGHT_CSS : '',
     cfg.centerContent ? CENTER_CSS : ''].filter(Boolean).join('\n');
 }
@@ -104,6 +112,8 @@ const LAYOUT_PEEK = {
   menuLeft: () => MENU_LEFT_CSS,
   menuCenter: () => MENU_CENTER_CSS,
   feedTabsStatic: () => FEED_TABS_STATIC_CSS,
+  sidebarHide: () => SIDEBAR_HIDE_CSS,
+  menuHide: () => MENU_HIDE_CSS,
   sidebarRight: () => SIDEBAR_RIGHT_CSS,
   centerContent: () => [SIDEBAR_RIGHT_CSS, CENTER_CSS].join('\n'),
 };
@@ -129,6 +139,21 @@ const isOnScreen = (node) => {
     rect.left < window.innerWidth
   );
 };
+
+/**
+ * `node` itself, or its first descendant that has a size: X's left menu
+ * `<header>` is a zero-size box whose fixed-position children are drawn.
+ */
+function visibleBox(node) {
+  const queue = [node];
+  while (queue.length) {
+    const current = queue.shift();
+    const rect = current.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) return current;
+    queue.push(...current.children);
+  }
+  return node;
+}
 
 /** Stop any running preview and restore the page. */
 export function endPeek() {
@@ -162,7 +187,9 @@ const LAYOUT_TARGETS = {
   centerContent: () => document.querySelectorAll(SEL.primaryColumn),
   menuLeft: () => document.querySelectorAll('header[role="banner"]'),
   menuCenter: () => document.querySelectorAll('header[role="banner"]'),
+  menuHide: () => document.querySelectorAll('header[role="banner"]'),
   sidebarRight: () => document.querySelectorAll(SEL.sidebar),
+  sidebarHide: () => document.querySelectorAll(SEL.sidebar),
   feedTabsStatic: () => document.querySelectorAll(`[${STICKY_ATTR}]`),
 };
 
@@ -175,10 +202,16 @@ export function peekLayout(key, value) {
   endPeek();
   const css = LAYOUT_PEEK[key]?.(value) ?? '';
   const targets = [...(LAYOUT_TARGETS[key]?.() ?? [])];
-  targets.forEach((node) => node.setAttribute(PEEK_ATTR, ''));
+  // Un-hide the target itself, but outline the box that is actually drawn.
+  const boxes = targets.map((node) => {
+    node.setAttribute(PEEK_ATTR, '');
+    const box = visibleBox(node);
+    box.setAttribute(PEEK_ATTR, '');
+    return box;
+  });
   if (css || targets.length) peekStyle().textContent = `${css}
 ${PEEK_HIGHLIGHT_CSS}`;
-  return targets.filter(isOnScreen).length;
+  return boxes.filter(isOnScreen).length;
 }
 
 function mark(node, id) {

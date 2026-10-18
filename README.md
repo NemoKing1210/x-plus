@@ -69,15 +69,18 @@ Same engine as [x-translator](https://github.com/NemoKing1210/x-translator):
 ### Interface
 
 Toggle-based clean-up rules: promoted posts, view counts, verified badges,
-Grok buttons, the post box and feed tabs, *Who to follow*, trends, Premium
-offers, footer links and left-menu entries (logo, Explore, Notifications, Chat,
-Calls, Grok, History, Creator Studio, Premium, Post button, account menu …).
+Grok buttons, the post box and feed tabs, the right column (search, Premium
+offer, trends, *Who to follow*, footer links), left-menu entries (logo, Explore,
+Notifications, Chat, Calls, Grok, History, Creator Studio, Premium, Post button,
+account menu …) and the floating Grok / Chat panels.
 Hover a setting to preview it: the dimming and blur fade out
 and the affected element on the page behind it is outlined (shown
 if it is currently hidden).
 
 ### Settings
 
+- Open / close them with **Ctrl + M** (a faint reminder sits in the bottom left corner;
+  switch it off in General), the left-menu entry or the userscript manager menu
 - Tabs: **General · Translation (incl. provider) · Cache · Media · Interface ·
   Backup · About**; edits are drafted and applied on **Save**
 - UI languages: English, Русский, 中文, Español, Português, Deutsch, Français,

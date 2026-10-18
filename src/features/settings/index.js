@@ -4,6 +4,7 @@ import { registerFeature } from '../../core/features.js';
 import { cacheTab } from '../translate/settings.js';
 import { t } from '../../i18n/index.js';
 import { ensureNavButton, setNavButtonHandler } from './nav-button.js';
+import { syncHotkey } from './hotkey.js';
 import { openSettings } from './panel.js';
 import { aboutTab } from './tabs/about.js';
 import { backupTab } from './tabs/backup.js';
@@ -28,7 +29,9 @@ registerFeature({
     }
     // The sidebar entry and the UI language live in the "general" section.
     on('settings:general', ensureNavButton);
+    on('settings:general', syncHotkey);
     ensureNavButton();
+    syncHotkey();
   },
 
   scan() {

@@ -42,6 +42,8 @@ const layoutPeek = (key) => ({
 });
 
 const whenEnabled = (section) => section.enabled;
+const sidebarHidden = (section) => section.sidebarHide;
+const menuHidden = (section) => section.menuHide;
 
 /** "Hide" subheading plus one switch per rule of `group` (needs the master switch). */
 function hideControls(group) {
@@ -54,11 +56,14 @@ function hideControls(group) {
       hintKey: rule.hint ? `${ruleLabelKey(rule)}Hint` : undefined,
       peek: rulePeek(rule),
       showIf: whenEnabled,
+      // The whole column / menu is hidden: its parts need no switches.
+      disabledIf: { sidebar: sidebarHidden, nav: menuHidden }[rule.group],
     })),
   ];
 }
 
-const layoutSwitch = (path) => ({
+const layoutSwitch = (path, extra = {}) => ({
+  ...extra,
   type: 'switch',
   path,
   labelKey: `interface.${path}`,
@@ -79,8 +84,10 @@ registerFeature({
     enabled: field.bool(true),
     menuLeft: field.bool(false),
     menuCenter: field.bool(false),
+    menuHide: field.bool(false),
     feedTabsStatic: field.bool(false),
     sidebarRight: field.bool(false),
+    sidebarHide: field.bool(false),
     centerContent: field.bool(false),
     contentWidth: field.int(0, { min: 0, max: 1600 }),
     ...ruleFields(),
@@ -132,8 +139,9 @@ registerFeature({
           descKey: 'interface.sectionNavDesc',
           controls: [
             { type: 'subheading', textKey: 'interface.sub.layout' },
-            layoutSwitch('menuLeft'),
-            layoutSwitch('menuCenter'),
+            layoutSwitch('menuHide'),
+            layoutSwitch('menuLeft', { disabledIf: menuHidden }),
+            layoutSwitch('menuCenter', { disabledIf: menuHidden }),
             ...hideControls('nav'),
           ],
         },
@@ -142,9 +150,15 @@ registerFeature({
           descKey: 'interface.sectionSideDesc',
           controls: [
             { type: 'subheading', textKey: 'interface.sub.layout' },
-            layoutSwitch('sidebarRight'),
+            layoutSwitch('sidebarHide'),
+            layoutSwitch('sidebarRight', { disabledIf: sidebarHidden }),
             ...hideControls('sidebar'),
           ],
+        },
+        {
+          titleKey: 'interface.sectionDrawers',
+          descKey: 'interface.sectionDrawersDesc',
+          controls: hideControls('chrome'),
         },
       ],
     },

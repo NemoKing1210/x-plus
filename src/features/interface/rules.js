@@ -15,7 +15,7 @@ import { SEL } from '../../core/constants.js';
  * (`interface.rule.<group>.<key>`). The settings UI and defaults follow.
  *
  * @typedef {object} Rule
- * @property {'posts'|'sidebar'|'nav'} group
+ * @property {'posts'|'sidebar'|'nav'|'chrome'} group
  * @property {string} key
  * @property {boolean} [on]     - enabled by default
  * @property {boolean} [hint]   - has a `…Hint` locale string
@@ -73,11 +73,27 @@ function sidebarBlock(node) {
   return block && sidebar.contains(block) ? block : null;
 }
 
+/**
+ * The bordered "card" X draws around a sidebar module. Hiding only the inner
+ * `aside` / `section` would leave an empty frame, so climb through wrappers
+ * that hold nothing else (at most `limit` levels, never past the sidebar).
+ */
+function sidebarCard(node, limit = 3) {
+  let card = node;
+  for (let i = 0; i < limit; i += 1) {
+    const parent = card.parentElement;
+    if (!parent || parent.children.length !== 1 || parent.matches(SEL.sidebar)) break;
+    if (parent.querySelector('form[role="search"]') && !card.querySelector('form[role="search"]')) break;
+    card = parent;
+  }
+  return card;
+}
+
 const blocksContaining = (selector) => (root) => {
   const found = new Set();
   root.querySelectorAll(`${SEL.sidebar} ${selector}`).forEach((node) => {
     const block = sidebarBlock(node);
-    if (block) found.add(block);
+    if (block) found.add(sidebarCard(block));
   });
   return [...found];
 };
@@ -198,18 +214,12 @@ export const RULES = [
         .filter(Boolean),
   },
 
-  /* Sidebar */
+  /* Sidebar (right column), top to bottom */
   {
     group: 'sidebar',
-    key: 'whoToFollow',
-    hint: true,
-    find: blocksContaining('[data-testid="UserCell"]'),
-  },
-  {
-    group: 'sidebar',
-    key: 'trends',
-    hint: true,
-    find: blocksContaining('[data-testid="trend"]'),
+    key: 'search',
+    find: (root) =>
+      [...root.querySelectorAll(`${SEL.sidebar} form[role="search"]`)].map((form) => sidebarCard(form, 8)),
   },
   {
     group: 'sidebar',
@@ -220,12 +230,26 @@ export const RULES = [
   },
   {
     group: 'sidebar',
+    key: 'trends',
+    hint: true,
+    find: blocksContaining('[data-testid="trend"]'),
+  },
+  {
+    group: 'sidebar',
+    key: 'whoToFollow',
+    hint: true,
+    find: blocksContaining('[data-testid="UserCell"]'),
+  },
+  {
+    group: 'sidebar',
     key: 'footer',
     hint: true,
+    // Links are absolute (https://x.com/tos), so match the path suffix.
     find: (root) =>
-      [...root.querySelectorAll(`${SEL.sidebar} a[href="/tos"]`)]
+      [...root.querySelectorAll(`${SEL.sidebar} nav[role="navigation"] a[href$="/tos"]`)]
         .map((link) => link.closest('nav'))
-        .filter(Boolean),
+        .filter(Boolean)
+        .map((nav) => sidebarCard(nav)),
   },
 
   /* Navigation (left menu) */
@@ -239,6 +263,7 @@ export const RULES = [
         return heading?.parentElement || heading || link;
       }),
   },
+  { group: 'nav', key: 'home', find: navItems('[data-testid="AppTabBar_Home_Link"]') },
   { group: 'nav', key: 'explore', find: navLinks(/^\/explore/) },
   { group: 'nav', key: 'notifications', find: navLinks(/^\/notifications/) },
   { group: 'nav', key: 'chat', find: navLinks(/^\/i\/chat/) },
@@ -248,6 +273,8 @@ export const RULES = [
   { group: 'nav', key: 'creatorStudio', find: navLinks(/^\/i\/jf\/creators/) },
   { group: 'nav', key: 'premium', find: navLinks(/^\/i\/premium/) },
   { group: 'nav', key: 'followerRequests', find: navLinks(/^\/follower_requests/) },
+  // Our own entry (nav-button.js); General → "Sidebar button" removes it for good.
+  { group: 'nav', key: 'xplus', css: 'header[role="banner"] [data-xp-nav]' },
   { group: 'nav', key: 'profile', find: navItems('[data-testid="AppTabBar_Profile_Link"]') },
   { group: 'nav', key: 'more', find: navItems('[data-testid="AppTabBar_More_Menu"]') },
   {
@@ -268,9 +295,24 @@ export const RULES = [
         return button.parentElement || button;
       }),
   },
+
+  /* Floating panels (bottom right) */
+  {
+    group: 'chrome',
+    key: 'grokDrawer',
+    hint: true,
+    // The slid-in wrapper around the drawer, so no gap stays behind.
+    css: 'div:has(> div > [data-testid="GrokDrawer"])',
+  },
+  {
+    group: 'chrome',
+    key: 'chatDrawer',
+    hint: true,
+    css: 'div:has(> div > [data-testid="chat-drawer-root"])',
+  },
 ];
 
-export const RULE_GROUPS = ['posts', 'sidebar', 'nav'];
+export const RULE_GROUPS = ['posts', 'sidebar', 'nav', 'chrome'];
 
 export const ruleId = (rule) => `${rule.group}.${rule.key}`;
 export const ruleLabelKey = (rule) => `interface.rule.${ruleId(rule)}`;

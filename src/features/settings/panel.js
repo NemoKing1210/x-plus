@@ -139,6 +139,8 @@ function rerenderAll() {
 /* Actions                                                             */
 /* ------------------------------------------------------------------ */
 
+export const isSettingsOpen = () => Boolean(state);
+
 export function closeSettings() {
   if (!state) return;
   document.removeEventListener('keydown', onEscape, true);

@@ -11,12 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Settings preview now outlines the affected block for layout options too (content width, centring, menu and right column placement, menu centring, floating feed tabs)
 
+### Fixed
+
+- Hiding a right-column block (Premium, trends, who to follow, footer links) no longer leaves an empty bordered frame, and the footer links rule matches X's absolute links again
+
 ### Removed
 
 - Interface setting “Messages drawer”
 
 ### Added
 
+- Interface settings: hide the Home and X Plus entries in the left menu
+- Ctrl + M opens (and closes) the settings from anywhere on X, with a faint translucent reminder in the bottom left corner of the screen (both can be switched off in General → Interface)
+- Interface settings: option to hide the whole left menu; its separate switches are greyed out while it is on (X Plus settings stay available from the userscript manager menu)
+- Interface settings: hide the floating Grok panel and the floating Chat panel in the bottom right corner separately
+- Interface settings: option to hide the whole right column; its separate block switches and the “right column at the screen edge” option are greyed out while it is on
+- Interface settings: hide the search box in the right column; the right-column rules now go top to bottom like the page
 - Interface settings: hide the feed tabs (For you / Following …) or stop them floating at the top so they scroll with the page
 - Interface settings: hide the “What is happening?” post box above the timeline (the compose dialog still works)
 

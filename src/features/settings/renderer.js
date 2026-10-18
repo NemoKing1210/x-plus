@@ -43,7 +43,8 @@ import {
  *   { type: 'button',  labelKey, variant?, onClick(ctx) }
  *   { type: 'group',   controls: ControlSpec[] }
  *   { type: 'custom',  render(ctx) → Node }
- * Every control (and section) accepts `showIf(section, root) → boolean`.
+ * Every control (and section) accepts `showIf(section, root) → boolean`; a
+ * control also accepts `disabledIf(section, root) → boolean` (greyed out).
  * A control may carry `peek: { enter(section, value) → number | void, leave?() }`:
  * hovering / focusing it makes the dialog translucent and runs `enter` to
  * preview its effect on the page (returning 0 shows "nothing to show here").
@@ -99,6 +100,7 @@ export function renderTab(tab, { draft, featureId, onChange, rerender }) {
   /** @type {Array<() => void>} */
   const subscribers = [];
   const visibility = [];
+  const locks = [];
 
   const ctx = {
     root: draft,
@@ -117,6 +119,13 @@ export function renderTab(tab, { draft, featureId, onChange, rerender }) {
   function refresh() {
     for (const { node, showIf } of visibility) {
       node.hidden = !showIf(ctx.section, ctx.root);
+    }
+    for (const { node, disabledIf } of locks) {
+      const locked = Boolean(disabledIf(ctx.section, ctx.root));
+      node.classList.toggle('is-locked', locked);
+      node.querySelectorAll('input, select, button, textarea').forEach((input) => {
+        input.disabled = locked;
+      });
     }
     for (const fn of subscribers) fn();
   }
@@ -261,6 +270,7 @@ export function renderTab(tab, { draft, featureId, onChange, rerender }) {
     if (!node) return;
     if (spec.peek) attachPeek(node, spec);
     if (spec.showIf) visibility.push({ node, showIf: spec.showIf });
+    if (spec.disabledIf) locks.push({ node, disabledIf: spec.disabledIf });
     parent.appendChild(node);
   }
 

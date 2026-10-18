@@ -29,6 +29,10 @@ registerFeature({
   fields: {
     language: field.enum(['auto', ...SUPPORTED_LOCALES], 'auto'),
     navButton: field.bool(true),
+    /** Ctrl+M opens the settings. */
+    hotkey: field.bool(true),
+    /** Faint reminder of the shortcut at the bottom left. */
+    hotkeyHint: field.bool(true),
     toastsEnabled: field.bool(true),
     toastPosition: field.enum(TOAST_POSITIONS, 'top-right'),
     /** Seconds; 0 keeps toasts until dismissed. */
@@ -55,6 +59,19 @@ registerFeature({
               path: 'navButton',
               labelKey: 'general.navButton',
               hintKey: 'general.navButtonHint',
+            },
+            {
+              type: 'switch',
+              path: 'hotkey',
+              labelKey: 'general.hotkey',
+              hintKey: 'general.hotkeyHint',
+            },
+            {
+              type: 'switch',
+              path: 'hotkeyHint',
+              labelKey: 'general.hotkeyReminder',
+              hintKey: 'general.hotkeyReminderHint',
+              showIf: (section) => section.hotkey,
             },
           ],
         },
