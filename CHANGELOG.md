@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Interface settings: new “Post appearance” section — posts as cards (outline, filled or shadow, corner radius), space between posts, inner padding, hide dividers, text size and avatar shape, all with a live preview
 - Interface settings: hide the floating “Show new posts” button and the “Show N posts” row at the top of the timeline
 
 ## [0.4.0] - 2026-10-18

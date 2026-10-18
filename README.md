@@ -77,6 +77,10 @@ Hover a setting to preview it: the dimming and blur fade out
 and the affected element on the page behind it is outlined (shown
 if it is currently hidden).
 
+A separate **Post appearance** section styles the feed: posts as cards (outline,
+filled or shadow, adjustable corner radius), space between posts, inner padding,
+no dividers, text size and avatar shape (circle, rounded or square).
+
 ### Settings
 
 - Open / close them with **Ctrl + M** (a faint reminder sits in the bottom left corner;

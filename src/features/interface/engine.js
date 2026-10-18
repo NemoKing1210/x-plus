@@ -1,6 +1,7 @@
 import { Codes, logWarn } from '../../core/debug.js';
 import { SEL } from '../../core/constants.js';
 import { getFeatureSettings } from '../../core/settings.js';
+import { POSTS_PEEK_ATTR, postsCss } from './posts.js';
 import { RULES, findStickyFeedHeaders, ruleId } from './rules.js';
 
 /**
@@ -95,7 +96,8 @@ export function applyRuleStyles() {
     cfg.enabled && cfg.sidebarHide ? SIDEBAR_HIDE_CSS : '',
     cfg.enabled && cfg.menuHide ? MENU_HIDE_CSS : '',
     cfg.sidebarRight || cfg.centerContent ? SIDEBAR_RIGHT_CSS : '',
-    cfg.centerContent ? CENTER_CSS : ''].filter(Boolean).join('\n');
+    cfg.centerContent ? CENTER_CSS : '',
+    postsCss(cfg.postView)].filter(Boolean).join('\n');
 }
 
 /* ------------------------------------------------------------------ */
@@ -159,6 +161,18 @@ function visibleBox(node) {
 export function endPeek() {
   document.querySelectorAll(`[${PEEK_ATTR}]`).forEach((node) => node.removeAttribute(PEEK_ATTR));
   document.getElementById(PEEK_STYLE_ID)?.remove();
+  document.documentElement.removeAttribute(POSTS_PEEK_ATTR);
+}
+
+/**
+ * Preview the draft post appearance on the page.
+ * @returns {number} how many posts are visible on screen
+ */
+export function peekPosts(postView) {
+  endPeek();
+  document.documentElement.setAttribute(POSTS_PEEK_ATTR, '');
+  peekStyle().textContent = postsCss(postView, true);
+  return [...document.querySelectorAll(`${SEL.primaryColumn} ${SEL.article}`)].filter(isOnScreen).length;
 }
 
 /**

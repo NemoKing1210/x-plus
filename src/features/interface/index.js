@@ -1,7 +1,8 @@
 import { registerFeature } from '../../core/features.js';
 import { field } from '../../core/schema.js';
 import { t } from '../../i18n/index.js';
-import { applyRuleStyles, endPeek, markRuleTargets, peekLayout, peekRule } from './engine.js';
+import { applyRuleStyles, endPeek, markRuleTargets, peekLayout, peekPosts, peekRule } from './engine.js';
+import { AVATAR_SHAPES, CARD_STYLES, POST_VIEW_FIELDS } from './posts.js';
 import { RULES, RULE_GROUPS, ruleId, ruleLabelKey } from './rules.js';
 
 /** One boolean field per rule, grouped (`posts.promoted`, …). */
@@ -39,6 +40,20 @@ const rulePeek = (rule) => ({
 const layoutPeek = (key) => ({
   enter: (section, value) => peekLayout(key, key === 'contentWidth' ? value : true),
   leave: endPeek,
+});
+
+/** Hovering a post-appearance control previews the whole draft on the feed. */
+const postPeek = { enter: (section) => peekPosts(section.postView), leave: endPeek };
+
+const withCards = (section) => section.postView.cards;
+
+const postControl = (type, key, extra = {}) => ({
+  type,
+  path: `postView.${key}`,
+  labelKey: `interface.postView.${key}`,
+  hintKey: `interface.postView.${key}Hint`,
+  peek: postPeek,
+  ...extra,
 });
 
 const whenEnabled = (section) => section.enabled;
@@ -90,6 +105,7 @@ registerFeature({
     sidebarHide: field.bool(false),
     centerContent: field.bool(false),
     contentWidth: field.int(0, { min: 0, max: 1600 }),
+    postView: field.record(POST_VIEW_FIELDS),
     ...ruleFields(),
   },
 
@@ -132,6 +148,36 @@ registerFeature({
             layoutSwitch('centerContent'),
             layoutSwitch('feedTabsStatic'),
             ...hideControls('posts'),
+          ],
+        },
+        {
+          titleKey: 'interface.sectionPosts',
+          descKey: 'interface.sectionPostsDesc',
+          controls: [
+            { type: 'subheading', textKey: 'interface.sub.cards' },
+            postControl('switch', 'cards'),
+            postControl('select', 'cardStyle', {
+              options: CARD_STYLES.map((value) => ({ value, labelKey: `interface.postView.cardStyle.${value}` })),
+              showIf: withCards,
+            }),
+            postControl('slider', 'cardRadius', { min: 0, max: 32, step: 1, showIf: withCards }),
+            postControl('slider', 'cardOpacity', {
+              min: 0,
+              max: 100,
+              step: 5,
+              unit: '%',
+              showIf: (section) => withCards(section) && section.postView.cardStyle === 'filled',
+            }),
+            { type: 'subheading', textKey: 'interface.sub.spacing' },
+            postControl('slider', 'gap', { min: 0, max: 48, step: 2, zeroKey: 'interface.postView.none' }),
+            postControl('slider', 'padding', { min: 0, max: 32, step: 2, zeroKey: 'interface.postView.none' }),
+            postControl('switch', 'hideDividers', { showIf: (section) => !section.postView.cards }),
+            postControl('switch', 'hideFeedBorder'),
+            { type: 'subheading', textKey: 'interface.sub.look' },
+            postControl('slider', 'textScale', { min: 80, max: 160, step: 5, unit: '%' }),
+            postControl('select', 'avatarShape', {
+              options: AVATAR_SHAPES.map((value) => ({ value, labelKey: `interface.postView.avatarShape.${value}` })),
+            }),
           ],
         },
         {

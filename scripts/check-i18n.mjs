@@ -78,6 +78,13 @@ async function dynamicKeys() {
     keys.add(`interface.${path}`);
     keys.add(`interface.${path}Hint`);
   }
+  const posts = await import(pathToFileURL(join(src, 'features', 'interface', 'posts.js')).href);
+  for (const key of Object.keys(posts.POST_VIEW_FIELDS)) {
+    keys.add(`interface.postView.${key}`);
+    keys.add(`interface.postView.${key}Hint`);
+  }
+  for (const style of posts.CARD_STYLES) keys.add(`interface.postView.cardStyle.${style}`);
+  for (const shape of posts.AVATAR_SHAPES) keys.add(`interface.postView.avatarShape.${shape}`);
   for (const rule of rules.RULES) {
     keys.add(rules.ruleLabelKey(rule));
     if (rule.hint) keys.add(`${rules.ruleLabelKey(rule)}Hint`);
