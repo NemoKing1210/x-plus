@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-18
+
 ### Added
 
-- Interface settings: hide avatars, quoted posts, images, videos, link previews, articles, the “Source language” notice and @handles in posts
-- Interface settings: hide the action bar (reply, repost, like, share) under posts
+- Interface settings: the “Post appearance” section is now **Post** and gathers everything about a single post, including its hide switches
+- Interface settings → Post: hide avatars (the avatar shape is locked while they are hidden), quoted posts, images, videos, link previews, articles, the “Source language” notice, @handles and the action bar (reply, repost, like, share)
 
 ## [0.5.0] - 2026-10-18
 
@@ -97,7 +99,8 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/NemoKing1210/x-plus/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/NemoKing1210/x-plus/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/NemoKing1210/x-plus/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/NemoKing1210/x-plus/compare/v0.2.1...v0.3.0
