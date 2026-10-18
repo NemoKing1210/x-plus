@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Interface settings: hide the floating “Show new posts” button and the “Show N posts” row at the top of the timeline
+
 ## [0.4.0] - 2026-10-18
 
 ### Added

@@ -131,6 +131,21 @@ function inlineComposers(root) {
   return [...found];
 }
 
+/**
+ * The "Show N posts" row X puts at the top of a timeline after a refresh: a
+ * cell with just one button that carries a number and no post. Thread pages
+ * ("Show more replies") are left alone.
+ */
+function showPostsRows(root) {
+  if (location.pathname.includes('/status/')) return [];
+  return [...root.querySelectorAll(`${SEL.primaryColumn} ${SEL.cell}`)].filter((cell) => {
+    if (cell.querySelector('article')) return false;
+    const button = cell.querySelector('[data-keep-composer-open] > button');
+    const text = (cell.textContent || '').trim();
+    return Boolean(button) && text.length <= 60 && /\d/.test(text);
+  });
+}
+
 /** Feed tabs (For you / Following / …) exist on the home timeline only. */
 function feedTabLists(root) {
   if (location.pathname !== '/home') return [];
@@ -175,6 +190,14 @@ export const findStickyFeedHeaders = (root) => feedTabLists(root).map(stickyAnce
 export const RULES = [
   /* Posts */
   { group: 'posts', key: 'feedTabs', hint: true, find: feedTabs },
+  { group: 'posts', key: 'showPosts', hint: true, find: showPostsRows },
+  {
+    group: 'posts',
+    key: 'newPostsPill',
+    hint: true,
+    // The slid-in wrapper of the "N new posts" pill above the timeline.
+    css: 'div:has(> div > [role="status"] [data-testid="pillLabel"])',
+  },
   { group: 'posts', key: 'composer', hint: true, find: inlineComposers },
   {
     group: 'posts',
