@@ -1,6 +1,6 @@
 {
   "name": "x-plus",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "private": true,
   "type": "module",
   "description": "Userscript that adds translation, video download and many quality-of-life improvements to X (x.com)",
