@@ -7,13 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-18
+
 ### Changed
 
 - Interface tab regrouped by place — Feed, Left menu, Right column, Other — each with a “Layout” part and a “Hide” part, with section descriptions and a hint for every non-obvious switch
+- Left menu “Hide” list now matches the real menu and its order: Explore, Notifications, Chat, Calls, Grok, History, Creator Studio, Premium, Follower requests, Profile, More (entries X does not show there — Communities, Lists, Bookmarks, Jobs, Verified Orgs — were removed)
 
 ### Added
 
-- Photo viewer: zoom and move photos in the full-screen view — mouse wheel zooms towards the cursor, drag pans, double click toggles zoom, `+` / `-` / `0` keys, pinch and drag on touch screens, a zoom indicator with reset, and the original-quality photo is loaded while zoomed (Media tab → Photo viewer)
+- Interface settings: hide the site logo, the Post button and the account menu in the left menu
+- Interface settings: option to centre the left menu items vertically
+- Photo viewer: zoom and move photos in the full-screen view — mouse wheel zooms towards the cursor, drag pans, double click toggles zoom, `+` / `-` / `0` keys, pinch and drag on touch screens, a zoom indicator with reset, and the original-quality photo is loaded while zoomed (Media tab → Photo viewer); zooming out and moving at any scale are supported, and an optional subtle grid behind the photo makes transparent and dark images easier to see
 - Interface settings: adjustable width of the central content column: a slider plus presets (default, narrow, wide, wider, full width)
 - Interface settings: option to move the left navigation menu to the left edge of the screen
 - Interface settings: option to move the right column (search, trends, suggestions) to the right edge of the screen
@@ -54,5 +59,6 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/NemoKing1210/x-plus/compare/v0.2.1...v0.3.0
 [0.1.0]: https://github.com/NemoKing1210/x-plus/releases/tag/v0.1.0
