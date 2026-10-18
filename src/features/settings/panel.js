@@ -7,7 +7,7 @@ import { lockPageScroll, unlockPageScroll } from '../../ui/scroll-lock.js';
 import { showToast } from '../../ui/toast.js';
 import { el } from '../../utils/dom.js';
 import { confirmDialog } from './confirm.js';
-import { renderTab } from './renderer.js';
+import { endPeek, renderTab } from './renderer.js';
 
 /**
  * Settings dialog shell: header, scrollable tab strip, lazily rendered tab
@@ -142,6 +142,7 @@ function rerenderAll() {
 export function closeSettings() {
   if (!state) return;
   document.removeEventListener('keydown', onEscape, true);
+  endPeek();
   state.root.remove();
   state = null;
   unlockPageScroll();

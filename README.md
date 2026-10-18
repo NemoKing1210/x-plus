@@ -64,13 +64,16 @@ Same engine as [x-translator](https://github.com/NemoKing1210/x-translator):
 - Progress toast; works without a login via X's public syndication endpoint
   and falls back to your session for posts it does not return
 - Optional larger photos while browsing the timeline
+- Photo viewer zoom: wheel, drag, double click, `+` / `-` / `0`, pinch on touch screens
 
 ### Interface
 
 Toggle-based clean-up rules: promoted posts, view counts, verified badges,
 Grok buttons, *Who to follow*, trends, Premium offers, footer links, left-menu
 entries (Premium, Grok, Communities, Lists, Bookmarks, Jobs, Verified Orgs) and
-the messages drawer.
+the messages drawer. Hover a setting to preview it: the dimming and blur fade out
+and the affected element on the page behind it is outlined (shown
+if it is currently hidden).
 
 ### Settings
 

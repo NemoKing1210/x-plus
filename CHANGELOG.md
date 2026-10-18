@@ -7,12 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Interface tab regrouped by place — Feed, Left menu, Right column, Other — each with a “Layout” part and a “Hide” part, with section descriptions and a hint for every non-obvious switch
+
 ### Added
 
+- Photo viewer: zoom and move photos in the full-screen view — mouse wheel zooms towards the cursor, drag pans, double click toggles zoom, `+` / `-` / `0` keys, pinch and drag on touch screens, a zoom indicator with reset, and the original-quality photo is loaded while zoomed (Media tab → Photo viewer)
 - Interface settings: adjustable width of the central content column: a slider plus presets (default, narrow, wide, wider, full width)
 - Interface settings: option to move the left navigation menu to the left edge of the screen
 - Interface settings: option to move the right column (search, trends, suggestions) to the right edge of the screen
 - Interface settings: option to centre the feed exactly in the middle of the screen
+- Interface settings: live preview: hovering a setting fades out the dimming and blur behind the dialog and outlines the element on the page that the setting hides (hidden elements are shown while previewing); layout options preview their layout, and a note appears when there is nothing to show on the current page
 - Smooth animations: translated text un-blurs and rises into place, the result panel and split view fade in with a shimmer, and the settings dialog, confirmations, popups and toasts animate in (disabled with the system “reduce motion” setting)
 
 ## [0.2.1] - 2026-10-17

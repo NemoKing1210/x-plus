@@ -1,8 +1,8 @@
 import { registerFeature } from '../../core/features.js';
 import { field } from '../../core/schema.js';
 import { t } from '../../i18n/index.js';
-import { applyRuleStyles, markRuleTargets } from './engine.js';
-import { RULES, RULE_GROUPS, ruleLabelKey } from './rules.js';
+import { applyRuleStyles, endPeek, markRuleTargets, peekLayout, peekRule } from './engine.js';
+import { RULES, RULE_GROUPS, ruleId, ruleLabelKey } from './rules.js';
 
 /** One boolean field per rule, grouped (`posts.promoted`, …). */
 function ruleFields() {
@@ -29,18 +29,42 @@ const countEnabled = (draft) => {
   return String(n);
 };
 
-function groupSection(group) {
-  return {
-    titleKey: `interface.group.${group}`,
-    showIf: (section) => section.enabled,
-    controls: RULES.filter((rule) => rule.group === group).map((rule) => ({
+/** Hovering a clean-up switch outlines (and un-hides) what the rule affects. */
+const rulePeek = (rule) => ({
+  enter: () => peekRule(ruleId(rule)),
+  leave: endPeek,
+});
+
+/** Hovering a layout control shows the layout it produces. */
+const layoutPeek = (key) => ({
+  enter: (section, value) => peekLayout(key, key === 'contentWidth' ? value : true),
+  leave: endPeek,
+});
+
+const whenEnabled = (section) => section.enabled;
+
+/** "Hide" subheading plus one switch per rule of `group` (needs the master switch). */
+function hideControls(group) {
+  return [
+    { type: 'subheading', textKey: 'interface.sub.hide', showIf: whenEnabled },
+    ...RULES.filter((rule) => rule.group === group).map((rule) => ({
       type: 'switch',
       path: `${rule.group}.${rule.key}`,
       labelKey: ruleLabelKey(rule),
       hintKey: rule.hint ? `${ruleLabelKey(rule)}Hint` : undefined,
+      peek: rulePeek(rule),
+      showIf: whenEnabled,
     })),
-  };
+  ];
 }
+
+const layoutSwitch = (path) => ({
+  type: 'switch',
+  path,
+  labelKey: `interface.${path}`,
+  hintKey: `interface.${path}Hint`,
+  peek: layoutPeek(path),
+});
 
 /**
  * Interface clean-up: hide promoted posts, suggestion blocks, menu entries
@@ -67,8 +91,23 @@ registerFeature({
       badge: countEnabled,
       sections: [
         {
-          titleKey: 'interface.sectionLayout',
+          titleKey: 'interface.sectionMain',
+          descKey: 'interface.sectionMainDesc',
           controls: [
+            {
+              type: 'switch',
+              path: 'enabled',
+              labelKey: 'interface.enabled',
+              hintKey: 'interface.enabledHint',
+            },
+            { type: 'hint', textKey: 'interface.peekHint' },
+          ],
+        },
+        {
+          titleKey: 'interface.sectionFeed',
+          descKey: 'interface.sectionFeedDesc',
+          controls: [
+            { type: 'subheading', textKey: 'interface.sub.layout' },
             {
               type: 'slider',
               path: 'contentWidth',
@@ -79,40 +118,35 @@ registerFeature({
               max: 1600,
               step: 10,
               presets: WIDTH_PRESETS,
+              peek: layoutPeek('contentWidth'),
             },
-            {
-              type: 'switch',
-              path: 'menuLeft',
-              labelKey: 'interface.menuLeft',
-              hintKey: 'interface.menuLeftHint',
-            },
-            {
-              type: 'switch',
-              path: 'sidebarRight',
-              labelKey: 'interface.sidebarRight',
-              hintKey: 'interface.sidebarRightHint',
-            },
-            {
-              type: 'switch',
-              path: 'centerContent',
-              labelKey: 'interface.centerContent',
-              hintKey: 'interface.centerContentHint',
-            },
+            layoutSwitch('centerContent'),
+            ...hideControls('posts'),
           ],
         },
         {
-          titleKey: 'interface.sectionMain',
-          descKey: 'interface.sectionMainDesc',
+          titleKey: 'interface.sectionNav',
+          descKey: 'interface.sectionNavDesc',
           controls: [
-            {
-              type: 'switch',
-              path: 'enabled',
-              labelKey: 'interface.enabled',
-              hintKey: 'interface.enabledHint',
-            },
+            { type: 'subheading', textKey: 'interface.sub.layout' },
+            layoutSwitch('menuLeft'),
+            ...hideControls('nav'),
           ],
         },
-        ...RULE_GROUPS.map(groupSection),
+        {
+          titleKey: 'interface.sectionSide',
+          descKey: 'interface.sectionSideDesc',
+          controls: [
+            { type: 'subheading', textKey: 'interface.sub.layout' },
+            layoutSwitch('sidebarRight'),
+            ...hideControls('sidebar'),
+          ],
+        },
+        {
+          titleKey: 'interface.sectionOther',
+          descKey: 'interface.sectionOtherDesc',
+          controls: hideControls('chrome'),
+        },
       ],
     },
   ],

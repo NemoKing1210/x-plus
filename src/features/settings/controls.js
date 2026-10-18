@@ -26,6 +26,13 @@ export function createHint(text) {
   return el('p', 'xp-hint', text);
 }
 
+/** Small title that splits a section into logical parts. */
+export function createSubheading(text) {
+  const row = createRow('xp-subheading');
+  row.appendChild(el('h4', 'xp-subheading__title', text));
+  return row;
+}
+
 /** Toggle switch row (X settings style). */
 export function createSwitch({ label, hint, checked, onChange }) {
   const row = createRow();

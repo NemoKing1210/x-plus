@@ -9,6 +9,14 @@ export const mediaTabs = [
     badge: (draft) => (draft.media.enabled ? '' : t('common.off')),
     sections: [
       {
+        titleKey: 'media.sectionViewer',
+        descKey: 'media.sectionViewerDesc',
+        controls: [
+          { type: 'switch', path: 'photoZoom', labelKey: 'media.photoZoom', hintKey: 'media.photoZoomHint' },
+          { type: 'switch', path: 'photoGrid', labelKey: 'media.photoGrid', hintKey: 'media.photoGridHint', showIf: (s) => s.photoZoom },
+        ],
+      },
+      {
         titleKey: 'media.sectionMain',
         descKey: 'media.sectionMainDesc',
         controls: [

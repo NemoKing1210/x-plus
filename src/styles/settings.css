@@ -28,6 +28,32 @@
   font: inherit;
 }
 
+/* Page preview: the dimming fades out so the element a setting affects
+   (outlined by the interface feature) shows through; the dialog stays. */
+.xp-settings-backdrop {
+  transition: background-color 0.18s ease;
+}
+
+.xp-settings-backdrop.is-peeking {
+  background: transparent;
+}
+
+.xp-peek-note {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  max-width: calc(100vw - 32px);
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--xp-border);
+  background: var(--xp-surface);
+  color: var(--xp-fg);
+  box-shadow: var(--xp-shadow);
+  font-size: 14px;
+  pointer-events: none;
+}
+
 .xp-settings__header {
   display: grid;
   grid-template-columns: 40px 1fr 40px;
@@ -598,6 +624,23 @@
   color: var(--xp-fg-muted);
 }
 
+.xp-subheading {
+  padding: 14px 0 2px;
+}
+
+.xp-subheading:first-child {
+  padding-top: 4px;
+}
+
+.xp-subheading__title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--xp-accent);
+}
+
 .xp-settings__actions {
   display: flex;
   flex-wrap: wrap;
@@ -1067,6 +1110,15 @@
 .xp-settings-backdrop {
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
+  transition:
+    background-color 0.18s ease,
+    backdrop-filter 0.18s ease,
+    -webkit-backdrop-filter 0.18s ease;
+}
+
+.xp-settings-backdrop.is-peeking {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* ── Scrollbars ── */

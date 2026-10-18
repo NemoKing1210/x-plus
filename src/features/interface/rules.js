@@ -108,6 +108,7 @@ export const RULES = [
   {
     group: 'posts',
     key: 'viewCounts',
+    hint: true,
     find: (root) =>
       [...root.querySelectorAll(`${SEL.article} a[href$="/analytics"]`)].map((link) => {
         const group = link.closest('[role="group"]');
@@ -119,11 +120,13 @@ export const RULES = [
   {
     group: 'posts',
     key: 'verifiedBadges',
+    hint: true,
     css: '[data-testid="icon-verified"]',
   },
   {
     group: 'posts',
     key: 'grokButton',
+    hint: true,
     find: (root) =>
       [...root.querySelectorAll(`${SEL.article} button[aria-label*="grok" i]`)]
         .map((button) => button.parentElement)
@@ -134,22 +137,26 @@ export const RULES = [
   {
     group: 'sidebar',
     key: 'whoToFollow',
+    hint: true,
     find: blocksContaining('[data-testid="UserCell"]'),
   },
   {
     group: 'sidebar',
     key: 'trends',
+    hint: true,
     find: blocksContaining('[data-testid="trend"]'),
   },
   {
     group: 'sidebar',
     key: 'premium',
     on: true,
+    hint: true,
     find: blocksContaining('a[href*="premium_sign_up"], a[href^="/i/premium"]'),
   },
   {
     group: 'sidebar',
     key: 'footer',
+    hint: true,
     find: (root) =>
       [...root.querySelectorAll(`${SEL.sidebar} a[href="/tos"]`)]
         .map((link) => link.closest('nav'))
@@ -169,6 +176,7 @@ export const RULES = [
   {
     group: 'chrome',
     key: 'messagesDrawer',
+    hint: true,
     css: '[data-testid="DMDrawer"]',
   },
 ];

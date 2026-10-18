@@ -12,6 +12,8 @@ import { RULES, ruleId } from './rules.js';
 const STYLE_ID = 'xp-interface-style';
 const MARK_ATTR = 'data-xp-hide';
 const HIDE = '{display:none!important}';
+const PEEK_ATTR = 'data-xp-peek';
+const PEEK_STYLE_ID = 'xp-interface-peek-style';
 
 const isRuleOn = (cfg, rule) => cfg.enabled && cfg[rule.group]?.[rule.key] === true;
 
@@ -61,14 +63,86 @@ const CENTER_CSS = [
 /** Rewrite the stylesheet for the current settings. */
 export function applyRuleStyles() {
   const cfg = getFeatureSettings('interface');
+  // `:not([data-xp-peek])` lets the settings preview reveal a hidden element.
   const rules = RULES.filter((rule) => isRuleOn(cfg, rule))
     .map((rule) =>
-      rule.css ? `${rule.css}${HIDE}` : `[${MARK_ATTR}~="${ruleId(rule)}"]${HIDE}`,
+      `${rule.css || `[${MARK_ATTR}~="${ruleId(rule)}"]`}:not([${PEEK_ATTR}])${HIDE}`,
     )
     .join('\n');
   ensureStyle().textContent = [rules, contentWidthCss(cfg.contentWidth), cfg.menuLeft ? MENU_LEFT_CSS : '',
     cfg.sidebarRight || cfg.centerContent ? SIDEBAR_RIGHT_CSS : '',
     cfg.centerContent ? CENTER_CSS : ''].filter(Boolean).join('\n');
+}
+
+/* ------------------------------------------------------------------ */
+/* Settings preview ("peek")                                           */
+/* ------------------------------------------------------------------ */
+
+const PEEK_HIGHLIGHT_CSS = `[${PEEK_ATTR}]{outline:2px solid var(--xp-accent,#1d9bf0)!important;outline-offset:3px;border-radius:6px;box-shadow:0 0 0 6px rgba(29,155,240,.25),0 0 24px 6px rgba(29,155,240,.35)!important;animation:xp-peek-pulse 1.1s ease-in-out infinite alternate}
+@keyframes xp-peek-pulse{from{outline-color:rgba(29,155,240,.5)}to{outline-color:var(--xp-accent,#1d9bf0)}}
+@media (prefers-reduced-motion:reduce){[${PEEK_ATTR}]{animation:none!important}}`;
+
+/** Layout option → CSS it adds when switched on (`value` is the draft value). */
+const LAYOUT_PEEK = {
+  contentWidth: (value) => contentWidthCss(value),
+  menuLeft: () => MENU_LEFT_CSS,
+  sidebarRight: () => SIDEBAR_RIGHT_CSS,
+  centerContent: () => [SIDEBAR_RIGHT_CSS, CENTER_CSS].join('\n'),
+};
+
+function peekStyle() {
+  let style = document.getElementById(PEEK_STYLE_ID);
+  if (!style) {
+    style = document.createElement('style');
+    style.id = PEEK_STYLE_ID;
+    (document.head || document.documentElement).appendChild(style);
+  }
+  return style;
+}
+
+const isOnScreen = (node) => {
+  const rect = node.getBoundingClientRect();
+  return (
+    rect.width > 0 &&
+    rect.height > 0 &&
+    rect.bottom > 0 &&
+    rect.right > 0 &&
+    rect.top < window.innerHeight &&
+    rect.left < window.innerWidth
+  );
+};
+
+/** Stop any running preview and restore the page. */
+export function endPeek() {
+  document.querySelectorAll(`[${PEEK_ATTR}]`).forEach((node) => node.removeAttribute(PEEK_ATTR));
+  document.getElementById(PEEK_STYLE_ID)?.remove();
+}
+
+/**
+ * Highlight what a rule hides: elements it targets are un-hidden (if they
+ * were) and outlined. Works whether or not the rule is currently enabled.
+ * @returns {number} how many of the targets are visible on screen
+ */
+export function peekRule(ruleKey) {
+  endPeek();
+  const rule = RULES.find((candidate) => ruleId(candidate) === ruleKey);
+  if (!rule) return 0;
+  let targets = [];
+  try {
+    targets = rule.css ? [...document.querySelectorAll(rule.css)] : rule.find(document);
+  } catch (error) {
+    logWarn(Codes.DECLUTTER_RULE, `peek "${ruleKey}" failed`, { error });
+  }
+  peekStyle().textContent = PEEK_HIGHLIGHT_CSS;
+  targets.forEach((node) => node.setAttribute(PEEK_ATTR, ''));
+  return targets.filter(isOnScreen).length;
+}
+
+/** Temporarily apply one layout option (with its draft `value`) to the page. */
+export function peekLayout(key, value) {
+  endPeek();
+  const css = LAYOUT_PEEK[key]?.(value);
+  if (css) peekStyle().textContent = css;
 }
 
 function mark(node, id) {

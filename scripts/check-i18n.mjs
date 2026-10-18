@@ -74,7 +74,10 @@ async function dynamicKeys() {
     keys.add(`general.toastPosition.${position}`);
   }
   const rules = await import(pathToFileURL(join(src, 'features', 'interface', 'rules.js')).href);
-  for (const group of rules.RULE_GROUPS) keys.add(`interface.group.${group}`);
+  for (const path of ['menuLeft', 'sidebarRight', 'centerContent']) {
+    keys.add(`interface.${path}`);
+    keys.add(`interface.${path}Hint`);
+  }
   for (const rule of rules.RULES) {
     keys.add(rules.ruleLabelKey(rule));
     if (rule.hint) keys.add(`${rules.ruleLabelKey(rule)}Hint`);

@@ -120,3 +120,70 @@
     opacity: 1;
   }
 }
+
+/* Photo viewer zoom indicator */
+.xp-zoom {
+  position: fixed;
+  left: 50%;
+  bottom: 88px;
+  z-index: 2147483000;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font: 600 13px/1 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  backdrop-filter: blur(8px);
+  transform: translate(-50%, 8px);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.xp-zoom.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+.xp-zoom__btn {
+  appearance: none;
+  min-width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.xp-zoom__btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.xp-zoom__btn:focus-visible {
+  outline: 2px solid var(--xp-accent, #1d9bf0);
+}
+
+.xp-zoom__level {
+  min-width: 56px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Grid behind photos in the full-screen viewer */
+[data-xp-grid] {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) !important;
+  background-size: 12px 12px !important;
+  background-position: center !important;
+}

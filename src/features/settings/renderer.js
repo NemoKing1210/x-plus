@@ -15,6 +15,7 @@ import {
   createSection,
   createSelect,
   createSlider,
+  createSubheading,
   createSwitch,
   createTextInput,
   fillSelect,
@@ -38,10 +39,14 @@ import {
  *   { type: 'text' | 'password' | 'url', path, labelKey, hintKey?, placeholder? }
  *   { type: 'list',    path, kind: 'handle' | 'lang', titleKey, hintKey?, ... }
  *   { type: 'hint',    textKey }
+ *   { type: 'subheading', textKey }   (small title that splits a section)
  *   { type: 'button',  labelKey, variant?, onClick(ctx) }
  *   { type: 'group',   controls: ControlSpec[] }
  *   { type: 'custom',  render(ctx) → Node }
  * Every control (and section) accepts `showIf(section, root) → boolean`.
+ * A control may carry `peek: { enter(section, value) → number | void, leave?() }`:
+ * hovering / focusing it makes the dialog translucent and runs `enter` to
+ * preview its effect on the page (returning 0 shows "nothing to show here").
  * Select options: [{ value, labelKey } | { value, label }].
  *
  * Context handed to custom renderers / callbacks:
@@ -49,6 +54,36 @@ import {
  */
 
 const label = (key) => (key ? t(key) : '');
+
+/* Page preview: while a control with `peek` is hovered / focused the dialog
+ * turns translucent (`is-peeking`) so the page behind it shows through. */
+let activePeek = null;
+
+function setPeekState(node, missing) {
+  const backdrop = node.closest('.xp-settings-backdrop');
+  if (!backdrop) return;
+  backdrop.classList.add('is-peeking');
+  let note = backdrop.querySelector('.xp-peek-note');
+  if (missing) {
+    if (!note) {
+      note = el('div', 'xp-peek-note', t('peek.missing'));
+      note.setAttribute('role', 'status');
+      backdrop.appendChild(note);
+    }
+  } else {
+    note?.remove();
+  }
+}
+
+/** Stop the running preview and restore the dialog (also on close). */
+export function endPeek() {
+  const current = activePeek;
+  activePeek = null;
+  current?.spec.peek.leave?.();
+  const backdrop = document.querySelector('.xp-settings-backdrop');
+  backdrop?.classList.remove('is-peeking');
+  backdrop?.querySelector('.xp-peek-note')?.remove();
+}
 
 function resolveOptions(spec) {
   const options = typeof spec.options === 'function' ? spec.options() : spec.options;
@@ -90,6 +125,7 @@ export function renderTab(tab, { draft, featureId, onChange, rerender }) {
   const set = (spec, value) => {
     setPath(ctx.section, spec.path, value);
     ctx.changed();
+    if (activePeek?.spec === spec) activePeek.restart();
   };
 
   function build(spec) {
@@ -152,6 +188,8 @@ export function renderTab(tab, { draft, featureId, onChange, rerender }) {
         return buildList(spec);
       case 'hint':
         return createHint(label(spec.textKey));
+      case 'subheading':
+        return createSubheading(label(spec.textKey));
       case 'button':
         return createButtonRow(
           createButton({
@@ -221,8 +259,25 @@ export function renderTab(tab, { draft, featureId, onChange, rerender }) {
   function appendControl(parent, spec) {
     const node = build(spec);
     if (!node) return;
+    if (spec.peek) attachPeek(node, spec);
     if (spec.showIf) visibility.push({ node, showIf: spec.showIf });
     parent.appendChild(node);
+  }
+
+  /** Live page preview while the pointer / focus is on a control. */
+  function attachPeek(node, spec) {
+    const start = () => {
+      activePeek = { spec, restart: start };
+      const found = spec.peek.enter(ctx.section, get(spec));
+      setPeekState(node, found === 0);
+    };
+    const stop = () => {
+      if (activePeek?.spec === spec) endPeek();
+    };
+    node.addEventListener('mouseenter', start);
+    node.addEventListener('mouseleave', stop);
+    node.addEventListener('focusin', start);
+    node.addEventListener('focusout', stop);
   }
 
   for (const sectionSpec of tab.sections || []) {

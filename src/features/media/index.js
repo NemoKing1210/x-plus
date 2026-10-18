@@ -3,6 +3,7 @@ import { field } from '../../core/schema.js';
 import { upgradeFeedImages } from './feed-images.js';
 import { mediaTabs } from './settings.js';
 import { removeAllButtons, scanDownloadButtons } from './ui.js';
+import { syncPhotoViewer } from './viewer.js';
 
 /**
  * Media download: save videos, GIFs and photos from posts. Buttons appear in
@@ -32,6 +33,10 @@ registerFeature({
     fileTemplate: field.text('{user}-{id}-{n}', { max: 120 }),
     /** Upgrade photos in the timeline to a larger rendition. */
     feedImageQuality: field.enum(['default', 'large', 'orig'], 'default'),
+    /** Wheel / drag / pinch zoom in the full-screen photo view. */
+    photoZoom: field.bool(true),
+    /** Grid pattern behind the photo in the full-screen view. */
+    photoGrid: field.bool(true),
   },
 
   tabs: mediaTabs,
@@ -40,10 +45,16 @@ registerFeature({
     if (!cfg.enabled) removeAllButtons();
     scanDownloadButtons();
     upgradeFeedImages();
+    syncPhotoViewer();
   },
 
   scan() {
     scanDownloadButtons();
     upgradeFeedImages();
+    syncPhotoViewer();
+  },
+
+  navigate() {
+    syncPhotoViewer();
   },
 });

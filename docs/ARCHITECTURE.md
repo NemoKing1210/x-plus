@@ -167,6 +167,8 @@ in `api.js`, add its host to `@connect` in `vite.config.js`.
 
 ### media
 
+`viewer.js` is independent of downloads: delegated capture-phase listeners (wheel, pointer, dblclick, keys) apply a CSS transform to the `<img>` of X's full-screen photo view (`SEL` in the file header) and swap in `name=orig` while zoomed.
+
 ```
 click → getTweetId(article)
       → resolveTweetMedia(id)         # memoized 10 min
