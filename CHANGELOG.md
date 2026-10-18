@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Interface hide rules are much faster and no longer flash: simple ones are pure CSS, the rest run only for posts that appeared or changed, before the browser paints, instead of rescanning the whole page every few hundred milliseconds
+
 ## [0.6.0] - 2026-10-18
 
 ### Added

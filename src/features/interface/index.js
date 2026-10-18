@@ -1,7 +1,15 @@
 import { registerFeature } from '../../core/features.js';
 import { field } from '../../core/schema.js';
 import { t } from '../../i18n/index.js';
-import { applyRuleStyles, endPeek, markRuleTargets, peekLayout, peekPosts, peekRule } from './engine.js';
+import {
+  applyRuleStyles,
+  endPeek,
+  peekLayout,
+  peekPosts,
+  peekRule,
+  refreshPage,
+  syncRules,
+} from './engine.js';
 import { AVATAR_SHAPES, CARD_STYLES, POST_VIEW_FIELDS } from './posts.js';
 import { RULES, RULE_GROUPS, ruleId, ruleLabelKey } from './rules.js';
 
@@ -220,10 +228,12 @@ registerFeature({
 
   apply() {
     applyRuleStyles();
-    markRuleTargets();
+    syncRules();
   },
 
-  scan(root) {
-    markRuleTargets(root);
+  // No `scan` hook: the engine watches the page itself (per changed post, before paint) and
+  // only needs a nudge when the URL changes.
+  navigate() {
+    refreshPage();
   },
 });

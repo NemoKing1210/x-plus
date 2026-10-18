@@ -1,13 +1,21 @@
 import { Codes, logWarn } from '../../core/debug.js';
-import { SEL } from '../../core/constants.js';
+import { SEL, UI_ATTR } from '../../core/constants.js';
 import { getFeatureSettings } from '../../core/settings.js';
 import { POSTS_PEEK_ATTR, postsCss } from './posts.js';
 import { RULES, findStickyFeedHeaders, ruleId } from './rules.js';
 
 /**
- * Applies the enabled rules: one generated stylesheet hides everything, and
- * rules that need JS to locate their targets mark the matches with
- * `data-xp-hide~="<rule id>"`. Toggling a rule only rewrites the stylesheet.
+ * Applies the enabled rules: one generated stylesheet hides everything. Rules
+ * that can be written in CSS (`css`) need nothing else. Rules that need JS to
+ * locate their targets mark the matches with `data-xp-hide~="<rule id>"`:
+ *
+ *  - per-post rules (`inArticle`) run only for posts that were added or changed,
+ *    synchronously inside the MutationObserver callback, i.e. before the browser
+ *    paints, so nothing flashes and nothing rescans the whole page;
+ *  - page-level rules (`find`: menu, sidebar, composer, …) run in a throttled pass
+ *    that cannot be starved by a steady stream of mutations.
+ *
+ * Toggling a rule only rewrites the stylesheet and re-checks the posts on screen.
  */
 
 const STYLE_ID = 'xp-interface-style';
@@ -16,6 +24,10 @@ const HIDE = '{display:none!important}';
 const STICKY_ATTR = 'data-xp-sticky';
 const PEEK_ATTR = 'data-xp-peek';
 const PEEK_STYLE_ID = 'xp-interface-peek-style';
+/** Most time one observer callback may spend on posts before it yields to the next frame. */
+const BUDGET_MS = 8;
+/** Minimum gap between two page-level passes. */
+const PAGE_INTERVAL_MS = 120;
 
 const isRuleOn = (cfg, rule) =>
   rule.view ? cfg.postView?.[rule.view] === true : cfg.enabled && cfg[rule.group]?.[rule.key] === true;
@@ -82,14 +94,16 @@ const CENTER_CSS = [
   `div:has(> ${SEL.primaryColumn}){width:auto!important;max-width:none!important;flex-grow:0!important}`,
 ].join('\n');
 
+/** Selectors that hide a rule: its own CSS, or the marker its JS finder sets. */
+const selectorsOf = (rule) => (rule.css ? [].concat(rule.css) : [`[${MARK_ATTR}~="${ruleId(rule)}"]`]);
+
 /** Rewrite the stylesheet for the current settings. */
 export function applyRuleStyles() {
   const cfg = getFeatureSettings('interface');
   // `:not([data-xp-peek])` lets the settings preview reveal a hidden element.
   const rules = RULES.filter((rule) => isRuleOn(cfg, rule))
-    .map((rule) =>
-      `${rule.css || `[${MARK_ATTR}~="${ruleId(rule)}"]`}:not([${PEEK_ATTR}])${HIDE}`,
-    )
+    .flatMap(selectorsOf)
+    .map((selector) => `${selector}:not([${PEEK_ATTR}])${HIDE}`)
     .join('\n');
   ensureStyle().textContent = [rules, contentWidthCss(cfg.contentWidth), cfg.menuLeft ? MENU_LEFT_CSS : '',
     cfg.menuCenter ? MENU_CENTER_CSS : '',
@@ -158,6 +172,15 @@ function visibleBox(node) {
   return node;
 }
 
+/** Every element `rule` would hide right now (works whether or not the rule is on). */
+function ruleTargets(rule) {
+  if (rule.css) return [...document.querySelectorAll([].concat(rule.css).join(','))];
+  if (rule.inArticle) {
+    return [...document.querySelectorAll(SEL.article)].flatMap((article) => rule.inArticle(article, new Map()));
+  }
+  return rule.find(document);
+}
+
 /** Stop any running preview and restore the page. */
 export function endPeek() {
   document.querySelectorAll(`[${PEEK_ATTR}]`).forEach((node) => node.removeAttribute(PEEK_ATTR));
@@ -187,7 +210,7 @@ export function peekRule(ruleKey) {
   if (!rule) return 0;
   let targets = [];
   try {
-    targets = rule.css ? [...document.querySelectorAll(rule.css)] : rule.find(document);
+    targets = ruleTargets(rule);
   } catch (error) {
     logWarn(Codes.DECLUTTER_RULE, `peek "${ruleKey}" failed`, { error });
   }
@@ -215,6 +238,7 @@ const LAYOUT_TARGETS = {
  */
 export function peekLayout(key, value) {
   endPeek();
+  if (key === 'feedTabsStatic') markSticky();
   const css = LAYOUT_PEEK[key]?.(value) ?? '';
   const targets = [...(LAYOUT_TARGETS[key]?.() ?? [])];
   // Un-hide the target itself, but outline the box that is actually drawn.
@@ -229,27 +253,162 @@ ${PEEK_HIGHLIGHT_CSS}`;
   return boxes.filter(isOnScreen).length;
 }
 
-function mark(node, id) {
+/* ------------------------------------------------------------------ */
+/* Marking                                                             */
+/* ------------------------------------------------------------------ */
+
+const OWNER = `${SEL.article}, [${UI_ATTR}]`;
+
+let articleRules = [];
+let pageRules = [];
+let stickyNeeded = false;
+let observer = null;
+/** Posts that appeared or changed and still wait for their rules. */
+const dirty = new Set();
+let frame = 0;
+let pageQueued = false;
+let lastPage = 0;
+/** article → what we marked for it (node → rule ids), so stale marks can be taken back. */
+const applied = new WeakMap();
+
+function addToken(node, id) {
   const current = node.getAttribute(MARK_ATTR) || '';
   if (current.split(' ').includes(id)) return;
   node.setAttribute(MARK_ATTR, `${current} ${id}`.trim());
 }
 
-/** Mark the targets of every enabled JS rule under `root`. */
-export function markRuleTargets(root = document) {
-  const cfg = getFeatureSettings('interface');
-  // Always remembered (an unstuck element stops being `sticky`), applied only by the setting.
+function removeToken(node, id) {
+  const tokens = (node.getAttribute(MARK_ATTR) || '').split(' ').filter((token) => token && token !== id);
+  if (tokens.length) node.setAttribute(MARK_ATTR, tokens.join(' '));
+  else node.removeAttribute(MARK_ATTR);
+}
+
+/** Recompute the marks of one post; X reuses DOM nodes, so marks that no longer apply are removed. */
+function processArticle(article) {
+  if (!article.isConnected) return;
+  const memo = new Map();
+  const fresh = new Map();
+  for (const rule of articleRules) {
+    const id = ruleId(rule);
+    try {
+      for (const node of rule.inArticle(article, memo)) {
+        const ids = fresh.get(node);
+        if (ids) ids.add(id);
+        else fresh.set(node, new Set([id]));
+      }
+    } catch (error) {
+      logWarn(Codes.DECLUTTER_RULE, `rule "${id}" failed`, { error });
+    }
+  }
+  const previous = applied.get(article);
+  if (previous) {
+    for (const [node, ids] of previous) {
+      const keep = fresh.get(node);
+      for (const id of ids) if (!keep?.has(id)) removeToken(node, id);
+    }
+  }
+  for (const [node, ids] of fresh) for (const id of ids) addToken(node, id);
+  if (fresh.size) applied.set(article, fresh);
+  else applied.delete(article);
+}
+
+/** Process queued posts; whatever does not fit the time budget moves to the next frame. */
+function flush() {
+  frame = 0;
+  const started = performance.now();
+  for (const article of dirty) {
+    dirty.delete(article);
+    processArticle(article);
+    if (performance.now() - started > BUDGET_MS) break;
+  }
+  if (dirty.size) frame = requestAnimationFrame(flush);
+}
+
+/** Remember which wrappers float (they stop being `sticky` once un-stuck by us). */
+function markSticky() {
   try {
-    for (const node of findStickyFeedHeaders(root)) node.setAttribute(STICKY_ATTR, '');
+    for (const node of findStickyFeedHeaders(document)) node.setAttribute(STICKY_ATTR, '');
   } catch (error) {
     logWarn(Codes.DECLUTTER_RULE, 'sticky feed header lookup failed', { error });
   }
-  for (const rule of RULES) {
-    if (!rule.find || !isRuleOn(cfg, rule)) continue;
+}
+
+/** Page-level rules (menu, sidebar, composer, …) and the sticky feed header. */
+function runPage() {
+  lastPage = performance.now();
+  if (stickyNeeded) markSticky();
+  for (const rule of pageRules) {
     try {
-      for (const node of rule.find(root)) mark(node, ruleId(rule));
+      for (const node of rule.find(document)) addToken(node, ruleId(rule));
     } catch (error) {
       logWarn(Codes.DECLUTTER_RULE, `rule "${ruleId(rule)}" failed`, { error });
     }
   }
+}
+
+/** Throttled, not debounced: a page that never stops mutating still gets its pass. */
+function schedulePage() {
+  if (pageQueued || (!pageRules.length && !stickyNeeded)) return;
+  pageQueued = true;
+  const run = () => {
+    pageQueued = false;
+    runPage();
+  };
+  const wait = PAGE_INTERVAL_MS - (performance.now() - lastPage);
+  if (wait > 0) setTimeout(run, wait);
+  else requestAnimationFrame(run);
+}
+
+function onMutations(records) {
+  let page = false;
+  for (const record of records) {
+    for (const node of record.addedNodes) {
+      if (node.nodeType !== 1) continue;
+      const owner = node.closest(OWNER);
+      if (owner) {
+        // Inside a post: re-check that post. Inside our own UI: ignore.
+        if (!owner.hasAttribute(UI_ATTR) && articleRules.length) dirty.add(owner);
+        continue;
+      }
+      page = true;
+      if (articleRules.length) for (const article of node.querySelectorAll(SEL.article)) dirty.add(article);
+    }
+  }
+  // Same task as the mutation, before the browser paints: nothing flashes.
+  if (dirty.size && !frame) flush();
+  if (page) schedulePage();
+}
+
+function setObserving(on) {
+  if (on && !observer) {
+    observer = new MutationObserver(onMutations);
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  } else if (!on && observer) {
+    observer.disconnect();
+    observer = null;
+    dirty.clear();
+  }
+}
+
+/**
+ * Settings changed (or first start): recompute which rules are on, start / stop watching the
+ * page and check everything that is on screen once.
+ */
+export function syncRules() {
+  const cfg = getFeatureSettings('interface');
+  const enabled = RULES.filter((rule) => isRuleOn(cfg, rule));
+  articleRules = enabled.filter((rule) => rule.inArticle);
+  pageRules = enabled.filter((rule) => rule.find);
+  stickyNeeded = Boolean(cfg.enabled && cfg.feedTabsStatic);
+  setObserving(articleRules.length > 0 || pageRules.length > 0 || stickyNeeded);
+  if (articleRules.length) {
+    for (const article of document.querySelectorAll(SEL.article)) dirty.add(article);
+    if (!frame) flush();
+  }
+  runPage();
+}
+
+/** The URL changed: page-level targets (tabs, "Discover more", …) may have appeared or gone. */
+export function refreshPage() {
+  schedulePage();
 }

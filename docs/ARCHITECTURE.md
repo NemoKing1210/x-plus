@@ -189,11 +189,27 @@ click → getTweetId(article)
 
 ### interface
 
-`rules.js` is a list of declarative rules (`group`, `key`, `css` **or**
-`find(root)`); `engine.js` writes one generated stylesheet for the enabled
-rules and marks JS-found targets with `data-xp-hide~="<rule>"`. Toggling a rule
-only rewrites the stylesheet. Adding a rule = one entry in `RULES` + its label
-in the locales; defaults, schema and the settings switch follow.
+`rules.js` is a list of declarative rules (`group`, `key`, and one of `css`,
+`inArticle(article, memo)` or `find(root)`); `engine.js` writes one generated
+stylesheet for the enabled rules and marks JS-found targets with
+`data-xp-hide~="<rule>"`. Adding a rule = one entry in `RULES` + its label in the
+locales; defaults, schema and the settings switch follow.
+
+Speed rules of thumb, fastest first:
+
+1. **`css`** (a selector or a list, `:has()` / `:only-child` with shallow
+   child-combinator chains): no JS, instant, no flash. Prefer it whenever the
+   target can be expressed that way. Avoid deep `:has()` and nested `:has()`.
+2. **`inArticle`**: per-post finder for what CSS cannot find (text, climbing to
+   a wrapper). The engine runs it only for posts that were added or changed,
+   synchronously inside its own `MutationObserver` callback (before paint, with a
+   per-callback time budget) and takes back marks that stop applying, since X
+   reuses DOM nodes. Share work between rules through the `memo` map.
+3. **`find`**: page-level targets outside posts (menu, sidebar, composer); runs
+   in a throttled pass, never on every mutation.
+
+The feature has no `scan` hook on purpose: the shared debounced scan would be
+starved by X's constant DOM churn and walks the whole page.
 
 ## Conventions
 
