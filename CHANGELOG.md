@@ -7,17 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- Settings preview now outlines the affected block for layout options too (content width, centring, menu and right column placement, menu centring, floating feed tabs)
-
-### Fixed
-
-- Hiding a right-column block (Premium, trends, who to follow, footer links) no longer leaves an empty bordered frame, and the footer links rule matches X's absolute links again
-
-### Removed
-
-- Interface setting “Messages drawer”
+## [0.4.0] - 2026-10-18
 
 ### Added
 
@@ -29,6 +19,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Interface settings: hide the search box in the right column; the right-column rules now go top to bottom like the page
 - Interface settings: hide the feed tabs (For you / Following …) or stop them floating at the top so they scroll with the page
 - Interface settings: hide the “What is happening?” post box above the timeline (the compose dialog still works)
+
+### Changed
+
+- Settings preview now outlines the affected block for layout options too (content width, centring, menu and right column placement, menu centring, floating feed tabs)
+
+### Fixed
+
+- Hiding a right-column block (Premium, trends, who to follow, footer links) no longer leaves an empty bordered frame, and the footer links rule matches X's absolute links again
+
+### Removed
+
+- Interface setting “Messages drawer”
 
 ## [0.3.0] - 2026-10-18
 
@@ -82,6 +84,7 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/NemoKing1210/x-plus/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/NemoKing1210/x-plus/compare/v0.2.1...v0.3.0
 [0.1.0]: https://github.com/NemoKing1210/x-plus/releases/tag/v0.1.0
