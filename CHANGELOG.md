@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-18
+
+### Added
+
+- Media settings → Photo viewer: “Open photos in the X Plus gallery” — a click on a post photo opens a fast full-screen gallery instead of X’s photo page, so replies and the timeline are not loaded; browse all photos of the post (thumbnails, `←` / `→`, swipe), zoom (also out, below the fitted size) and pan, download a photo or open the original, close with `Esc`
+
 ## [0.6.1] - 2026-10-18
 
 ### Changed
@@ -105,7 +111,8 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/NemoKing1210/x-plus/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/NemoKing1210/x-plus/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/NemoKing1210/x-plus/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/NemoKing1210/x-plus/compare/v0.4.0...v0.5.0
