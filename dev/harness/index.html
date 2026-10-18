@@ -71,6 +71,22 @@
     </div></div>
   </article></div>
 
+  <!-- photos: three in one post, to exercise the gallery -->
+  <div data-testid="cellInnerDiv"><article data-testid="tweet" tabindex="0">
+    <div class="head"><div class="avatar" data-testid="Tweet-User-Avatar"></div><div style="flex:1;min-width:0">
+      <div class="meta">
+        <div data-testid="User-Name"><a href="/nasa"><span>NASA</span></a> <a href="/nasa"><span>@nasa</span></a> · <a href="/nasa/status/123456"><time datetime="2024-05-05T10:00:00.000Z">May 5</time></a></div>
+      </div>
+      <div data-testid="tweetText" lang="en"><span>Three photos for the gallery.</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+        <div data-testid="tweetPhoto"><a href="/nasa/status/123456/photo/1"><img alt="Image" src="/pbs.twimg.com/media/AAA111?format=jpg&name=360x360" style="width:100%;height:100%;object-fit:cover"></a></div>
+        <div data-testid="tweetPhoto"><a href="/nasa/status/123456/photo/2"><img alt="Image" src="/pbs.twimg.com/media/BBB222?format=jpg&name=360x360" style="width:100%;height:100%;object-fit:cover"></a></div>
+        <div data-testid="tweetPhoto"><a href="/nasa/status/123456/photo/3"><img alt="Image" src="/pbs.twimg.com/media/CCC333?format=jpg&name=360x360" style="width:100%;height:100%;object-fit:cover"></a></div>
+      </div>
+      <div role="group"><div><button data-testid="reply" aria-label="Reply">↩</button></div><div><button data-testid="retweet" aria-label="Repost">⟲</button></div><div><button data-testid="like" aria-label="Like">♥</button></div><div><button aria-label="Share">⇪</button></div></div>
+    </div></div>
+  </article></div>
+
   <!-- 3: Russian post with a quoted post -->
   <div data-testid="cellInnerDiv"><article data-testid="tweet" tabindex="0">
     <div class="head"><div class="avatar" data-testid="Tweet-User-Avatar"></div><div style="flex:1;min-width:0">

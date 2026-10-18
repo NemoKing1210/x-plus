@@ -1,5 +1,6 @@
 import { registerFeature } from '../../core/features.js';
 import { field } from '../../core/schema.js';
+import { closeGallery, syncGallery } from './gallery.js';
 import { upgradeFeedImages } from './feed-images.js';
 import { mediaTabs } from './settings.js';
 import { removeAllButtons, scanDownloadButtons } from './ui.js';
@@ -37,6 +38,8 @@ registerFeature({
     photoZoom: field.bool(true),
     /** Grid pattern behind the photo in the full-screen view. */
     photoGrid: field.bool(true),
+    /** Open post photos in our own gallery instead of X's photo page. */
+    photoGallery: field.bool(false),
   },
 
   tabs: mediaTabs,
@@ -46,15 +49,18 @@ registerFeature({
     scanDownloadButtons();
     upgradeFeedImages();
     syncPhotoViewer();
+    syncGallery();
   },
 
   scan() {
     scanDownloadButtons();
     upgradeFeedImages();
     syncPhotoViewer();
+    syncGallery();
   },
 
   navigate() {
+    closeGallery();
     syncPhotoViewer();
   },
 });

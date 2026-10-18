@@ -16,7 +16,8 @@ import { cfg, tm } from './config.js';
  */
 
 const LAYER = '[data-testid="swipe-to-dismiss"], [role="dialog"][aria-modal="true"]';
-const VIEWER_IMG = `:is(${LAYER}) img[src*="pbs.twimg.com/media/"]`;
+// Our own gallery is a dialog too (data-xp-ui) and handles its own zoom.
+const VIEWER_IMG = `:is(${LAYER}):not([data-xp-ui]) img[src*="pbs.twimg.com/media/"]`;
 
 const GRID_ATTR = 'data-xp-grid';
 const MIN_SCALE = 0.2;

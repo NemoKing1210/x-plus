@@ -12,6 +12,7 @@ export const mediaTabs = [
         titleKey: 'media.sectionViewer',
         descKey: 'media.sectionViewerDesc',
         controls: [
+          { type: 'switch', path: 'photoGallery', labelKey: 'media.photoGallery', hintKey: 'media.photoGalleryHint' },
           { type: 'switch', path: 'photoZoom', labelKey: 'media.photoZoom', hintKey: 'media.photoZoomHint' },
           { type: 'switch', path: 'photoGrid', labelKey: 'media.photoGrid', hintKey: 'media.photoGridHint', showIf: (s) => s.photoZoom },
         ],

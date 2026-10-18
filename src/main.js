@@ -2,6 +2,7 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/translate.css';
 import './styles/media.css';
+import './styles/gallery.css';
 import './styles/settings.css';
 import './styles/motion.css';
 

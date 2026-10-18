@@ -64,6 +64,7 @@ Same engine as [x-translator](https://github.com/NemoKing1210/x-translator):
 - Progress toast; works without a login via X's public syndication endpoint
   and falls back to your session for posts it does not return
 - Optional larger photos while browsing the timeline
+- Photo gallery (opt-in): a click on a post photo opens a fast full-screen gallery instead of X's photo page — no replies or timeline are loaded; all photos of the post with thumbnails, `←` / `→`, swipe, zoom, download and open-original (Ctrl / Cmd / Shift-click still opens X's viewer)
 - Photo viewer zoom: wheel, drag, double click, `+` / `-` / `0`, pinch on touch screens
 
 ### Interface

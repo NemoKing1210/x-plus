@@ -1,0 +1,343 @@
+/* X Plus — photo gallery (full-screen viewer for post photos) */
+
+.xp-gallery {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483050;
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.94);
+  color: #fff;
+  font-family: var(--xp-font, system-ui, sans-serif);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.xp-gallery.is-open {
+  opacity: 1;
+}
+
+/* Stage: the photo is centred and fitted; zoom/pan are transforms on the <img> */
+.xp-gallery__stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  touch-action: none;
+  cursor: zoom-out;
+}
+
+.xp-gallery__img {
+  /* The box is fixed (stage minus the bars); object-fit draws the photo inside,
+     so switching renditions or zooming never changes the layout. */
+  position: absolute;
+  left: 0;
+  top: var(--xp-gallery-top, 56px);
+  width: 100%;
+  height: calc(100% - var(--xp-gallery-top, 56px) - var(--xp-gallery-bottom, 72px));
+  object-fit: contain;
+  cursor: inherit;
+  transform-origin: center;
+  will-change: transform;
+  -webkit-user-drag: none;
+}
+
+.xp-gallery.has-strip {
+  --xp-gallery-bottom: 148px;
+}
+
+.xp-gallery__stage.is-over-photo {
+  cursor: grab;
+}
+
+.xp-gallery__stage.is-grabbing {
+  cursor: grabbing;
+}
+
+.xp-gallery__img.is-swap {
+  animation: xp-gallery-swap 0.22s var(--xp-ease-out, ease-out);
+}
+
+@keyframes xp-gallery-swap {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.xp-gallery.is-error .xp-gallery__img {
+  opacity: 0.35;
+}
+
+/* Spinner while the sharper rendition loads */
+.xp-gallery__spinner {
+  position: absolute;
+  right: 24px;
+  top: 68px;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease 0.25s;
+  animation: xp-spin 0.65s linear infinite;
+}
+
+.xp-gallery.is-loading .xp-gallery__spinner {
+  opacity: 1;
+}
+
+/* Top bar */
+.xp-gallery__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: linear-gradient(rgba(0, 0, 0, 0.55), transparent);
+  pointer-events: none;
+}
+
+.xp-gallery__bar > * {
+  pointer-events: auto;
+}
+
+.xp-gallery__counter {
+  font: 600 14px/1 var(--xp-font, system-ui, sans-serif);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.xp-gallery__actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.xp-gallery__btn,
+.xp-gallery__nav {
+  appearance: none;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 20, 25, 0.55);
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition:
+    background-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.xp-gallery__btn:hover,
+.xp-gallery__nav:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.xp-gallery__btn:focus-visible,
+.xp-gallery__nav:focus-visible,
+.xp-gallery__zbtn:focus-visible,
+.xp-gallery__thumb:focus-visible {
+  outline: 2px solid var(--xp-accent, #1d9bf0);
+  outline-offset: 2px;
+}
+
+.xp-gallery__btn .xp-icon,
+.xp-gallery__nav .xp-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.xp-gallery__btnspin {
+  display: none;
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: xp-spin 0.65s linear infinite;
+}
+
+.xp-gallery__btn.is-loading > .xp-icon {
+  opacity: 0;
+}
+
+.xp-gallery__btn.is-loading > .xp-gallery__btnspin {
+  display: block;
+}
+
+.xp-gallery__btn.is-loading {
+  pointer-events: none;
+}
+
+/* Previous / next */
+.xp-gallery__nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+}
+
+.xp-gallery__nav--prev {
+  left: 16px;
+}
+
+.xp-gallery__nav--next {
+  right: 16px;
+}
+
+.xp-gallery__nav:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.xp-gallery__nav[hidden],
+.xp-gallery__strip[hidden] {
+  display: none;
+}
+
+/* Bottom: zoom pill + thumbnails */
+.xp-gallery__bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 12px 14px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
+  pointer-events: none;
+}
+
+.xp-gallery__bottom > * {
+  pointer-events: auto;
+}
+
+.xp-gallery__zoom {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(15, 20, 25, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.xp-gallery__zbtn {
+  appearance: none;
+  min-width: 34px;
+  height: 32px;
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: 600 16px/1 var(--xp-font, system-ui, sans-serif);
+  cursor: pointer;
+}
+
+.xp-gallery__zbtn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.xp-gallery__level {
+  min-width: 58px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.xp-gallery__strip {
+  display: flex;
+  gap: 8px;
+  max-width: min(100%, 720px);
+  padding: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.xp-gallery__strip::-webkit-scrollbar {
+  display: none;
+}
+
+.xp-gallery__thumb {
+  appearance: none;
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  margin: 0;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: #111;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.6;
+  transition:
+    opacity 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.xp-gallery__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.xp-gallery__thumb:hover {
+  opacity: 0.9;
+}
+
+.xp-gallery__thumb.is-active {
+  border-color: #fff;
+  opacity: 1;
+  transform: scale(1.04);
+}
+
+@media (max-width: 600px) {
+  .xp-gallery__nav {
+    display: none;
+  }
+
+  .xp-gallery__thumb {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xp-gallery,
+  .xp-gallery__img.is-swap {
+    animation: none;
+    transition: none;
+  }
+}

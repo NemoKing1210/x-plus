@@ -169,6 +169,8 @@ in `api.js`, add its host to `@connect` in `vite.config.js`.
 
 `viewer.js` is independent of downloads: delegated capture-phase listeners (wheel, pointer, dblclick, keys) apply a CSS transform to the `<img>` of X's full-screen photo view (`SEL` in the file header) and swap in `name=orig` while zoomed.
 
+`gallery.js` (setting `photoGallery`, off by default) intercepts a primary click on a post photo in the capture phase (`SEL.photo` inside an article; Ctrl / Cmd / Shift / Alt clicks and buttons on the photo are left alone), collects the photos of that post / quote from the DOM (`getMediaHosts`) and shows them in its own full-screen overlay (`styles/gallery.css`) — no route change, no extra requests besides the images (`name=large`, `orig` once zoomed). It owns its keys (`Esc`, `←` `→`, `+` `-` `0`) and closes on navigation.
+
 ```
 click → getTweetId(article)
       → resolveTweetMedia(id)         # memoized 10 min
