@@ -15,7 +15,7 @@ import { SEL } from '../../core/constants.js';
  * (`interface.rule.<group>.<key>`). The settings UI and defaults follow.
  *
  * @typedef {object} Rule
- * @property {'posts'|'sidebar'|'nav'|'chrome'} group
+ * @property {'posts'|'sidebar'|'nav'} group
  * @property {string} key
  * @property {boolean} [on]     - enabled by default
  * @property {boolean} [hint]   - has a `…Hint` locale string
@@ -97,9 +97,69 @@ const navItems = (selector) => (root) => [
 /* Rules                                                               */
 /* ------------------------------------------------------------------ */
 
+/**
+ * The "What is happening?" composer above the timeline: the smallest block
+ * (plus its wrapper) that holds the progress bar and the inline Post button.
+ * The compose dialog is left alone.
+ */
+function inlineComposers(root) {
+  const found = new Set();
+  root.querySelectorAll(`${SEL.primaryColumn} [data-testid="tweetTextarea_0"]`).forEach((input) => {
+    if (input.closest('[role="dialog"]')) return;
+    let block = input.parentElement;
+    while (block && !block.querySelector('[role="progressbar"]')) block = block.parentElement;
+    if (!block || block.closest('article')) return;
+    const outer = block.parentElement;
+    found.add(outer && !outer.querySelector(`${SEL.cell}, article`) ? outer : block);
+  });
+  return [...found];
+}
+
+/** Feed tabs (For you / Following / …) exist on the home timeline only. */
+function feedTabLists(root) {
+  if (location.pathname !== '/home') return [];
+  return [...root.querySelectorAll(`${SEL.primaryColumn} [role="tablist"][data-testid="ScrollSnap-List"]`)].filter(
+    (list) => list.querySelector('[role="tab"]') && !list.closest('[role="dialog"]'),
+  );
+}
+
+/**
+ * The whole tabs block (tabs plus the "manage feeds" button): the child of the
+ * floating wrapper that holds the tab list. The "new posts" pill, a sibling of
+ * that block, stays.
+ */
+function feedTabsBlock(list) {
+  const sticky = stickyAncestor(list);
+  let block = list;
+  if (sticky) {
+    while (block.parentElement && block.parentElement !== sticky) block = block.parentElement;
+  } else {
+    while (block.parentElement && block.parentElement.children.length === 1 && !block.parentElement.matches(SEL.primaryColumn)) {
+      block = block.parentElement;
+    }
+  }
+  return block.querySelector(`article, ${SEL.cell}`) ? null : block;
+}
+
+/** Hide rule target: the tabs block (the "new posts" pill next to it stays). */
+const feedTabs = (root) => feedTabLists(root).map(feedTabsBlock).filter(Boolean);
+
+/** Floating wrapper of the feed tabs: the closest `position: sticky` ancestor. */
+function stickyAncestor(list) {
+  for (let node = list.parentElement; node && !node.matches(SEL.primaryColumn); node = node.parentElement) {
+    // `data-xp-sticky` remembers a wrapper that was already un-stuck by us.
+    if (node.hasAttribute('data-xp-sticky') || getComputedStyle(node).position === 'sticky') return node;
+  }
+  return null;
+}
+
+export const findStickyFeedHeaders = (root) => feedTabLists(root).map(stickyAncestor).filter(Boolean);
+
 /** @type {Rule[]} */
 export const RULES = [
   /* Posts */
+  { group: 'posts', key: 'feedTabs', hint: true, find: feedTabs },
+  { group: 'posts', key: 'composer', hint: true, find: inlineComposers },
   {
     group: 'posts',
     key: 'promoted',
@@ -208,17 +268,9 @@ export const RULES = [
         return button.parentElement || button;
       }),
   },
-
-  /* Interface chrome */
-  {
-    group: 'chrome',
-    key: 'messagesDrawer',
-    hint: true,
-    css: '[data-testid="DMDrawer"]',
-  },
 ];
 
-export const RULE_GROUPS = ['posts', 'sidebar', 'nav', 'chrome'];
+export const RULE_GROUPS = ['posts', 'sidebar', 'nav'];
 
 export const ruleId = (rule) => `${rule.group}.${rule.key}`;
 export const ruleLabelKey = (rule) => `interface.rule.${ruleId(rule)}`;

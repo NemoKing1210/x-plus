@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Settings preview now outlines the affected block for layout options too (content width, centring, menu and right column placement, menu centring, floating feed tabs)
+
+### Removed
+
+- Interface setting “Messages drawer”
+
+### Added
+
+- Interface settings: hide the feed tabs (For you / Following …) or stop them floating at the top so they scroll with the page
+- Interface settings: hide the “What is happening?” post box above the timeline (the compose dialog still works)
+
 ## [0.3.0] - 2026-10-18
 
 ### Changed

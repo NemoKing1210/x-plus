@@ -1,7 +1,7 @@
 import { Codes, logWarn } from '../../core/debug.js';
 import { SEL } from '../../core/constants.js';
 import { getFeatureSettings } from '../../core/settings.js';
-import { RULES, ruleId } from './rules.js';
+import { RULES, findStickyFeedHeaders, ruleId } from './rules.js';
 
 /**
  * Applies the enabled rules: one generated stylesheet hides everything, and
@@ -12,6 +12,7 @@ import { RULES, ruleId } from './rules.js';
 const STYLE_ID = 'xp-interface-style';
 const MARK_ATTR = 'data-xp-hide';
 const HIDE = '{display:none!important}';
+const STICKY_ATTR = 'data-xp-sticky';
 const PEEK_ATTR = 'data-xp-peek';
 const PEEK_STYLE_ID = 'xp-interface-peek-style';
 
@@ -55,6 +56,9 @@ const MENU_CENTER_CSS = [
   'header[role="banner"] div:has(> nav[role="navigation"]){display:flex!important;flex-direction:column!important;justify-content:center!important}',
 ].join('\n');
 
+/** Let the feed tabs scroll away with the page instead of floating at the top. */
+const FEED_TABS_STATIC_CSS = `[${STICKY_ATTR}]{position:static!important}`;
+
 /** Pin the right column (search, trends, who to follow) to the screen edge. */
 const SIDEBAR_RIGHT_CSS = `${SEL.sidebar}{position:fixed!important;top:0;right:0;bottom:0;width:350px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}`;
 
@@ -81,6 +85,7 @@ export function applyRuleStyles() {
     .join('\n');
   ensureStyle().textContent = [rules, contentWidthCss(cfg.contentWidth), cfg.menuLeft ? MENU_LEFT_CSS : '',
     cfg.menuCenter ? MENU_CENTER_CSS : '',
+    cfg.enabled && cfg.feedTabsStatic ? FEED_TABS_STATIC_CSS : '',
     cfg.sidebarRight || cfg.centerContent ? SIDEBAR_RIGHT_CSS : '',
     cfg.centerContent ? CENTER_CSS : ''].filter(Boolean).join('\n');
 }
@@ -98,6 +103,7 @@ const LAYOUT_PEEK = {
   contentWidth: (value) => contentWidthCss(value),
   menuLeft: () => MENU_LEFT_CSS,
   menuCenter: () => MENU_CENTER_CSS,
+  feedTabsStatic: () => FEED_TABS_STATIC_CSS,
   sidebarRight: () => SIDEBAR_RIGHT_CSS,
   centerContent: () => [SIDEBAR_RIGHT_CSS, CENTER_CSS].join('\n'),
 };
@@ -150,11 +156,29 @@ export function peekRule(ruleKey) {
   return targets.filter(isOnScreen).length;
 }
 
-/** Temporarily apply one layout option (with its draft `value`) to the page. */
+/** Layout option → the page elements it moves or resizes (outlined while previewing). */
+const LAYOUT_TARGETS = {
+  contentWidth: () => document.querySelectorAll(SEL.primaryColumn),
+  centerContent: () => document.querySelectorAll(SEL.primaryColumn),
+  menuLeft: () => document.querySelectorAll('header[role="banner"]'),
+  menuCenter: () => document.querySelectorAll('header[role="banner"]'),
+  sidebarRight: () => document.querySelectorAll(SEL.sidebar),
+  feedTabsStatic: () => document.querySelectorAll(`[${STICKY_ATTR}]`),
+};
+
+/**
+ * Temporarily apply one layout option (with its draft `value`) to the page
+ * and outline the elements it affects.
+ * @returns {number} how many of those elements are visible on screen
+ */
 export function peekLayout(key, value) {
   endPeek();
-  const css = LAYOUT_PEEK[key]?.(value);
-  if (css) peekStyle().textContent = css;
+  const css = LAYOUT_PEEK[key]?.(value) ?? '';
+  const targets = [...(LAYOUT_TARGETS[key]?.() ?? [])];
+  targets.forEach((node) => node.setAttribute(PEEK_ATTR, ''));
+  if (css || targets.length) peekStyle().textContent = `${css}
+${PEEK_HIGHLIGHT_CSS}`;
+  return targets.filter(isOnScreen).length;
 }
 
 function mark(node, id) {
@@ -166,6 +190,12 @@ function mark(node, id) {
 /** Mark the targets of every enabled JS rule under `root`. */
 export function markRuleTargets(root = document) {
   const cfg = getFeatureSettings('interface');
+  // Always remembered (an unstuck element stops being `sticky`), applied only by the setting.
+  try {
+    for (const node of findStickyFeedHeaders(root)) node.setAttribute(STICKY_ATTR, '');
+  } catch (error) {
+    logWarn(Codes.DECLUTTER_RULE, 'sticky feed header lookup failed', { error });
+  }
   for (const rule of RULES) {
     if (!rule.find || !isRuleOn(cfg, rule)) continue;
     try {
