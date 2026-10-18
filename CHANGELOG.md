@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-18
+
 ### Added
 
 - Interface settings: hide “Discover more” and the recommended posts below the replies on a post’s page
@@ -90,7 +92,8 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/NemoKing1210/x-plus/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/NemoKing1210/x-plus/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/NemoKing1210/x-plus/compare/v0.2.1...v0.3.0
 [0.1.0]: https://github.com/NemoKing1210/x-plus/releases/tag/v0.1.0
