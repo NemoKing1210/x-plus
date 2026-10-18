@@ -85,7 +85,7 @@ async function dynamicKeys() {
   }
   for (const style of posts.CARD_STYLES) keys.add(`interface.postView.cardStyle.${style}`);
   for (const shape of posts.AVATAR_SHAPES) keys.add(`interface.postView.avatarShape.${shape}`);
-  for (const rule of rules.RULES) {
+  for (const rule of rules.RULES.filter((candidate) => !candidate.view)) {
     keys.add(rules.ruleLabelKey(rule));
     if (rule.hint) keys.add(`${rules.ruleLabelKey(rule)}Hint`);
   }

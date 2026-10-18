@@ -17,6 +17,9 @@ import { SEL } from '../../core/constants.js';
  * @typedef {object} Rule
  * @property {'posts'|'sidebar'|'nav'|'chrome'} group
  * @property {string} key
+ * @property {'post'} [part]    - belongs to the Post section instead of Feed
+ * @property {string} [view]    - switched by `interface.postView[view]` instead of
+ *                                a "Hide" switch (and independent of the master switch)
  * @property {boolean} [on]     - enabled by default
  * @property {boolean} [hint]   - has a `…Hint` locale string
  * @property {string} [css]
@@ -146,6 +149,31 @@ function showPostsRows(root) {
   });
 }
 
+/** Avatar / content that belongs to a post quoted inside the article, not to the article itself. */
+const isInQuote = (node) => Boolean(node.closest(`${SEL.quoteTweet}, ${SEL.quoteAvatar}`));
+
+/**
+ * Posts quoted inside a post. X draws the card as a `role="link"` block that holds a
+ * small avatar (`Tweet-User-Avatar`); it sits in a wrapper with the "Quote" caption, which
+ * goes too so no gap stays behind. Older markup used `data-testid="quoteTweet"`.
+ */
+function quotedPosts(root) {
+  const found = new Set();
+  for (const article of root.querySelectorAll(SEL.article)) {
+    const cards = [...article.querySelectorAll(SEL.quoteTweet)];
+    for (const avatar of article.querySelectorAll(SEL.quoteAvatar)) {
+      const card = avatar.closest('[role="link"]');
+      if (card && article.contains(card) && card !== article) cards.push(card);
+    }
+    for (const card of cards) {
+      const wrapper = card.parentElement;
+      const single = wrapper && wrapper !== article && wrapper.children.length <= 2;
+      found.add(single ? wrapper : card);
+    }
+  }
+  return [...found];
+}
+
 /**
  * "Discover more" on a post's page: X appends a heading cell (an `h2` and no
  * post) after the replies, followed by recommended posts. The heading is
@@ -232,6 +260,7 @@ export const RULES = [
   {
     group: 'posts',
     key: 'viewCounts',
+    part: 'post',
     hint: true,
     find: (root) =>
       [...root.querySelectorAll(`${SEL.article} a[href$="/analytics"]`)].map((link) => {
@@ -243,13 +272,59 @@ export const RULES = [
   },
   {
     group: 'posts',
+    key: 'avatars',
+    view: 'hideAvatars',
+    hint: true,
+    // The whole avatar column (not just the picture), so no empty gutter stays on the left.
+    find: (root) =>
+      [...root.querySelectorAll(`${SEL.article} [data-testid^="UserAvatar-Container"]`)]
+        .filter((avatar) => !isInQuote(avatar))
+        .map((avatar) => {
+          let node = avatar;
+          while (node.parentElement && !node.parentElement.querySelector(SEL.userName)) {
+            node = node.parentElement;
+            if (node.matches(SEL.article)) return avatar;
+          }
+          return node;
+        }),
+  },
+  {
+    group: 'posts',
+    key: 'quotedPosts',
+    part: 'post',
+    hint: true,
+    find: quotedPosts,
+  },
+  {
+    group: 'posts',
+    key: 'actionBar',
+    part: 'post',
+    hint: true,
+    // The reply / repost / like row, plus single-child wrappers so no gap stays behind.
+    find: (root) =>
+      [...root.querySelectorAll(`${SEL.article} [role="group"]`)]
+        .filter((group) => group.querySelector(SEL.actionReply))
+        .map((group) => {
+          let node = group;
+          for (let i = 0; i < 2; i += 1) {
+            const parent = node.parentElement;
+            if (!parent || parent.children.length !== 1 || parent.matches(SEL.article)) break;
+            node = parent;
+          }
+          return node;
+        }),
+  },
+  {
+    group: 'posts',
     key: 'verifiedBadges',
+    part: 'post',
     hint: true,
     css: '[data-testid="icon-verified"]',
   },
   {
     group: 'posts',
     key: 'grokButton',
+    part: 'post',
     hint: true,
     find: (root) =>
       [...root.querySelectorAll(`${SEL.article} button[aria-label*="grok" i]`)]

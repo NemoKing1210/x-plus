@@ -9,7 +9,9 @@ import { RULES, RULE_GROUPS, ruleId, ruleLabelKey } from './rules.js';
 function ruleFields() {
   const groups = {};
   for (const group of RULE_GROUPS) groups[group] = {};
-  for (const rule of RULES) groups[rule.group][rule.key] = field.bool(Boolean(rule.on));
+  for (const rule of RULES.filter((candidate) => !candidate.view)) {
+    groups[rule.group][rule.key] = field.bool(Boolean(rule.on));
+  }
   return Object.fromEntries(
     Object.entries(groups).map(([group, fields]) => [group, field.record(fields)]),
   );
@@ -61,10 +63,10 @@ const sidebarHidden = (section) => section.sidebarHide;
 const menuHidden = (section) => section.menuHide;
 
 /** "Hide" subheading plus one switch per rule of `group` (needs the master switch). */
-function hideControls(group) {
+function hideControls(group, part) {
   return [
     { type: 'subheading', textKey: 'interface.sub.hide', showIf: whenEnabled },
-    ...RULES.filter((rule) => rule.group === group).map((rule) => ({
+    ...RULES.filter((rule) => rule.group === group && !rule.view && rule.part === part).map((rule) => ({
       type: 'switch',
       path: `${rule.group}.${rule.key}`,
       labelKey: ruleLabelKey(rule),
@@ -175,9 +177,15 @@ registerFeature({
             postControl('switch', 'hideFeedBorder'),
             { type: 'subheading', textKey: 'interface.sub.look' },
             postControl('slider', 'textScale', { min: 80, max: 160, step: 5, unit: '%' }),
+            // Hides the avatar column (a rule in rules.js); previews what it removes.
+            postControl('switch', 'hideAvatars', {
+              peek: { enter: () => peekRule('posts.avatars'), leave: endPeek },
+            }),
             postControl('select', 'avatarShape', {
+              disabledIf: (section) => section.postView.hideAvatars,
               options: AVATAR_SHAPES.map((value) => ({ value, labelKey: `interface.postView.avatarShape.${value}` })),
             }),
+            ...hideControls('posts', 'post'),
           ],
         },
         {

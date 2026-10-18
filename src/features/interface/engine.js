@@ -17,7 +17,8 @@ const STICKY_ATTR = 'data-xp-sticky';
 const PEEK_ATTR = 'data-xp-peek';
 const PEEK_STYLE_ID = 'xp-interface-peek-style';
 
-const isRuleOn = (cfg, rule) => cfg.enabled && cfg[rule.group]?.[rule.key] === true;
+const isRuleOn = (cfg, rule) =>
+  rule.view ? cfg.postView?.[rule.view] === true : cfg.enabled && cfg[rule.group]?.[rule.key] === true;
 
 function ensureStyle() {
   let style = document.getElementById(STYLE_ID);

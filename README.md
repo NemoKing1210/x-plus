@@ -77,9 +77,10 @@ Hover a setting to preview it: the dimming and blur fade out
 and the affected element on the page behind it is outlined (shown
 if it is currently hidden).
 
-A separate **Post appearance** section styles the feed: posts as cards (outline,
+A separate **Post** section styles a single post and its parts: posts as cards (outline,
 filled or shadow, adjustable corner radius), space between posts, inner padding,
-no dividers, text size and avatar shape (circle, rounded or square).
+no dividers, text size, avatar shape (circle, rounded or square) and hiding of
+avatars, quoted posts, the action bar, view counts, verified badges and the Grok button.
 
 ### Settings
 

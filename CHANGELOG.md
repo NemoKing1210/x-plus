@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Interface settings: hide avatars and quoted posts in posts
+- Interface settings: hide the action bar (reply, repost, like, share) under posts
+
 ## [0.5.0] - 2026-10-18
 
 ### Added

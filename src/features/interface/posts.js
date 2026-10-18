@@ -19,6 +19,7 @@ export const POST_VIEW_FIELDS = {
   padding: field.int(0, { min: 0, max: 32 }),
   hideDividers: field.bool(false),
   hideFeedBorder: field.bool(false),
+  hideAvatars: field.bool(false),
   textScale: field.int(100, { min: 80, max: 160 }),
   avatarShape: field.enum(AVATAR_SHAPES, 'default'),
 };
