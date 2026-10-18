@@ -88,6 +88,11 @@ const navLinks = (pattern) => (root) =>
     pattern.test(a.getAttribute('href') || ''),
   );
 
+/** Left-navigation entries matched by selector (profile link, "More" button). */
+const navItems = (selector) => (root) => [
+  ...root.querySelectorAll(`header[role="banner"] ${selector}`),
+];
+
 /* ------------------------------------------------------------------ */
 /* Rules                                                               */
 /* ------------------------------------------------------------------ */
@@ -164,13 +169,45 @@ export const RULES = [
   },
 
   /* Navigation (left menu) */
-  { group: 'nav', key: 'premium', find: navLinks(/^\/i\/premium/) },
+  {
+    group: 'nav',
+    key: 'logo',
+    // The wrapper around the <h1> too, so no empty gap stays above the menu.
+    find: (root) =>
+      navItems('h1 a[href="/home"]')(root).map((link) => {
+        const heading = link.closest('h1');
+        return heading?.parentElement || heading || link;
+      }),
+  },
+  { group: 'nav', key: 'explore', find: navLinks(/^\/explore/) },
+  { group: 'nav', key: 'notifications', find: navLinks(/^\/notifications/) },
+  { group: 'nav', key: 'chat', find: navLinks(/^\/i\/chat/) },
+  { group: 'nav', key: 'calls', find: navLinks(/^\/i\/calls/) },
   { group: 'nav', key: 'grok', find: navLinks(/^\/i\/grok/) },
-  { group: 'nav', key: 'communities', find: navLinks(/^\/(i|[^/]+)\/communities/) },
-  { group: 'nav', key: 'lists', find: navLinks(/^\/(i|[^/]+)\/lists$/) },
-  { group: 'nav', key: 'bookmarks', find: navLinks(/^\/i\/bookmarks/) },
-  { group: 'nav', key: 'jobs', find: navLinks(/^\/jobs/) },
-  { group: 'nav', key: 'verifiedOrgs', find: navLinks(/^\/i\/verified-orgs/) },
+  { group: 'nav', key: 'history', find: navLinks(/^\/i\/history/) },
+  { group: 'nav', key: 'creatorStudio', find: navLinks(/^\/i\/jf\/creators/) },
+  { group: 'nav', key: 'premium', find: navLinks(/^\/i\/premium/) },
+  { group: 'nav', key: 'followerRequests', find: navLinks(/^\/follower_requests/) },
+  { group: 'nav', key: 'profile', find: navItems('[data-testid="AppTabBar_Profile_Link"]') },
+  { group: 'nav', key: 'more', find: navItems('[data-testid="AppTabBar_More_Menu"]') },
+  {
+    group: 'nav',
+    key: 'post',
+    // Hide the button's wrapper too, so no empty gap stays in the menu.
+    find: (root) =>
+      navItems('[data-testid="SideNav_NewTweet_Button"]')(root).map((button) => button.parentElement || button),
+  },
+  {
+    group: 'nav',
+    key: 'account',
+    // Account switcher at the bottom: hide its wrappers too, but never the nav.
+    find: (root) =>
+      navItems('[data-testid="SideNav_AccountSwitcher_Button"]')(root).map((button) => {
+        const outer = button.parentElement?.parentElement;
+        if (outer && !outer.querySelector('nav')) return outer;
+        return button.parentElement || button;
+      }),
+  },
 
   /* Interface chrome */
   {

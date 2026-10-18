@@ -78,6 +78,7 @@ registerFeature({
   fields: {
     enabled: field.bool(true),
     menuLeft: field.bool(false),
+    menuCenter: field.bool(false),
     sidebarRight: field.bool(false),
     centerContent: field.bool(false),
     contentWidth: field.int(0, { min: 0, max: 1600 }),
@@ -130,6 +131,7 @@ registerFeature({
           controls: [
             { type: 'subheading', textKey: 'interface.sub.layout' },
             layoutSwitch('menuLeft'),
+            layoutSwitch('menuCenter'),
             ...hideControls('nav'),
           ],
         },

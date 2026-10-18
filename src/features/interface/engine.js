@@ -45,6 +45,16 @@ const MENU_LEFT_CSS = [
   'header[role="banner"] > div{align-items:flex-start!important}',
 ].join('\n');
 
+/**
+ * Centre the menu items (logo, links, post button) vertically: every wrapper
+ * on the way down to the nav grows to the full height and the one that holds
+ * the nav centres its children.
+ */
+const MENU_CENTER_CSS = [
+  'header[role="banner"] div:has(nav[role="navigation"]){flex:1 1 auto!important;min-height:0}',
+  'header[role="banner"] div:has(> nav[role="navigation"]){display:flex!important;flex-direction:column!important;justify-content:center!important}',
+].join('\n');
+
 /** Pin the right column (search, trends, who to follow) to the screen edge. */
 const SIDEBAR_RIGHT_CSS = `${SEL.sidebar}{position:fixed!important;top:0;right:0;bottom:0;width:350px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}`;
 
@@ -70,6 +80,7 @@ export function applyRuleStyles() {
     )
     .join('\n');
   ensureStyle().textContent = [rules, contentWidthCss(cfg.contentWidth), cfg.menuLeft ? MENU_LEFT_CSS : '',
+    cfg.menuCenter ? MENU_CENTER_CSS : '',
     cfg.sidebarRight || cfg.centerContent ? SIDEBAR_RIGHT_CSS : '',
     cfg.centerContent ? CENTER_CSS : ''].filter(Boolean).join('\n');
 }
@@ -86,6 +97,7 @@ const PEEK_HIGHLIGHT_CSS = `[${PEEK_ATTR}]{outline:2px solid var(--xp-accent,#1d
 const LAYOUT_PEEK = {
   contentWidth: (value) => contentWidthCss(value),
   menuLeft: () => MENU_LEFT_CSS,
+  menuCenter: () => MENU_CENTER_CSS,
   sidebarRight: () => SIDEBAR_RIGHT_CSS,
   centerContent: () => [SIDEBAR_RIGHT_CSS, CENTER_CSS].join('\n'),
 };
