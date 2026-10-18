@@ -1,4 +1,4 @@
-import { SEL } from '../../core/constants.js';
+import { NATIVE_AUTO_TRANSLATE_ICON_PATH, SEL } from '../../core/constants.js';
 
 /**
  * Declarative clean-up rules. A rule hides something on X and is toggled by
@@ -149,8 +149,19 @@ function showPostsRows(root) {
   });
 }
 
-/** Avatar / content that belongs to a post quoted inside the article, not to the article itself. */
-const isInQuote = (node) => Boolean(node.closest(`${SEL.quoteTweet}, ${SEL.quoteAvatar}`));
+/**
+ * The card of a post quoted inside `article` that holds `node`, or null. The quote is a
+ * `role="link"` block nested in the article (the article's own avatar uses the same
+ * `Tweet-User-Avatar` test id, so that id cannot tell them apart).
+ */
+function quoteCardOf(node, article = node.closest(SEL.article)) {
+  const legacy = node.closest(SEL.quoteTweet);
+  if (legacy) return legacy;
+  const card = node.closest('[role="link"]');
+  return card && article && card !== article && article.contains(card) ? card : null;
+}
+
+const isInQuote = (node) => Boolean(quoteCardOf(node));
 
 /**
  * Posts quoted inside a post. X draws the card as a `role="link"` block that holds a
@@ -162,13 +173,59 @@ function quotedPosts(root) {
   for (const article of root.querySelectorAll(SEL.article)) {
     const cards = [...article.querySelectorAll(SEL.quoteTweet)];
     for (const avatar of article.querySelectorAll(SEL.quoteAvatar)) {
-      const card = avatar.closest('[role="link"]');
-      if (card && article.contains(card) && card !== article) cards.push(card);
+      const card = quoteCardOf(avatar, article);
+      if (card) cards.push(card);
     }
     for (const card of cards) {
       const wrapper = card.parentElement;
       const single = wrapper && wrapper !== article && wrapper.children.length <= 2;
       found.add(single ? wrapper : card);
+    }
+  }
+  return [...found];
+}
+
+/** Markers of a video / GIF inside a media block (a poster image is also a `tweetPhoto`). */
+const VIDEO_MARKERS = `${SEL.videoPlayer}, [data-testid="previewInterstitial"], [data-testid="playButton"], video`;
+
+/** What makes an ancestor too big to be "just the media": it also holds the text, name or actions. */
+const POST_PARTS = `${SEL.tweetText}, ${SEL.userName}, [role="group"]`;
+
+/**
+ * Media blocks of the posts under `root` (photos, videos, GIFs; also inside quotes). Each block is
+ * the largest wrapper that holds nothing but media, so a photo grid goes as a whole and no empty
+ * frame stays behind.
+ * @returns {{ node: Element, video: boolean }[]}
+ */
+function mediaBlocks(root) {
+  const blocks = new Map();
+  for (const media of root.querySelectorAll(`${SEL.article} :is(${SEL.photo}, ${SEL.videoPlayer})`)) {
+    let node = media;
+    while (node.parentElement && !node.parentElement.matches(SEL.article) && !node.parentElement.querySelector(POST_PARTS)) {
+      node = node.parentElement;
+    }
+    blocks.set(node, blocks.get(node) || media.matches(VIDEO_MARKERS) || Boolean(media.querySelector(VIDEO_MARKERS)));
+  }
+  return [...blocks].map(([node, video]) => ({ node, video: video || Boolean(node.querySelector(VIDEO_MARKERS)) }));
+}
+
+/**
+ * The @handle in a post header (also in quotes), as the largest wrapper that holds nothing else,
+ * plus the "·" separator right after it so no dangling dot stays before the time.
+ */
+function handleLabels(root) {
+  const found = new Set();
+  for (const header of root.querySelectorAll(`${SEL.article} ${SEL.userName}`)) {
+    for (const span of header.querySelectorAll('span')) {
+      const text = (span.textContent || '').trim();
+      if (!text.startsWith('@') || span.children.length) continue;
+      let node = span;
+      while (node.parentElement && node.parentElement !== header && (node.parentElement.textContent || '').trim() === text) {
+        node = node.parentElement;
+      }
+      found.add(node);
+      const next = node.nextElementSibling;
+      if (next && (next.textContent || '').trim() === '·') found.add(next);
     }
   }
   return [...found];
@@ -288,6 +345,64 @@ export const RULES = [
           return node;
         }),
   },
+  {
+    group: 'posts',
+    key: 'images',
+    part: 'post',
+    hint: true,
+    find: (root) => mediaBlocks(root).filter((block) => !block.video).map((block) => block.node),
+  },
+  {
+    group: 'posts',
+    key: 'videos',
+    part: 'post',
+    hint: true,
+    find: (root) => mediaBlocks(root).filter((block) => block.video).map((block) => block.node),
+  },
+  {
+    group: 'posts',
+    key: 'linkCards',
+    part: 'post',
+    hint: true,
+    // The link preview card; its wrapper goes too (it also holds the "From example.com" caption).
+    find: (root) =>
+      [...root.querySelectorAll(`${SEL.article} [data-testid="card.wrapper"]`)].map((card) => {
+        const wrapper = card.parentElement;
+        const single =
+          wrapper && !wrapper.matches(SEL.article) && wrapper.children.length <= 2 && !wrapper.querySelector(POST_PARTS);
+        return single ? wrapper : card;
+      }),
+  },
+  {
+    group: 'posts',
+    key: 'articles',
+    part: 'post',
+    hint: true,
+    // The X Article card: cover image plus title and teaser. Found by its cover; the card is
+    // the cover's parent, and a single-child link wrapper around it goes too.
+    find: (root) =>
+      [...root.querySelectorAll(`${SEL.article} [data-testid="article-cover-image"]`)].map((cover) => {
+        let node = cover.parentElement || cover;
+        if (node.matches(SEL.article) || node.querySelector(POST_PARTS)) return cover;
+        const outer = node.parentElement;
+        if (outer && !outer.matches(SEL.article) && outer.children.length === 1 && !outer.querySelector(POST_PARTS)) node = outer;
+        return node;
+      }),
+  },
+  {
+    group: 'posts',
+    key: 'translateNotice',
+    part: 'post',
+    hint: true,
+    // X's "Source language: … Show original" line: the translate glyph's parent that also holds
+    // a button. The same glyph sits inside the Grok header button, which is excluded.
+    find: (root) =>
+      [...root.querySelectorAll(`${SEL.article} svg path[d^="${NATIVE_AUTO_TRANSLATE_ICON_PATH}"]`)]
+        .filter((path) => !path.closest('button, [data-xp-ui]'))
+        .map((path) => path.closest('svg')?.parentElement)
+        .filter((bar) => bar && !bar.matches(SEL.article) && bar.querySelector('button')),
+  },
+  { group: 'posts', key: 'handles', part: 'post', hint: true, find: handleLabels },
   {
     group: 'posts',
     key: 'quotedPosts',

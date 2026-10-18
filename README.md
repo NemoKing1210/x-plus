@@ -80,7 +80,7 @@ if it is currently hidden).
 A separate **Post** section styles a single post and its parts: posts as cards (outline,
 filled or shadow, adjustable corner radius), space between posts, inner padding,
 no dividers, text size, avatar shape (circle, rounded or square) and hiding of
-avatars, quoted posts, the action bar, view counts, verified badges and the Grok button.
+avatars, quoted posts, images, videos, link previews, articles, the “Source language” notice, @handles, the action bar, view counts, verified badges and the Grok button.
 
 ### Settings
 
