@@ -269,6 +269,8 @@ export default {
   'interface.centerContent': 'Center the feed on the screen',
   'interface.centerContentHint': 'Places the feed exactly in the middle of the screen. The menu and the right column are pinned to the screen edges.',
   'interface.rule.posts.composer': 'Post composer',
+  'interface.rule.posts.moreFromX': '“Discover more” under a post',
+  'interface.rule.posts.moreFromXHint': 'On a post’s page, hides the “Discover more” heading and the recommended posts below the replies.',
   'interface.rule.posts.feedTabs': 'Feed tabs',
   'interface.rule.posts.newPostsPill': '“New posts” button',
   'interface.rule.posts.showPosts': '“Show N posts” row',

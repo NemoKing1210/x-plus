@@ -269,6 +269,8 @@ export default {
   'interface.centerContent': 'フィードを画面中央に配置',
   'interface.centerContentHint': 'フィードを画面のちょうど中央に配置します。メニューと右カラムは画面の端に固定されます。',
   'interface.rule.posts.composer': 'ポスト入力欄',
+  'interface.rule.posts.moreFromX': '投稿下の「さらに見つける」',
+  'interface.rule.posts.moreFromXHint': '投稿ページで、返信の下にある「さらに見つける」の見出しとおすすめ投稿を非表示にします。',
   'interface.rule.posts.feedTabs': 'タイムラインのタブ',
   'interface.rule.posts.newPostsPill': '「新しいポスト」ボタン',
   'interface.rule.posts.showPosts': '「N 件のポストを表示」行',

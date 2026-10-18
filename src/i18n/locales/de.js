@@ -269,6 +269,8 @@ export default {
   'interface.centerContent': 'Feed mittig auf dem Bildschirm',
   'interface.centerContentHint': 'Platziert den Feed genau in der Bildschirmmitte. Menü und rechte Spalte werden an die Ränder gepinnt.',
   'interface.rule.posts.composer': 'Beitragsfeld',
+  'interface.rule.posts.moreFromX': '„Mehr entdecken“ unter einem Beitrag',
+  'interface.rule.posts.moreFromXHint': 'Blendet auf der Seite eines Beitrags die Überschrift „Mehr entdecken“ und die empfohlenen Beiträge unter den Antworten aus.',
   'interface.rule.posts.feedTabs': 'Feed-Tabs',
   'interface.rule.posts.newPostsPill': 'Button „Neue Beiträge“',
   'interface.rule.posts.showPosts': 'Zeile „N Beiträge anzeigen“',

@@ -269,6 +269,8 @@ export default {
   'interface.centerContent': 'Centrar el feed en la pantalla',
   'interface.centerContentHint': 'Coloca el feed justo en el centro de la pantalla. El menú y la columna derecha se fijan a los bordes.',
   'interface.rule.posts.composer': 'Cuadro de publicación',
+  'interface.rule.posts.moreFromX': '«Descubre más» bajo una publicación',
+  'interface.rule.posts.moreFromXHint': 'En la página de una publicación, oculta el encabezado «Descubre más» y las publicaciones recomendadas bajo las respuestas.',
   'interface.rule.posts.feedTabs': 'Pestañas de la cronología',
   'interface.rule.posts.newPostsPill': 'Botón «Nuevas publicaciones»',
   'interface.rule.posts.showPosts': 'Fila «Mostrar N publicaciones»',

@@ -146,6 +146,25 @@ function showPostsRows(root) {
   });
 }
 
+/**
+ * "Discover more" on a post's page: X appends a heading cell (an `h2` and no
+ * post) after the replies, followed by recommended posts. The heading is
+ * localized, so it is found by structure; it and every cell after it are hidden.
+ */
+function moreFromX(root) {
+  if (!location.pathname.includes('/status/')) return [];
+  const cells = [...document.querySelectorAll(`${SEL.primaryColumn} ${SEL.cell}`)];
+  const first = cells.findIndex((cell) => cell.querySelector('article'));
+  const header = cells.findIndex(
+    (cell, index) =>
+      index > first &&
+      first >= 0 &&
+      !cell.querySelector('article') &&
+      cell.querySelector('h2[role="heading"]'),
+  );
+  return header < 0 ? [] : cells.slice(header).filter((cell) => root === document || root.contains(cell) || cell.contains(root));
+}
+
 /** Feed tabs (For you / Following / …) exist on the home timeline only. */
 function feedTabLists(root) {
   if (location.pathname !== '/home') return [];
@@ -199,6 +218,7 @@ export const RULES = [
     css: 'div:has(> div > [role="status"] [data-testid="pillLabel"])',
   },
   { group: 'posts', key: 'composer', hint: true, find: inlineComposers },
+  { group: 'posts', key: 'moreFromX', hint: true, find: moreFromX },
   {
     group: 'posts',
     key: 'promoted',

@@ -269,6 +269,8 @@ export default {
   'interface.centerContent': 'Лента ровно по центру экрана',
   'interface.centerContentHint': 'Размещает ленту точно по центру экрана. Меню и правая колонка закрепляются по краям экрана.',
   'interface.rule.posts.composer': 'Окно «Что происходит?»',
+  'interface.rule.posts.moreFromX': '«Больше твитов» под постом',
+  'interface.rule.posts.moreFromXHint': 'На странице поста скрывает заголовок «Больше твитов» и рекомендованные посты под ответами.',
   'interface.rule.posts.feedTabs': 'Вкладки ленты',
   'interface.rule.posts.newPostsPill': 'Кнопка «Новые посты»',
   'interface.rule.posts.showPosts': 'Строка «Показать N постов»',

@@ -269,6 +269,8 @@ export default {
   'interface.centerContent': '信息流居中显示',
   'interface.centerContentHint': '将信息流精确置于屏幕中央，菜单和右栏固定在屏幕两侧。',
   'interface.rule.posts.composer': '发帖输入框',
+  'interface.rule.posts.moreFromX': '帖子下方的“更多推文”',
+  'interface.rule.posts.moreFromXHint': '在帖子页面上，隐藏回复下方的“更多推文”标题及推荐帖子。',
   'interface.rule.posts.feedTabs': '时间线标签',
   'interface.rule.posts.newPostsPill': '“新帖子”按钮',
   'interface.rule.posts.showPosts': '“显示 N 条帖子”行',

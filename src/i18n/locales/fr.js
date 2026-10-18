@@ -269,6 +269,8 @@ export default {
   'interface.centerContent': 'Centrer le fil sur l’écran',
   'interface.centerContentHint': 'Place le fil exactement au milieu de l’écran. Le menu et la colonne droite sont fixés aux bords.',
   'interface.rule.posts.composer': 'Zone de publication',
+  'interface.rule.posts.moreFromX': '« Découvrir plus » sous une publication',
+  'interface.rule.posts.moreFromXHint': 'Sur la page d’une publication, masque le titre « Découvrir plus » et les publications recommandées sous les réponses.',
   'interface.rule.posts.feedTabs': 'Onglets du fil',
   'interface.rule.posts.newPostsPill': 'Bouton « Nouveaux posts »',
   'interface.rule.posts.showPosts': 'Ligne « Afficher N posts »',

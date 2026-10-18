@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Interface settings: hide “Discover more” and the recommended posts below the replies on a post’s page
 - Interface settings: new “Post appearance” section — posts as cards (outline, filled or shadow, corner radius), space between posts, inner padding, hide dividers, text size and avatar shape, all with a live preview
 - Interface settings: hide the floating “Show new posts” button and the “Show N posts” row at the top of the timeline
 

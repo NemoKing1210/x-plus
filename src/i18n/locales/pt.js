@@ -269,6 +269,8 @@ export default {
   'interface.centerContent': 'Centralizar o feed na tela',
   'interface.centerContentHint': 'Coloca o feed exatamente no meio da tela. O menu e a coluna direita ficam fixos nas bordas.',
   'interface.rule.posts.composer': 'Caixa de postagem',
+  'interface.rule.posts.moreFromX': '“Descubra mais” abaixo de uma publicação',
+  'interface.rule.posts.moreFromXHint': 'Na página de uma publicação, oculta o título “Descubra mais” e as publicações recomendadas abaixo das respostas.',
   'interface.rule.posts.feedTabs': 'Abas da linha do tempo',
   'interface.rule.posts.newPostsPill': 'Botão «Novos posts»',
   'interface.rule.posts.showPosts': 'Linha «Mostrar N posts»',
