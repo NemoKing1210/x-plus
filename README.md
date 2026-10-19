@@ -67,6 +67,16 @@ Same engine as [x-translator](https://github.com/NemoKing1210/x-translator):
 - Photo gallery (opt-in): a click on a post photo opens a fast full-screen gallery instead of X's photo page — no replies or timeline are loaded; all photos of the post with thumbnails, `←` / `→`, swipe, zoom, download and open-original (Ctrl / Cmd / Shift-click still opens X's viewer)
 - Photo viewer zoom: wheel, drag, double click, `+` / `-` / `0`, pinch on touch screens
 
+### Shorts mode
+
+Browse the feed one post at a time, like YouTube Shorts (opt-in).
+
+- The mouse wheel or `↑` / `↓` (also `J` / `K`) jumps to the previous / next post and centres it
+- Round ↑ / ↓ buttons beside the current post step to the previous / next post with the mouse
+- The current post grows a little, the posts around it are blurred; size and blur are adjustable
+- Turn it on in settings (Shorts tab) or with the switch next to the `Ctrl + M` reminder at the bottom left
+- Works in feeds (Home, profiles, search, lists), not on a post page; a post taller than the screen scrolls normally until its edge is reached
+
 ### Interface
 
 Toggle-based clean-up rules: promoted posts, view counts, verified badges,

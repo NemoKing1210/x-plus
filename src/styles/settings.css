@@ -1178,12 +1178,23 @@
 }
 
 /* Ctrl+M reminder, bottom left */
-.xp-hotkey-hint {
-  appearance: none;
+.xp-dock {
   position: fixed;
   left: 12px;
   bottom: 12px;
   z-index: 2147482000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.xp-dock[hidden] {
+  display: none;
+}
+
+.xp-hotkey-hint {
+  appearance: none;
+  order: 0;
   display: inline-flex;
   align-items: center;
   gap: 8px;

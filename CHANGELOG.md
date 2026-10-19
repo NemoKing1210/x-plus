@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Shorts mode (Shorts tab in settings, or the switch next to the `Ctrl + M` reminder at the bottom left): browse the feed one post at a time like YouTube Shorts — the wheel or `↑` / `↓` (`J` / `K`) jumps to the previous / next post and centres it, the current post grows a little and the posts around it are blurred; ↑ / ↓ buttons beside the post work with the mouse; size and blur are adjustable
+
 ## [0.8.0] - 2026-10-18
 
 ### Added

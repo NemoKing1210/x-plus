@@ -29,9 +29,10 @@ src/
 │   ├── general/             # UI language, sidebar button, toast settings
 │   ├── translate/           # In-place post translation (port of x-translator)
 │   ├── media/               # Video / GIF / photo download + feed image quality
+│   ├── shorts/              # Shorts mode: one post at a time (wheel / arrows), focus + blur
 │   ├── interface/           # Declarative clean-up rules (ads, suggestions, menu entries)
 │   └── settings/            # Settings dialog, spec renderer, nav button, Backup / About tabs
-├── ui/                      # icons, toast, popup menu, scroll lock
+├── ui/                      # icons, toast, popup menu, scroll lock, bottom-left dock
 ├── utils/                   # dom, html, format, handle, lists, linked-text
 └── styles/                  # tokens, base, translate, media, settings (xp- prefix)
 ```
@@ -190,6 +191,14 @@ click → getTweetId(article)
 - The GraphQL fallback is best-effort: the query id rotates with X's web
   client (it is discovered from the loaded bundles, known ids are tried
   first) and missing feature flags reported by the server are filled in once.
+
+### shorts
+
+`engine.js` (setting `enabled`, off by default; switchable from the settings tab and from `dock-switch.js`, the switch in the bottom-left dock `ui/dock.js` next to the shortcut reminder) turns the feed into a post-by-post view on feed pages (anything but `/…/status/…`, messages, settings, Grok). Capture-phase `wheel` / `keydown` listeners step to the neighbouring post cell (`SEL.cell` containing `SEL.article`) with an own `requestAnimationFrame` tween on `window.scrollTo` that re-reads the target every frame, so X's virtualization and infinite scroll are untouched. One step per wheel gesture (the decaying tail of a trackpad flick is ignored); a post taller than the screen scrolls natively until its edge is visible; wheel and keys are left alone over the sidebar, dialogs / menus / the gallery, text inputs and fullscreen video.
+
+The nearest cell to the screen middle gets `data-xp-shorts="active"`, the other post cells `aside`; `styles/shorts.css` scales / blurs the `article` inside (never the cell: X positions cells with transforms). `nav.js` draws the previous / next buttons (setting `buttons`): a fixed, vertically centred pair at the right edge of `SEL.primaryColumn` — in the gap before the right column when it is wide enough, over the feed's edge otherwise — hidden while a dialog / menu is open; `engine.js` feeds it the enabled states on every `update()`.
+
+`<html data-xp-shorts-on>` exists only while the mode is engaged on the current page.
 
 ### interface
 

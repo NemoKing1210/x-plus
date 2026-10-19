@@ -3,6 +3,7 @@ import './styles/base.css';
 import './styles/translate.css';
 import './styles/media.css';
 import './styles/gallery.css';
+import './styles/shorts.css';
 import './styles/settings.css';
 import './styles/motion.css';
 
@@ -22,6 +23,7 @@ import { whenReady } from './utils/dom.js';
 import './features/general/index.js';
 import './features/translate/index.js';
 import './features/media/index.js';
+import './features/shorts/index.js';
 import './features/interface/index.js';
 import './features/settings/index.js';
 

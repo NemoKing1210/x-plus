@@ -1,5 +1,6 @@
 import { getFeatureSettings } from '../../core/settings.js';
 import { t } from '../../i18n/index.js';
+import { getDock, syncDock } from '../../ui/dock.js';
 import { el } from '../../utils/dom.js';
 import { closeSettings, isSettingsOpen, openSettings } from './panel.js';
 
@@ -37,7 +38,7 @@ function ensureHint() {
   hint.type = 'button';
   hint.append(el('kbd', 'xp-hotkey-hint__keys', 'Ctrl + M'), el('span', 'xp-hotkey-hint__text'));
   hint.addEventListener('click', () => openSettings());
-  (document.body || document.documentElement).appendChild(hint);
+  getDock().prepend(hint);
   return hint;
 }
 
@@ -49,11 +50,15 @@ export function syncHotkey() {
   }
   const cfg = getFeatureSettings('general');
   const show = cfg.hotkey && cfg.hotkeyHint;
-  if (!show && !hint) return;
+  if (!show && !hint) {
+    syncDock();
+    return;
+  }
   const node = ensureHint();
   node.hidden = !show;
   const text = t('hotkey.hint');
   node.lastChild.textContent = text;
   node.title = text;
   node.setAttribute('aria-label', `Ctrl + M — ${text}`);
+  syncDock();
 }
