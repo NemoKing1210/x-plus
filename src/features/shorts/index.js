@@ -27,7 +27,7 @@ registerFeature({
     /** Previous / next buttons beside the current post. */
     buttons: field.bool(true),
     /** Length of the transitions between posts. */
-    speed: field.enum(['slow', 'normal', 'fast'], 'normal'),
+    speed: field.enum(['slow', 'normal', 'fast', 'instant'], 'normal'),
     /** Size of the current post, in percent. */
     scale: field.int(105, { min: 100, max: 120 }),
     /** Blur of the other posts, in px. */
@@ -62,6 +62,7 @@ registerFeature({
                 { value: 'slow', labelKey: 'shorts.speed.slow' },
                 { value: 'normal', labelKey: 'shorts.speed.normal' },
                 { value: 'fast', labelKey: 'shorts.speed.fast' },
+                { value: 'instant', labelKey: 'shorts.speed.instant' },
               ],
             },
             { type: 'slider', path: 'scale', labelKey: 'shorts.scale', hintKey: 'shorts.scaleHint', min: 100, max: 120, step: 1, unit: '%' },

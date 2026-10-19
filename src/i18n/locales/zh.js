@@ -421,4 +421,5 @@ export default {
   'shorts.speed.slow': '慢',
   'shorts.speed.normal': '普通',
   'shorts.speed.fast': '快',
+  'shorts.speed.instant': '即时',
 };

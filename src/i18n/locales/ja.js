@@ -421,4 +421,5 @@ export default {
   'shorts.speed.slow': 'ゆっくり',
   'shorts.speed.normal': '標準',
   'shorts.speed.fast': '速い',
+  'shorts.speed.instant': '即時',
 };

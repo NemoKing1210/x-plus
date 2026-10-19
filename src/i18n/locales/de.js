@@ -421,4 +421,5 @@ export default {
   'shorts.speed.slow': 'Langsam',
   'shorts.speed.normal': 'Normal',
   'shorts.speed.fast': 'Schnell',
+  'shorts.speed.instant': 'Sofort',
 };

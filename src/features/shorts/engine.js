@@ -29,7 +29,7 @@ const INTERACTIVE_SELECTOR =
 const CHROME_SELECTOR = `${SEL.sidebar}, header[role="banner"]`;
 
 /** Duration multiplier of the transitions (scroll and grow / blur) per `speed` setting. */
-const SPEED = { slow: 1.7, normal: 1, fast: 0.55 };
+const SPEED = { slow: 1.7, normal: 1, fast: 0.55, instant: 0 };
 /** Base length of the grow / blur transition, in seconds. */
 const FADE_SECONDS = 0.5;
 
@@ -179,16 +179,16 @@ function stopTween() {
 function animateTo(target, cell = null) {
   stopTween();
   pinned = cell;
+  const factor = SPEED[getFeatureSettings('shorts').speed] ?? 1;
   const from = window.scrollY;
   const jump = (top) => window.scrollTo({ top, left: 0, behavior: 'instant' });
 
-  if (reducedMotion()) {
+  if (reducedMotion() || factor === 0) {
     jump(target());
     pinned = null;
     update();
     return;
   }
-  const factor = SPEED[getFeatureSettings('shorts').speed] ?? 1;
   const duration = clamp(340 + Math.abs(target() - from) * 0.1, 360, 620) * factor;
   const startedAt = performance.now();
   const state = { id: 0, until: startedAt + duration + 400 };
