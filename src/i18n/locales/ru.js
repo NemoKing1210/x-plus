@@ -416,4 +416,9 @@ export default {
   'shorts.buttonsHint': 'Две круглые кнопки рядом с текущим постом, для управления мышью.',
   'shorts.prev': 'Предыдущий пост',
   'shorts.next': 'Следующий пост',
+  'shorts.speed': 'Скорость переходов',
+  'shorts.speedHint': 'Сколько длятся переход к следующему посту и эффект увеличения и размытия.',
+  'shorts.speed.slow': 'Медленно',
+  'shorts.speed.normal': 'Обычная',
+  'shorts.speed.fast': 'Быстро',
 };

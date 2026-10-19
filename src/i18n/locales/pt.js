@@ -416,4 +416,9 @@ export default {
   'shorts.buttonsHint': 'Dois botões redondos ao lado do post atual, para usar o mouse.',
   'shorts.prev': 'Post anterior',
   'shorts.next': 'Post seguinte',
+  'shorts.speed': 'Velocidade da transição',
+  'shorts.speedHint': 'Quanto duram o salto para o próximo post e o efeito de ampliar / desfocar.',
+  'shorts.speed.slow': 'Lenta',
+  'shorts.speed.normal': 'Normal',
+  'shorts.speed.fast': 'Rápida',
 };

@@ -73,7 +73,7 @@ Browse the feed one post at a time, like YouTube Shorts (opt-in).
 
 - The mouse wheel or `↑` / `↓` (also `J` / `K`) jumps to the previous / next post and centres it
 - Round ↑ / ↓ buttons beside the current post step to the previous / next post with the mouse
-- The current post grows a little, the posts around it are blurred; size and blur are adjustable
+- The current post grows a little, the posts around it are blurred; size, blur and transition speed are adjustable
 - Turn it on in settings (Shorts tab) or with the switch next to the `Ctrl + M` reminder at the bottom left
 - Works in feeds (Home, profiles, search, lists), not on a post page; a post taller than the screen scrolls normally until its edge is reached
 

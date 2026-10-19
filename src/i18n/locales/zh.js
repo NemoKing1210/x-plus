@@ -416,4 +416,9 @@ export default {
   'shorts.buttonsHint': '当前帖子旁边的两个圆形按钮，方便用鼠标操作。',
   'shorts.prev': '上一条帖子',
   'shorts.next': '下一条帖子',
+  'shorts.speed': '切换速度',
+  'shorts.speedHint': '跳转到下一条帖子以及放大 / 模糊效果所需的时间。',
+  'shorts.speed.slow': '慢',
+  'shorts.speed.normal': '普通',
+  'shorts.speed.fast': '快',
 };

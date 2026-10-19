@@ -416,4 +416,9 @@ export default {
   'shorts.buttonsHint': 'Two round buttons beside the current post, for the mouse.',
   'shorts.prev': 'Previous post',
   'shorts.next': 'Next post',
+  'shorts.speed': 'Transition speed',
+  'shorts.speedHint': 'How long the jump to the next post and the grow / blur effect take.',
+  'shorts.speed.slow': 'Slow',
+  'shorts.speed.normal': 'Normal',
+  'shorts.speed.fast': 'Fast',
 };

@@ -416,4 +416,9 @@ export default {
   'shorts.buttonsHint': 'Deux boutons ronds à côté de la publication courante, pour la souris.',
   'shorts.prev': 'Publication précédente',
   'shorts.next': 'Publication suivante',
+  'shorts.speed': 'Vitesse des transitions',
+  'shorts.speedHint': 'Durée du saut vers la publication suivante et de l’effet d’agrandissement / flou.',
+  'shorts.speed.slow': 'Lente',
+  'shorts.speed.normal': 'Normale',
+  'shorts.speed.fast': 'Rapide',
 };

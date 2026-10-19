@@ -26,6 +26,8 @@ registerFeature({
     keys: field.bool(true),
     /** Previous / next buttons beside the current post. */
     buttons: field.bool(true),
+    /** Length of the transitions between posts. */
+    speed: field.enum(['slow', 'normal', 'fast'], 'normal'),
     /** Size of the current post, in percent. */
     scale: field.int(105, { min: 100, max: 120 }),
     /** Blur of the other posts, in px. */
@@ -51,6 +53,17 @@ registerFeature({
           titleKey: 'shorts.sectionLook',
           showIf: (s) => s.enabled,
           controls: [
+            {
+              type: 'select',
+              path: 'speed',
+              labelKey: 'shorts.speed',
+              hintKey: 'shorts.speedHint',
+              options: [
+                { value: 'slow', labelKey: 'shorts.speed.slow' },
+                { value: 'normal', labelKey: 'shorts.speed.normal' },
+                { value: 'fast', labelKey: 'shorts.speed.fast' },
+              ],
+            },
             { type: 'slider', path: 'scale', labelKey: 'shorts.scale', hintKey: 'shorts.scaleHint', min: 100, max: 120, step: 1, unit: '%' },
             { type: 'slider', path: 'blur', labelKey: 'shorts.blur', hintKey: 'shorts.blurHint', min: 0, max: 12, step: 1 },
           ],

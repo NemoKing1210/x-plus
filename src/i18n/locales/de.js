@@ -416,4 +416,9 @@ export default {
   'shorts.buttonsHint': 'Zwei runde Schaltflächen neben dem aktuellen Beitrag, für die Maus.',
   'shorts.prev': 'Vorheriger Beitrag',
   'shorts.next': 'Nächster Beitrag',
+  'shorts.speed': 'Übergangsgeschwindigkeit',
+  'shorts.speedHint': 'Wie lange der Sprung zum nächsten Beitrag und der Vergrößerungs- / Unschärfeeffekt dauern.',
+  'shorts.speed.slow': 'Langsam',
+  'shorts.speed.normal': 'Normal',
+  'shorts.speed.fast': 'Schnell',
 };

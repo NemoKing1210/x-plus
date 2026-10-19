@@ -416,4 +416,9 @@ export default {
   'shorts.buttonsHint': '現在の投稿の横に表示される丸いボタン。マウス操作用です。',
   'shorts.prev': '前の投稿',
   'shorts.next': '次の投稿',
+  'shorts.speed': '切り替えの速さ',
+  'shorts.speedHint': '次の投稿への移動と、拡大・ぼかし効果にかかる時間。',
+  'shorts.speed.slow': 'ゆっくり',
+  'shorts.speed.normal': '標準',
+  'shorts.speed.fast': '速い',
 };

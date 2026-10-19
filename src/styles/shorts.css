@@ -7,9 +7,9 @@ html[data-xp-shorts-on] [data-xp-shorts] article[data-testid='tweet'] {
   /* Own compositor layer: the effect animates without repainting the post. */
   will-change: transform, filter, opacity;
   transition:
-    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    filter 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transform var(--xp-shorts-time, 0.5s) cubic-bezier(0.4, 0, 0.2, 1),
+    filter var(--xp-shorts-time, 0.5s) cubic-bezier(0.4, 0, 0.2, 1),
+    opacity var(--xp-shorts-time, 0.5s) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html[data-xp-shorts-on] [data-xp-shorts='active'] article[data-testid='tweet'] {

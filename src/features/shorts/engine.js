@@ -28,6 +28,11 @@ const INTERACTIVE_SELECTOR =
 /** Left alone by the wheel: they scroll with the page on their own. */
 const CHROME_SELECTOR = `${SEL.sidebar}, header[role="banner"]`;
 
+/** Duration multiplier of the transitions (scroll and grow / blur) per `speed` setting. */
+const SPEED = { slow: 1.7, normal: 1, fast: 0.55 };
+/** Base length of the grow / blur transition, in seconds. */
+const FADE_SECONDS = 0.5;
+
 const KEY_STEP = { ArrowDown: 1, ArrowUp: -1, KeyJ: 1, KeyK: -1 };
 /** Breathing room kept above / below a post that is taller than the screen. */
 const TALL_MARGIN = 48;
@@ -183,7 +188,8 @@ function animateTo(target, cell = null) {
     update();
     return;
   }
-  const duration = clamp(340 + Math.abs(target() - from) * 0.1, 360, 620);
+  const factor = SPEED[getFeatureSettings('shorts').speed] ?? 1;
+  const duration = clamp(340 + Math.abs(target() - from) * 0.1, 360, 620) * factor;
   const startedAt = performance.now();
   const state = { id: 0, until: startedAt + duration + 400 };
   tween = state;
@@ -320,6 +326,7 @@ export function syncShorts() {
   const style = document.documentElement.style;
   style.setProperty('--xp-shorts-scale', String(cfg.scale / 100));
   style.setProperty('--xp-shorts-blur', `${cfg.blur}px`);
+  style.setProperty('--xp-shorts-time', `${FADE_SECONDS * (SPEED[cfg.speed] ?? 1)}s`);
 
   const wanted = cfg.enabled && isFeedPage();
   if (wanted && !active) start();

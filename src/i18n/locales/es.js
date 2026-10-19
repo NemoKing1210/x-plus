@@ -416,4 +416,9 @@ export default {
   'shorts.buttonsHint': 'Dos botones redondos junto a la publicación actual, para usar el ratón.',
   'shorts.prev': 'Publicación anterior',
   'shorts.next': 'Publicación siguiente',
+  'shorts.speed': 'Velocidad de transición',
+  'shorts.speedHint': 'Cuánto duran el salto a la siguiente publicación y el efecto de ampliar / desenfocar.',
+  'shorts.speed.slow': 'Lenta',
+  'shorts.speed.normal': 'Normal',
+  'shorts.speed.fast': 'Rápida',
 };
