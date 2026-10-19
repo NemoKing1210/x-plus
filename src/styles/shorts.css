@@ -75,6 +75,43 @@ html[data-xp-shorts-on] [data-xp-shorts='aside'] article[data-testid='tweet'] {
   outline-offset: 2px;
 }
 
+/* A key or the wheel did the step: the button answers as if it was pressed */
+.xp-shorts-nav__btn.is-pressed {
+  animation: xp-shorts-press 0.34s var(--xp-ease-out);
+}
+
+.xp-shorts-nav__btn.is-pressed .xp-icon {
+  animation: xp-shorts-nudge 0.34s var(--xp-ease-out);
+}
+
+@keyframes xp-shorts-press {
+  0% {
+    transform: scale(1);
+    box-shadow:
+      var(--xp-shadow),
+      0 0 0 0 rgba(29, 155, 240, 0.5);
+  }
+  30% {
+    transform: scale(0.86);
+    background: var(--xp-hover);
+    box-shadow:
+      var(--xp-shadow),
+      0 0 0 3px rgba(29, 155, 240, 0.5);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow:
+      var(--xp-shadow),
+      0 0 0 12px rgba(29, 155, 240, 0);
+  }
+}
+
+@keyframes xp-shorts-nudge {
+  30% {
+    transform: translateY(var(--xp-nudge, 0));
+  }
+}
+
 .xp-shorts-nav__btn:disabled {
   opacity: 0.35;
   cursor: default;
@@ -146,6 +183,11 @@ html[data-xp-shorts-on] [data-xp-shorts='aside'] article[data-testid='tweet'] {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .xp-shorts-nav__btn.is-pressed,
+  .xp-shorts-nav__btn.is-pressed .xp-icon {
+    animation: none;
+  }
+
   html[data-xp-shorts-on] [data-xp-shorts] article[data-testid='tweet'] {
     transition-duration: 0.01s;
   }

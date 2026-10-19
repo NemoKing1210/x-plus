@@ -1,6 +1,6 @@
 import { SEL } from '../../core/constants.js';
 import { getFeatureSettings } from '../../core/settings.js';
-import { hideNav, syncNav } from './nav.js';
+import { hideNav, pulseNav, syncNav } from './nav.js';
 
 /**
  * Shorts mode: the feed moves one post at a time (wheel, ↑ / ↓, J / K). The
@@ -223,6 +223,7 @@ function scrollToCell(cell) {
 
 /** Move one post up (-1) or down (1). */
 function go(direction) {
+  pulseNav(direction);
   const entries = collect();
   const current = pickActive(entries);
   if (!current) return;

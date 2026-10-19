@@ -10,6 +10,8 @@ import { el } from '../../utils/dom.js';
  * enough, and over the edge of the feed otherwise.
  */
 
+/** Length of the press animation (styles/shorts.css), plus a little. */
+const PRESS_MS = 380;
 const SIZE = 44;
 const GAP = 16;
 const MARGIN = 8;
@@ -18,10 +20,12 @@ let box = null;
 let prev = null;
 let next = null;
 let onStep = null;
+const pressTimers = new WeakMap();
 
 function makeButton(name, direction) {
   const button = el('button', 'xp-shorts-nav__btn');
   button.type = 'button';
+  button.style.setProperty('--xp-nudge', `${direction * 4}px`);
   button.innerHTML = icon(name);
   // Keep the focus where it was: the arrow keys must keep working after a click.
   button.addEventListener('mousedown', (event) => event.preventDefault());
@@ -72,6 +76,18 @@ export function syncNav(state, handler) {
     button.title = label;
     button.setAttribute('aria-label', label);
   }
+}
+
+/** Play the press animation on the button of `direction` (a key or the wheel did the step). */
+export function pulseNav(direction) {
+  const button = direction < 0 ? prev : next;
+  if (!button || box.hidden || button.disabled) return;
+  button.classList.remove('is-pressed');
+  // Force a reflow so the animation restarts on quick repeats.
+  void button.offsetWidth;
+  button.classList.add('is-pressed');
+  clearTimeout(pressTimers.get(button));
+  pressTimers.set(button, setTimeout(() => button.classList.remove('is-pressed'), PRESS_MS));
 }
 
 export function hideNav() {
