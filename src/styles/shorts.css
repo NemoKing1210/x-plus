@@ -4,16 +4,28 @@
 html[data-xp-shorts-on] [data-xp-shorts] article[data-testid='tweet'] {
   position: relative;
   transform-origin: center center;
-  /* Own compositor layer: the effect animates without repainting the post. */
-  will-change: transform, filter, opacity;
   transition:
     transform var(--xp-shorts-time, 0.5s) cubic-bezier(0.4, 0, 0.2, 1),
     filter var(--xp-shorts-time, 0.5s) cubic-bezier(0.4, 0, 0.2, 1),
     opacity var(--xp-shorts-time, 0.5s) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Own compositor layer for the three posts that are on screen (not for every post X keeps in the DOM). */
+html[data-xp-shorts-on] [data-xp-shorts='active'] article[data-testid='tweet'],
+html[data-xp-shorts-on] [data-xp-shorts='prev'] article[data-testid='tweet'],
+html[data-xp-shorts-on] [data-xp-shorts='next'] article[data-testid='tweet'] {
+  will-change: transform, filter, opacity;
+}
+
+/* Posts further away only fade: animating a blur there is wasted work. */
+html[data-xp-shorts-on] [data-xp-shorts='far'] article[data-testid='tweet'] {
+  transition: opacity var(--xp-shorts-time, 0.5s) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 html[data-xp-shorts-on] [data-xp-shorts='active'] article[data-testid='tweet'] {
   z-index: 1;
+  /* All posts of a thread share one origin (set by the engine), so the joins stay put. */
+  transform-origin: 50% var(--xp-shorts-oy, 50%);
   transform: scale(var(--xp-shorts-scale, 1.05));
 }
 

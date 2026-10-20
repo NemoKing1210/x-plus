@@ -3,7 +3,7 @@ import { getLocale, resolveTargetLang } from '../../i18n/index.js';
 import { silencePointerEvents } from '../../utils/dom.js';
 import { hasTranslatablePlainText } from '../../utils/linked-text.js';
 import { isAutoTranslateAllowedForHandle } from './allowlist.js';
-import { translateText } from './api.js';
+import { hasTranslation, prefetchTranslation, translateText } from './api.js';
 import { resolvePostAuthorHandle } from './author.js';
 import {
   applyIdleButton,
@@ -223,7 +223,37 @@ function shouldAutoTranslatePost(postEl) {
  */
 function blockedByShorts(postEl) {
   if (!document.documentElement.hasAttribute(SHORTS_FOCUS_ATTR)) return false;
-  return !postEl.closest(`[${SHORTS_CELL_ATTR}="active"][${SHORTS_SETTLED_ATTR}]`);
+  const active = postEl.closest(`[${SHORTS_CELL_ATTR}="active"]`);
+  if (!active) return true;
+  if (active.hasAttribute(SHORTS_SETTLED_ATTR)) return false;
+  // Not settled yet: only a translation that is already at hand (fetched ahead) may show,
+  // so arriving at the post swaps the text at once and nothing is requested for a post flown past.
+  return !translationReady(postEl);
+}
+
+/** What to send for a post, or null when there is nothing to translate. */
+function translateRequest(postEl) {
+  const { text } = extractPostForTranslate(postEl);
+  if (!hasTranslatablePlainText(text)) return null;
+  return { text, targetLang: resolveTargetLang(cfg().targetLang, getLocale()) };
+}
+
+function translationReady(postEl) {
+  const request = translateRequest(postEl);
+  return Boolean(request) && hasTranslation(request.text, request.targetLang);
+}
+
+/**
+ * Shorts mode reports the post after the current one: fetch its translation in
+ * the background but show nothing; it is used when the user gets there.
+ */
+export function prefetchInCell(cell) {
+  if (!cfg().enabled || !isAutoMode()) return;
+  cell.querySelectorAll(`[${ATTR.post}]`).forEach((postEl) => {
+    if (!shouldAutoTranslatePost(postEl) || postEl.getAttribute(ATTR.autoDone) === '1') return;
+    const request = translateRequest(postEl);
+    if (request) prefetchTranslation(request.text, request.targetLang);
+  });
 }
 
 /** Shorts mode reports a new current post: translate it (when automatic mode is on). */

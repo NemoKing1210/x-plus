@@ -454,4 +454,6 @@ export default {
   'shorts.opacityHint': '0 oculta o post e 100 o mostra por inteiro; o desfoque é ajustado à parte.',
   'shorts.translateOnlyCurrent': 'Traduzir apenas o post atual',
   'shorts.translateOnlyCurrentHint': 'A tradução automática só atua no post do meio, depois de ele ficar ali por um instante — os posts que você passa direto não gastam requisições da API. O botão Traduzir continua funcionando em qualquer post.',
+  'shorts.translateNext': 'Traduzir o próximo post com antecedência',
+  'shorts.translateNextHint': 'Enquanto você lê o post atual, o próximo é traduzido em segundo plano (mais uma requisição à API), mas o texto só é substituído quando você chegar a ele.',
 };

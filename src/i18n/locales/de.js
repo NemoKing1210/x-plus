@@ -454,4 +454,6 @@ export default {
   'shorts.opacityHint': '0 blendet den Beitrag aus, 100 zeigt ihn vollständig; die Unschärfe wird separat eingestellt.',
   'shorts.translateOnlyCurrent': 'Nur den aktuellen Beitrag übersetzen',
   'shorts.translateOnlyCurrentHint': 'Die automatische Übersetzung läuft nur für den Beitrag in der Mitte, nachdem er einen Moment dort geblieben ist – vorbeigescrollte Beiträge kosten keine API-Anfragen. Die Schaltfläche „Übersetzen“ funktioniert weiterhin bei jedem Beitrag.',
+  'shorts.translateNext': 'Nächsten Beitrag vorab übersetzen',
+  'shorts.translateNextHint': 'Während du den aktuellen Beitrag liest, wird der nächste im Hintergrund übersetzt (eine weitere API-Anfrage), sein Text wird aber erst ersetzt, wenn du bei ihm ankommst.',
 };

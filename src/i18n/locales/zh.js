@@ -454,4 +454,6 @@ export default {
   'shorts.opacityHint': '0 为完全隐藏，100 为完全显示；模糊程度另行设置。',
   'shorts.translateOnlyCurrent': '仅翻译当前帖子',
   'shorts.translateOnlyCurrentHint': '自动翻译只对居中的帖子生效，且需在该帖停留片刻后才会触发——快速划过的帖子不会消耗 API 请求。“翻译”按钮对任何帖子仍然可用。',
+  'shorts.translateNext': '提前翻译下一条帖子',
+  'shorts.translateNextHint': '在你阅读当前帖子时，下一条会在后台翻译（多一次 API 请求），但只有当你切换到它时才会替换文字。',
 };

@@ -3,7 +3,7 @@ import { registerFeature } from '../../core/features.js';
 import { field } from '../../core/schema.js';
 import { scanArticles, teardownArticles } from './article.js';
 import { persistCacheNow, CACHE_HOURS_MAX } from './cache.js';
-import { scanPosts, translateInCell } from './controller.js';
+import { prefetchInCell, scanPosts, translateInCell } from './controller.js';
 import { TARGET_LANGUAGES } from './languages.js';
 import { observePostMenus } from './post-menu.js';
 import { PROVIDER_IDS, providerConfigSchema } from './providers/registry.js';
@@ -55,8 +55,11 @@ registerFeature({
 
   init() {
     window.addEventListener('pagehide', persistCacheNow);
-    // Shorts mode: translate the current post once it has settled.
+    // Shorts mode: translate the current post (at once when its translation is ready, otherwise once
+    // it has settled), and fetch the next one's translation ahead without showing it.
+    on('shorts:active', translateInCell);
     on('shorts:settled', translateInCell);
+    on('shorts:ahead', prefetchInCell);
     observePostMenus();
   },
 

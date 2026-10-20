@@ -454,4 +454,6 @@ export default {
   'shorts.opacityHint': '0 makes the post invisible, 100 shows it in full; the blur is set separately.',
   'shorts.translateOnlyCurrent': 'Translate only the current post',
   'shorts.translateOnlyCurrentHint': 'Automatic translation runs only for the post in the middle, after it stays there for a moment — posts you scroll past cost no API requests. The Translate button still works on any post.',
+  'shorts.translateNext': 'Translate the next post in advance',
+  'shorts.translateNextHint': 'While you read the current post, the next one is translated in the background (one more API request), but its text is replaced only when you get to it.',
 };

@@ -8,7 +8,9 @@ import { Codes, logError } from './debug.js';
  *  - `scan`                  (root)           — debounced DOM change
  *  - `navigate`              (url)            — SPA URL change
  *  - `theme`                 (theme)          — X theme flipped
+ *  - `shorts:active`         (cell)           — Shorts mode: this post just became the current one
  *  - `shorts:settled`        (cell)           — Shorts mode: this post has stayed the current one for a moment
+ *  - `shorts:ahead`          (cell)           — Shorts mode: this post is the one after the settled current one
  */
 const listeners = new Map();
 

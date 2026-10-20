@@ -19,7 +19,7 @@ import { navHovered, navVisible, setRing } from './nav.js';
  * The engine hands in what only it knows (`api`), so there is no import cycle.
  *
  * @typedef {object} AutoplayApi
- * @property {() => Element | null} cell    current post cell
+ * @property {() => Element[]} cells       cells of the current post (several for a thread)
  * @property {() => boolean} moving         a scroll animation is running
  * @property {() => boolean} blocked        a dialog / menu / fullscreen is open
  * @property {() => void} step              go to the next post
@@ -32,6 +32,8 @@ const MAX_FRAME_MS = 100;
 const MAX_VIDEO_MS = 5 * 60 * 1000;
 /** How often the (costly) overlay check runs, in ms. */
 const BLOCKED_CHECK_MS = 250;
+/** How often the bar's position is re-measured, in ms. */
+const BAR_MEASURE_MS = 250;
 /** Space between the chip and the top edge of the post. */
 const CHIP_OFFSET = 30;
 
@@ -47,6 +49,13 @@ let blockedAt = 0;
 let userPaused = false;
 let bar = null;
 let chip = null;
+let chipOver = false;
+/** Last drawn state of the bar / ring, and when the bar was last measured. */
+let barShown = { progress: -1, paused: null };
+let barRect = null;
+let barMeasuredAt = 0;
+let barCell = null;
+let ringShown = { progress: -1, paused: null };
 
 export function isAutoPaused() {
   return userPaused;
@@ -56,14 +65,16 @@ export function setAutoPaused(value) {
   userPaused = Boolean(value);
 }
 
-/** How long `cell` stays: the set time, or the video's length when it is longer. */
-function durationFor(cell, cfg) {
+/** How long the post stays: the set time, or the longest video's length when it is longer. */
+function durationFor(cells, cfg) {
   const base = cfg.autoDelay * 1000;
   if (!cfg.autoWaitVideo) return base;
   let longest = 0;
-  for (const video of cell.querySelectorAll('video')) {
-    if (video.loop || !Number.isFinite(video.duration)) continue;
-    longest = Math.max(longest, video.duration * 1000);
+  for (const cell of cells) {
+    for (const video of cell.querySelectorAll('video')) {
+      if (video.loop || !Number.isFinite(video.duration)) continue;
+      longest = Math.max(longest, video.duration * 1000);
+    }
   }
   return Math.max(base, Math.min(longest, MAX_VIDEO_MS));
 }
@@ -85,6 +96,8 @@ function ensureChip() {
   chip = el('button', 'xp-shorts-chip');
   chip.type = 'button';
   chip.addEventListener('mousedown', (event) => event.preventDefault());
+  chip.addEventListener('pointerenter', () => (chipOver = true));
+  chip.addEventListener('pointerleave', () => (chipOver = false));
   chip.addEventListener('click', (event) => {
     event.stopPropagation();
     api?.toggle();
@@ -93,8 +106,9 @@ function ensureChip() {
   return chip;
 }
 
+/** Whether the pointer rests on the chip (tracked by events, see ensureChip). */
 function chipHovered() {
-  return Boolean(chip) && chip.classList.contains('is-on') && chip.matches(':hover');
+  return chipOver;
 }
 
 /** Pause / resume chip with the hotkey, at the right end of the bar. */
@@ -116,23 +130,36 @@ function renderChip(rect, state, cfg) {
   node.classList.toggle('is-on', true);
 }
 
+/** Where the post's top edge is: measured now and then (it sits still between steps), not every frame. */
+function barGeometry(cell, now) {
+  if (barCell !== cell || !barRect || now - barMeasuredAt > BAR_MEASURE_MS) {
+    barCell = cell;
+    barRect = cell.querySelector(SEL.article)?.getBoundingClientRect() ?? null;
+    barMeasuredAt = now;
+  }
+  return barRect;
+}
+
 /** Bar over the top edge of the post (its own box: the post is scaled). */
-function renderBar(state, cfg) {
+function renderBar(state, cfg, now = performance.now()) {
   if (!state && !bar) return;
   const node = ensureBar();
-  const article = state?.cell.querySelector(SEL.article);
-  const rect = article?.getBoundingClientRect();
+  const rect = state ? barGeometry(state.cell, now) : null;
   const visible = Boolean(rect?.width);
   node.classList.toggle('is-on', visible);
   if (!visible) {
     chip?.classList.remove('is-on');
+    barShown = { progress: -1, paused: null };
+    barCell = null;
     return;
   }
   node.classList.toggle('is-paused', state.paused);
   node.style.left = `${Math.round(rect.left)}px`;
   node.style.top = `${Math.round(rect.top)}px`;
   node.style.width = `${Math.round(rect.width)}px`;
-  node.style.setProperty('--xp-auto-progress', String(state.progress));
+  const progress = Math.round(state.progress * 1000) / 1000;
+  if (progress !== barShown.progress) node.style.setProperty('--xp-auto-progress', String(progress));
+  barShown = { progress, paused: state.paused };
   renderChip(rect, state, cfg);
 }
 
@@ -145,7 +172,15 @@ function render(state, cfg) {
   const style = cfg.autoStyle;
   const ring = buttons && (style === 'auto' || style === 'ring' || style === 'both');
   const showBar = style === 'bar' || style === 'both' || (style === 'auto' && !buttons);
-  setRing(ring ? { progress: state?.progress ?? 0, paused: state?.paused ?? false } : null);
+  const progress = Math.round((state?.progress ?? 0) * 1000) / 1000;
+  const paused = state?.paused ?? false;
+  if (!ring) {
+    setRing(null);
+    ringShown = { progress: -1, paused: null };
+  } else if (progress !== ringShown.progress || paused !== ringShown.paused) {
+    setRing({ progress, paused });
+    ringShown = { progress, paused };
+  }
   renderBar(showBar ? state : null, cfg);
 }
 
@@ -165,7 +200,8 @@ function tick(now) {
     render(null, cfg);
     return;
   }
-  const cell = api.cell();
+  const cells = api.cells();
+  const cell = cells[0];
   if (!cell) {
     render(null, cfg);
     return;
@@ -185,7 +221,7 @@ function tick(now) {
 
   const paused = userPaused || (cfg.autoHover && (navHovered() || chipHovered()));
   if (!paused) elapsed += dt;
-  const progress = Math.min(1, elapsed / durationFor(cell, cfg));
+  const progress = Math.min(1, elapsed / durationFor(cells, cfg));
   render({ cell, progress, paused, userPaused }, cfg);
   if (progress >= 1) {
     // Restart in case the step goes nowhere (end of the loaded feed).
@@ -212,5 +248,7 @@ export function stopAutoplay() {
   current = null;
   elapsed = 0;
   setRing(null);
+  ringShown = { progress: -1, paused: null };
+  chipOver = false;
   renderBar(null, null);
 }

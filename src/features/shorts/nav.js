@@ -38,6 +38,8 @@ let arc = null;
 let ringSvg = null;
 /** @type {NavActions | null} */
 let actions = null;
+/** Pointer on the controls (tracked by events: asking `:hover` every frame forces style work). */
+let hovered = false;
 const pressTimers = new WeakMap();
 
 function makeButton(name, direction) {
@@ -70,6 +72,8 @@ function ensure(handlers) {
   if (box) return;
   box = el('div', 'xp-shorts-nav');
   box.setAttribute('role', 'group');
+  box.addEventListener('pointerenter', () => (hovered = true));
+  box.addEventListener('pointerleave', () => (hovered = false));
   prev = makeButton('chevronUp', -1);
   next = makeButton('chevronDown', 1);
   next.classList.add('xp-shorts-nav__btn--next');
@@ -116,13 +120,17 @@ export function syncNav(state, handlers) {
   if (!state.visible && !box) return;
   ensure(handlers);
   box.hidden = !state.visible;
-  if (!state.visible) return;
+  if (!state.visible) {
+    hovered = false;
+    return;
+  }
 
   place();
   prev.disabled = !state.canPrev;
   next.disabled = !state.canNext;
   for (const [button, key] of [[prev, 'shorts.prev'], [next, 'shorts.next']]) {
     const label = t(key);
+    if (button.title === label) continue;
     button.title = label;
     button.setAttribute('aria-label', label);
   }
@@ -136,7 +144,7 @@ export function navVisible() {
 
 /** Whether the pointer rests on the controls. */
 export function navHovered() {
-  return navVisible() && box.matches(':hover');
+  return hovered;
 }
 
 /**
@@ -167,5 +175,6 @@ export function pulseNav(direction) {
 }
 
 export function hideNav() {
+  hovered = false;
   if (box) box.hidden = true;
 }

@@ -454,4 +454,6 @@ export default {
   'shorts.opacityHint': '0 la rend invisible, 100 l’affiche entièrement ; le flou se règle à part.',
   'shorts.translateOnlyCurrent': 'Traduire seulement la publication courante',
   'shorts.translateOnlyCurrentHint': 'La traduction automatique ne s’applique qu’à la publication du milieu, après qu’elle y est restée un instant : celles que vous dépassez ne consomment aucune requête d’API. Le bouton Traduire fonctionne toujours sur n’importe quelle publication.',
+  'shorts.translateNext': 'Traduire la publication suivante à l’avance',
+  'shorts.translateNextHint': 'Pendant que vous lisez la publication actuelle, la suivante est traduite en arrière-plan (une requête d’API de plus), mais son texte n’est remplacé que lorsque vous y arrivez.',
 };

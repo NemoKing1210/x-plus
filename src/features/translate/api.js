@@ -11,6 +11,27 @@ import { translateWithYandex } from './providers/yandex.js';
 /** Identical in-flight requests share one promise. */
 const inflight = new Map();
 
+/**
+ * Translations fetched ahead of time (Shorts mode: the next post). They live in
+ * memory for a few minutes whether or not the persistent cache is on, and are
+ * handed out once, to whoever asks for exactly that text.
+ */
+const WARM_TTL_MS = 5 * 60 * 1000;
+const WARM_MAX = 16;
+const warm = new Map();
+
+function takeWarm(key) {
+  const entry = warm.get(key);
+  if (!entry) return null;
+  warm.delete(key);
+  return Date.now() - entry.at < WARM_TTL_MS ? entry.result : null;
+}
+
+function rememberWarm(key, result) {
+  warm.set(key, { result, at: Date.now() });
+  while (warm.size > WARM_MAX) warm.delete(warm.keys().next().value);
+}
+
 function cacheKey(providerId, text, targetLang) {
   return `tr:${providerId}:${targetLang}:${text}`;
 }
@@ -39,6 +60,40 @@ function callProvider(providerId, text, targetLang) {
   }
 }
 
+function currentProvider() {
+  return isKnownProvider(cfg().provider) ? cfg().provider : 'google';
+}
+
+/** Whether a translation of exactly this text is already at hand (cache or fetched ahead). */
+export function hasTranslation(text, targetLang) {
+  const trimmed = String(text || '').trim();
+  if (!trimmed) return false;
+  const key = cacheKey(currentProvider(), trimmed, targetLang);
+  const hit = getCached(key);
+  if (hit && typeof hit === 'object' && hit.text) return true;
+  const entry = warm.get(key);
+  return Boolean(entry) && Date.now() - entry.at < WARM_TTL_MS;
+}
+
+/**
+ * Fetch a translation now, to be used later: it is kept ready (see `warm`) and
+ * nothing is shown. Quiet on failure; a post that is not wanted costs nothing more.
+ */
+export async function prefetchTranslation(text, targetLang) {
+  const trimmed = String(text || '').trim();
+  if (!trimmed || hasTranslation(trimmed, targetLang)) return;
+  const key = cacheKey(currentProvider(), trimmed, targetLang);
+  if (inflight.has(key)) return;
+  try {
+    // translateText stores into the persistent cache itself (when it is on) and
+    // consumes warm entries, so keep the result for exactly one later use.
+    const result = await translateText(trimmed, targetLang);
+    rememberWarm(key, result);
+  } catch {
+    /* the real request will report its own error */
+  }
+}
+
 /**
  * Translate text via the configured provider.
  * @param {string} text
@@ -49,7 +104,7 @@ export async function translateText(text, targetLang) {
   const trimmed = String(text || '').trim();
   if (!trimmed) throw new Error('empty');
 
-  const providerId = isKnownProvider(cfg().provider) ? cfg().provider : 'google';
+  const providerId = currentProvider();
   const key = cacheKey(providerId, trimmed, targetLang);
 
   const hit = getCached(key);
@@ -61,6 +116,9 @@ export async function translateText(text, targetLang) {
       provider: providerId,
     };
   }
+
+  const warmed = takeWarm(key);
+  if (warmed) return { ...warmed, fromCache: false };
 
   if (inflight.has(key)) return inflight.get(key);
 

@@ -30,6 +30,8 @@ registerFeature({
     speed: field.enum(['slow', 'normal', 'fast', 'instant'], 'normal'),
     /** Automatic translation only for the current post (saves API requests). */
     translateOnlyCurrent: field.bool(true),
+    /** ...and the next post's translation is fetched ahead (shown only when it becomes current). */
+    translateNext: field.bool(true),
     /** Moves on to the next post by itself. */
     autoplay: field.bool(false),
     /** Seconds on a post before the jump. */
@@ -65,6 +67,7 @@ registerFeature({
             { type: 'switch', path: 'keys', labelKey: 'shorts.keys', hintKey: 'shorts.keysHint', showIf: (s) => s.enabled },
             { type: 'switch', path: 'buttons', labelKey: 'shorts.buttons', hintKey: 'shorts.buttonsHint', showIf: (s) => s.enabled },
             { type: 'switch', path: 'translateOnlyCurrent', labelKey: 'shorts.translateOnlyCurrent', hintKey: 'shorts.translateOnlyCurrentHint', showIf: (s) => s.enabled },
+            { type: 'switch', path: 'translateNext', labelKey: 'shorts.translateNext', hintKey: 'shorts.translateNextHint', showIf: (s) => s.enabled && s.translateOnlyCurrent },
           ],
         },
         {

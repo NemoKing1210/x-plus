@@ -11,12 +11,16 @@
   nav .pill.r-1hdo0pc, nav a:hover .pill { background: rgba(231,233,234,.1); }
   nav svg { width: 26px; height: 26px; fill: currentColor; }
   nav div[dir] { font-size: 20px; }
-  main { margin-left: 260px; display: flex; gap: 30px; }
+  main { margin-left: 260px; display: flex; gap: 30px; padding-bottom: 60vh; }
   [data-testid="primaryColumn"] { width: 600px; border-left: 1px solid #2f3336; border-right: 1px solid #2f3336; }
   [data-testid="sidebarColumn"] { width: 350px; padding-top: 12px; }
   [data-testid="cellInnerDiv"] { border-bottom: 1px solid #2f3336; }
   article { padding: 12px 16px; }
   .head { display: flex; align-items: flex-start; gap: 12px; }
+  .thread-col { width: 40px; flex: none; align-self: stretch; display: flex; flex-direction: column; align-items: center; }
+  .thread-line { width: 2px; background: #333639; }
+  .thread-line--up { height: 12px; margin-top: -12px; }
+  .thread-line--down { flex: 1; margin-bottom: -12px; }
   .avatar { width: 40px; height: 40px; border-radius: 50%; background: #333; flex: none; }
   .meta { flex: 1; min-width: 0; display: flex; justify-content: space-between; }
   .meta .actions { display: flex; align-items: center; }
@@ -108,6 +112,22 @@
     <div class="head"><div class="avatar" data-testid="Tweet-User-Avatar"></div><div style="flex:1;min-width:0">
       <div class="meta"><div data-testid="User-Name"><a href="/brand"><span>Brand</span></a> <a href="/brand"><span>@brand</span></a> · <span>Ad</span></div></div>
       <div data-testid="tweetText" lang="en"><span>Buy our amazing product today!</span></div>
+    </div></div>
+  </article></div>
+
+  <!-- 5 + 6: a post and its reply, joined by a thread line (one post in Shorts mode) -->
+  <div data-testid="cellInnerDiv" style="border-bottom:0"><article data-testid="tweet" tabindex="0">
+    <div class="head"><div class="thread-col"><div class="avatar" data-testid="Tweet-User-Avatar"></div><div class="thread-line thread-line--down"></div></div><div style="flex:1;min-width:0">
+      <div class="meta"><div data-testid="User-Name"><a href="/asker"><span>Asker</span></a> <a href="/asker"><span>@asker</span></a> · <a href="/asker/status/50"><time datetime="2026-10-19T15:00:00.000Z">9h</time></a></div></div>
+      <div data-testid="tweetText" lang="en"><span>Any good AI-powered speech-to-text apps? The one I use has been hit or miss lately.</span></div>
+      <div role="group"><div><button data-testid="reply" aria-label="Reply">↩</button></div><div><button data-testid="like" aria-label="Like">♥</button></div></div>
+    </div></div>
+  </article></div>
+  <div data-testid="cellInnerDiv"><article data-testid="tweet" tabindex="0">
+    <div class="head"><div class="thread-col"><div class="thread-line thread-line--up"></div><div class="avatar" data-testid="Tweet-User-Avatar"></div></div><div style="flex:1;min-width:0">
+      <div class="meta"><div data-testid="User-Name"><a href="/replier"><span>Replier</span></a> <a href="/replier"><span>@replier</span></a> · <a href="/replier/status/51"><time datetime="2026-10-19T16:00:00.000Z">8h</time></a></div></div>
+      <div data-testid="tweetText" lang="en"><span>Try this one, it works offline and the accuracy is great.</span></div>
+      <div role="group"><div><button data-testid="reply" aria-label="Reply">↩</button></div><div><button data-testid="like" aria-label="Like">♥</button></div></div>
     </div></div>
   </article></div>
 </div>

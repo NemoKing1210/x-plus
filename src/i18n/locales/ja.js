@@ -454,4 +454,6 @@ export default {
   'shorts.opacityHint': '0 で非表示、100 で完全に表示します。ぼかしは別に設定します。',
   'shorts.translateOnlyCurrent': '現在の投稿だけを翻訳',
   'shorts.translateOnlyCurrentHint': '自動翻訳は、中央の投稿がしばらく表示されたときだけ実行されます。素早く通り過ぎた投稿は API リクエストを消費しません。「翻訳」ボタンはどの投稿でも使えます。',
+  'shorts.translateNext': '次の投稿を先に翻訳',
+  'shorts.translateNextHint': '現在の投稿を読んでいる間に次の投稿をバックグラウンドで翻訳します（API リクエストが1回増えます）。テキストが置き換わるのは、その投稿に移動したときだけです。',
 };

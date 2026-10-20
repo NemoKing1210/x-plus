@@ -454,4 +454,6 @@ export default {
   'shorts.opacityHint': '0 la oculta por completo y 100 la muestra entera; el desenfoque se ajusta aparte.',
   'shorts.translateOnlyCurrent': 'Traducir solo la publicación actual',
   'shorts.translateOnlyCurrentHint': 'La traducción automática solo actúa sobre la publicación central, cuando lleva un instante en ella: las que pasas de largo no gastan solicitudes de la API. El botón Traducir sigue funcionando en cualquier publicación.',
+  'shorts.translateNext': 'Traducir la siguiente publicación por adelantado',
+  'shorts.translateNextHint': 'Mientras lees la publicación actual, la siguiente se traduce en segundo plano (una solicitud más a la API), pero su texto solo se sustituye cuando llegues a ella.',
 };
