@@ -1,4 +1,5 @@
-import { SEL } from '../../core/constants.js';
+import { emit } from '../../core/bus.js';
+import { SEL, SHORTS_CELL_ATTR, SHORTS_FOCUS_ATTR, SHORTS_SETTLED_ATTR } from '../../core/constants.js';
 import { getFeatureSettings, updateFeatureSettings } from '../../core/settings.js';
 import { isAutoPaused, runAutoplay, setAutoPaused, stopAutoplay } from './autoplay.js';
 import { hideNav, pulseNav, syncNav } from './nav.js';
@@ -6,7 +7,8 @@ import { hideNav, pulseNav, syncNav } from './nav.js';
 /**
  * Shorts mode: the feed moves one post at a time (wheel, ↑ / ↓, J / K). The
  * post nearest to the middle of the screen is `active` (slightly larger), the
- * rest are `aside` (blurred) — styles in styles/shorts.css.
+ * previous / next ones are `prev` / `next`, the rest `far` (all blurred, each with
+ * its own opacity) — styles in styles/shorts.css.
  *
  * We never touch X's own layout: marks go on the timeline cells
  * (`data-xp-shorts`), the visual effect is applied to the article inside them
@@ -16,7 +18,9 @@ import { hideNav, pulseNav, syncNav } from './nav.js';
  */
 
 const ROOT_ATTR = 'data-xp-shorts-on';
-const CELL_ATTR = 'data-xp-shorts';
+const CELL_ATTR = SHORTS_CELL_ATTR;
+/** How long a post must stay current before it counts as read (and may be translated), in ms. */
+const SETTLE_MS = 450;
 
 /** Pages where posts are a conversation, not a feed. */
 const NOT_A_FEED = /(?:^|\/)status\/|^\/(?:messages|settings|compose|i\/(?:grok|flow))(?:\/|$)/;
@@ -53,6 +57,9 @@ let tween = null;
 let pinned = null;
 let lastWheelAt = 0;
 let lastWheelAbs = 0;
+/** Cell whose settle timer runs / has run, and that timer. */
+let settleTarget = null;
+let settleTimer = 0;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -115,22 +122,51 @@ function pickActive(entries) {
   return best;
 }
 
+function clearSettled() {
+  clearTimeout(settleTimer);
+  settleTimer = 0;
+  settleTarget = null;
+  for (const cell of document.querySelectorAll(`[${SHORTS_SETTLED_ATTR}]`)) cell.removeAttribute(SHORTS_SETTLED_ATTR);
+}
+
+/**
+ * Tell the other features which post is really being read: the current one,
+ * after it has stayed current for SETTLE_MS (posts flown past cost nothing).
+ */
+function trackSettled(cell, enabled) {
+  if (!enabled || !cell) {
+    if (settleTarget) clearSettled();
+    return;
+  }
+  if (cell === settleTarget) return;
+  clearSettled();
+  settleTarget = cell;
+  settleTimer = setTimeout(() => {
+    settleTimer = 0;
+    if (!active || settleTarget !== cell || !cell.isConnected) return;
+    cell.setAttribute(SHORTS_SETTLED_ATTR, '');
+    emit('shorts:settled', cell);
+  }, SETTLE_MS);
+}
+
 function update() {
   frame = 0;
   if (!active) return;
   const entries = collect();
   const current = pickActive(entries);
   const seen = new Set();
-  for (const { cell } of entries) {
+  const at = entries.indexOf(current);
+  entries.forEach(({ cell }, index) => {
     seen.add(cell);
-    const state = cell === current?.cell ? 'active' : 'aside';
+    const state = index === at ? 'active' : index === at - 1 ? 'prev' : index === at + 1 ? 'next' : 'far';
     if (cell.getAttribute(CELL_ATTR) !== state) cell.setAttribute(CELL_ATTR, state);
-  }
+  });
   // X reuses cells: drop marks from the ones that stopped being posts.
   for (const cell of document.querySelectorAll(`[${CELL_ATTR}]`)) {
     if (!seen.has(cell)) cell.removeAttribute(CELL_ATTR);
   }
   const cfg = getFeatureSettings('shorts');
+  trackSettled(current?.cell ?? null, cfg.translateOnlyCurrent);
   syncNav(
     {
       visible: Boolean(current) && cfg.buttons && !overlayOpen(),
@@ -352,11 +388,13 @@ function stop() {
   active = false;
   stopTween();
   document.documentElement.removeAttribute(ROOT_ATTR);
+  document.documentElement.removeAttribute(SHORTS_FOCUS_ATTR);
   window.removeEventListener('wheel', onWheel, true);
   window.removeEventListener('keydown', onKeyDown, true);
   window.removeEventListener('scroll', schedule);
   window.removeEventListener('resize', schedule);
   clearMarks();
+  clearSettled();
   stopAutoplay();
   hideNav();
 }
@@ -375,12 +413,18 @@ export function syncShorts() {
   const style = document.documentElement.style;
   style.setProperty('--xp-shorts-scale', String(cfg.scale / 100));
   style.setProperty('--xp-shorts-blur', `${cfg.blur}px`);
+  style.setProperty('--xp-shorts-prev-opacity', String(cfg.prevOpacity / 100));
+  style.setProperty('--xp-shorts-next-opacity', String(cfg.nextOpacity / 100));
+  // Posts further away follow the fainter of the two neighbours.
+  style.setProperty('--xp-shorts-far-opacity', String(Math.min(cfg.prevOpacity, cfg.nextOpacity) / 100));
   style.setProperty('--xp-shorts-time', `${FADE_SECONDS * (SPEED[cfg.speed] ?? 1)}s`);
 
   const wanted = cfg.enabled && isFeedPage();
   if (wanted && !active) start();
   else if (!wanted && active) stop();
   else if (active) schedule();
+
+  document.documentElement.toggleAttribute(SHORTS_FOCUS_ATTR, active && cfg.translateOnlyCurrent);
 
   if (active && cfg.autoplay) runAutoplay(AUTOPLAY_API);
   else stopAutoplay();

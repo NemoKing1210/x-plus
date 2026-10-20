@@ -449,4 +449,9 @@ export default {
   'common.keyPress': 'Taste drücken …',
   'common.keyNone': 'Nicht festgelegt',
   'common.keyReserved': '{key} wird im Shorts-Modus bereits verwendet',
+  'shorts.prevOpacity': 'Deckkraft des vorherigen Beitrags',
+  'shorts.nextOpacity': 'Deckkraft des nächsten Beitrags',
+  'shorts.opacityHint': '0 blendet den Beitrag aus, 100 zeigt ihn vollständig; die Unschärfe wird separat eingestellt.',
+  'shorts.translateOnlyCurrent': 'Nur den aktuellen Beitrag übersetzen',
+  'shorts.translateOnlyCurrentHint': 'Die automatische Übersetzung läuft nur für den Beitrag in der Mitte, nachdem er einen Moment dort geblieben ist – vorbeigescrollte Beiträge kosten keine API-Anfragen. Die Schaltfläche „Übersetzen“ funktioniert weiterhin bei jedem Beitrag.',
 };

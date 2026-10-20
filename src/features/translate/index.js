@@ -1,8 +1,9 @@
+import { on } from '../../core/bus.js';
 import { registerFeature } from '../../core/features.js';
 import { field } from '../../core/schema.js';
 import { scanArticles, teardownArticles } from './article.js';
 import { persistCacheNow, CACHE_HOURS_MAX } from './cache.js';
-import { scanPosts } from './controller.js';
+import { scanPosts, translateInCell } from './controller.js';
 import { TARGET_LANGUAGES } from './languages.js';
 import { observePostMenus } from './post-menu.js';
 import { PROVIDER_IDS, providerConfigSchema } from './providers/registry.js';
@@ -54,6 +55,8 @@ registerFeature({
 
   init() {
     window.addEventListener('pagehide', persistCacheNow);
+    // Shorts mode: translate the current post once it has settled.
+    on('shorts:settled', translateInCell);
     observePostMenus();
   },
 

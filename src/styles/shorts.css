@@ -17,9 +17,22 @@ html[data-xp-shorts-on] [data-xp-shorts='active'] article[data-testid='tweet'] {
   transform: scale(var(--xp-shorts-scale, 1.05));
 }
 
-html[data-xp-shorts-on] [data-xp-shorts='aside'] article[data-testid='tweet'] {
+html[data-xp-shorts-on] [data-xp-shorts='prev'] article[data-testid='tweet'],
+html[data-xp-shorts-on] [data-xp-shorts='next'] article[data-testid='tweet'],
+html[data-xp-shorts-on] [data-xp-shorts='far'] article[data-testid='tweet'] {
   filter: blur(var(--xp-shorts-blur, 3px));
-  opacity: 0.55;
+}
+
+html[data-xp-shorts-on] [data-xp-shorts='prev'] article[data-testid='tweet'] {
+  opacity: var(--xp-shorts-prev-opacity, 0.55);
+}
+
+html[data-xp-shorts-on] [data-xp-shorts='next'] article[data-testid='tweet'] {
+  opacity: var(--xp-shorts-next-opacity, 0.55);
+}
+
+html[data-xp-shorts-on] [data-xp-shorts='far'] article[data-testid='tweet'] {
+  opacity: var(--xp-shorts-far-opacity, 0.55);
 }
 
 /* Previous / next buttons beside the current post */

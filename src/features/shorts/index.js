@@ -28,6 +28,8 @@ registerFeature({
     buttons: field.bool(true),
     /** Length of the transitions between posts. */
     speed: field.enum(['slow', 'normal', 'fast', 'instant'], 'normal'),
+    /** Automatic translation only for the current post (saves API requests). */
+    translateOnlyCurrent: field.bool(true),
     /** Moves on to the next post by itself. */
     autoplay: field.bool(false),
     /** Seconds on a post before the jump. */
@@ -44,6 +46,9 @@ registerFeature({
     scale: field.int(105, { min: 100, max: 120 }),
     /** Blur of the other posts, in px. */
     blur: field.int(3, { min: 0, max: 12 }),
+    /** Opacity of the previous / next post, in percent. */
+    prevOpacity: field.int(55, { min: 0, max: 100 }),
+    nextOpacity: field.int(55, { min: 0, max: 100 }),
   },
 
   tabs: [
@@ -59,6 +64,7 @@ registerFeature({
             { type: 'switch', path: 'enabled', labelKey: 'shorts.enabled', hintKey: 'shorts.enabledHint' },
             { type: 'switch', path: 'keys', labelKey: 'shorts.keys', hintKey: 'shorts.keysHint', showIf: (s) => s.enabled },
             { type: 'switch', path: 'buttons', labelKey: 'shorts.buttons', hintKey: 'shorts.buttonsHint', showIf: (s) => s.enabled },
+            { type: 'switch', path: 'translateOnlyCurrent', labelKey: 'shorts.translateOnlyCurrent', hintKey: 'shorts.translateOnlyCurrentHint', showIf: (s) => s.enabled },
           ],
         },
         {
@@ -112,6 +118,8 @@ registerFeature({
             },
             { type: 'slider', path: 'scale', labelKey: 'shorts.scale', hintKey: 'shorts.scaleHint', min: 100, max: 120, step: 1, unit: '%' },
             { type: 'slider', path: 'blur', labelKey: 'shorts.blur', hintKey: 'shorts.blurHint', min: 0, max: 12, step: 1 },
+            { type: 'slider', path: 'prevOpacity', labelKey: 'shorts.prevOpacity', hintKey: 'shorts.opacityHint', min: 0, max: 100, step: 1, unit: '%' },
+            { type: 'slider', path: 'nextOpacity', labelKey: 'shorts.nextOpacity', hintKey: 'shorts.opacityHint', min: 0, max: 100, step: 1, unit: '%' },
           ],
         },
       ],

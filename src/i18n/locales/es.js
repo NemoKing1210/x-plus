@@ -449,4 +449,9 @@ export default {
   'common.keyPress': 'Pulsa una tecla…',
   'common.keyNone': 'Sin asignar',
   'common.keyReserved': '{key} ya se usa en el modo Shorts',
+  'shorts.prevOpacity': 'Opacidad de la publicación anterior',
+  'shorts.nextOpacity': 'Opacidad de la publicación siguiente',
+  'shorts.opacityHint': '0 la oculta por completo y 100 la muestra entera; el desenfoque se ajusta aparte.',
+  'shorts.translateOnlyCurrent': 'Traducir solo la publicación actual',
+  'shorts.translateOnlyCurrentHint': 'La traducción automática solo actúa sobre la publicación central, cuando lleva un instante en ella: las que pasas de largo no gastan solicitudes de la API. El botón Traducir sigue funcionando en cualquier publicación.',
 };

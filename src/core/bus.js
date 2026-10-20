@@ -8,6 +8,7 @@ import { Codes, logError } from './debug.js';
  *  - `scan`                  (root)           — debounced DOM change
  *  - `navigate`              (url)            — SPA URL change
  *  - `theme`                 (theme)          — X theme flipped
+ *  - `shorts:settled`        (cell)           — Shorts mode: this post has stayed the current one for a moment
  */
 const listeners = new Map();
 

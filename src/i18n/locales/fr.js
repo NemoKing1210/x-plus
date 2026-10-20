@@ -449,4 +449,9 @@ export default {
   'common.keyPress': 'Appuyez sur une touche…',
   'common.keyNone': 'Non définie',
   'common.keyReserved': '{key} est déjà utilisée en mode Shorts',
+  'shorts.prevOpacity': 'Opacité de la publication précédente',
+  'shorts.nextOpacity': 'Opacité de la publication suivante',
+  'shorts.opacityHint': '0 la rend invisible, 100 l’affiche entièrement ; le flou se règle à part.',
+  'shorts.translateOnlyCurrent': 'Traduire seulement la publication courante',
+  'shorts.translateOnlyCurrentHint': 'La traduction automatique ne s’applique qu’à la publication du milieu, après qu’elle y est restée un instant : celles que vous dépassez ne consomment aucune requête d’API. Le bouton Traduire fonctionne toujours sur n’importe quelle publication.',
 };

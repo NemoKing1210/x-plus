@@ -449,4 +449,9 @@ export default {
   'common.keyPress': '请按下按键…',
   'common.keyNone': '未设置',
   'common.keyReserved': '{key} 已用于短视频模式',
+  'shorts.prevOpacity': '上一条帖子的不透明度',
+  'shorts.nextOpacity': '下一条帖子的不透明度',
+  'shorts.opacityHint': '0 为完全隐藏，100 为完全显示；模糊程度另行设置。',
+  'shorts.translateOnlyCurrent': '仅翻译当前帖子',
+  'shorts.translateOnlyCurrentHint': '自动翻译只对居中的帖子生效，且需在该帖停留片刻后才会触发——快速划过的帖子不会消耗 API 请求。“翻译”按钮对任何帖子仍然可用。',
 };

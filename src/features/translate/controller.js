@@ -1,4 +1,4 @@
-import { UI_ATTR } from '../../core/constants.js';
+import { SHORTS_CELL_ATTR, SHORTS_FOCUS_ATTR, SHORTS_SETTLED_ATTR, UI_ATTR } from '../../core/constants.js';
 import { getLocale, resolveTargetLang } from '../../i18n/index.js';
 import { silencePointerEvents } from '../../utils/dom.js';
 import { hasTranslatablePlainText } from '../../utils/linked-text.js';
@@ -216,6 +216,24 @@ function shouldAutoTranslatePost(postEl) {
   return isAutoTranslateAllowedForHandle(handle);
 }
 
+/**
+ * Shorts mode with "only the current post": automatic translation waits for
+ * the post in the middle (after it has stayed there for a moment), so posts
+ * that are merely flown past do not cost API requests.
+ */
+function blockedByShorts(postEl) {
+  if (!document.documentElement.hasAttribute(SHORTS_FOCUS_ATTR)) return false;
+  return !postEl.closest(`[${SHORTS_CELL_ATTR}="active"][${SHORTS_SETTLED_ATTR}]`);
+}
+
+/** Shorts mode reports a new current post: translate it (when automatic mode is on). */
+export function translateInCell(cell) {
+  if (!cfg().enabled || !isAutoMode()) return;
+  cell.querySelectorAll(`[${ATTR.post}]`).forEach((postEl) => {
+    if (shouldAutoTranslatePost(postEl)) enqueueAutoTranslate(postEl);
+  });
+}
+
 function stopAutoTranslate() {
   autoQueue.length = 0;
   autoInflight = 0;
@@ -233,7 +251,7 @@ function pumpAutoQueue() {
     const postEl = autoQueue.shift();
     if (!postEl || !document.contains(postEl)) continue;
     postEl.removeAttribute(ATTR.autoQueued);
-    if (!shouldAutoTranslatePost(postEl)) continue;
+    if (!shouldAutoTranslatePost(postEl) || blockedByShorts(postEl)) continue;
     if (postEl.getAttribute(ATTR.autoDone) === '1') continue;
 
     const btn = getTranslateButton(postEl);
@@ -253,7 +271,7 @@ function pumpAutoQueue() {
 }
 
 function enqueueAutoTranslate(postEl) {
-  if (!shouldAutoTranslatePost(postEl)) return;
+  if (!shouldAutoTranslatePost(postEl) || blockedByShorts(postEl)) return;
   if (postEl.getAttribute(ATTR.autoDone) === '1') return;
   if (postEl.getAttribute(ATTR.autoQueued) === '1') return;
   const btn = getTranslateButton(postEl);

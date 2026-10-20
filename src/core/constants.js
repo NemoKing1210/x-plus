@@ -31,6 +31,15 @@ export const UI_ATTR = 'data-xp-ui';
 export const OWN_SELECTOR = `[${UI_ATTR}], [data-xp-post]`;
 /** Set on <html> once the script booted (guards double injection). */
 export const ROOT_ATTR = 'data-xp-root';
+/**
+ * Shorts mode contract with the other features: the timeline cell of the current
+ * post carries `data-xp-shorts="active"`, plus `data-xp-shorts-settled` once it has
+ * stayed current for a moment; `<html data-xp-shorts-focus>` says that only that post
+ * may do automatic work (e.g. translate).
+ */
+export const SHORTS_CELL_ATTR = 'data-xp-shorts';
+export const SHORTS_SETTLED_ATTR = 'data-xp-shorts-settled';
+export const SHORTS_FOCUS_ATTR = 'data-xp-shorts-focus';
 /** Set on <html> with the detected X theme (light | dim | dark). */
 export const THEME_ATTR = 'data-xp-theme';
 

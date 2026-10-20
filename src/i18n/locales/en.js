@@ -449,4 +449,9 @@ export default {
   'common.keyPress': 'Press a key…',
   'common.keyNone': 'Not set',
   'common.keyReserved': '{key} is already used in Shorts mode',
+  'shorts.prevOpacity': 'Previous post opacity',
+  'shorts.nextOpacity': 'Next post opacity',
+  'shorts.opacityHint': '0 makes the post invisible, 100 shows it in full; the blur is set separately.',
+  'shorts.translateOnlyCurrent': 'Translate only the current post',
+  'shorts.translateOnlyCurrentHint': 'Automatic translation runs only for the post in the middle, after it stays there for a moment — posts you scroll past cost no API requests. The Translate button still works on any post.',
 };

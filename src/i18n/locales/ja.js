@@ -449,4 +449,9 @@ export default {
   'common.keyPress': 'キーを押してください…',
   'common.keyNone': '未設定',
   'common.keyReserved': '{key} はショートモードですでに使われています',
+  'shorts.prevOpacity': '前の投稿の不透明度',
+  'shorts.nextOpacity': '次の投稿の不透明度',
+  'shorts.opacityHint': '0 で非表示、100 で完全に表示します。ぼかしは別に設定します。',
+  'shorts.translateOnlyCurrent': '現在の投稿だけを翻訳',
+  'shorts.translateOnlyCurrentHint': '自動翻訳は、中央の投稿がしばらく表示されたときだけ実行されます。素早く通り過ぎた投稿は API リクエストを消費しません。「翻訳」ボタンはどの投稿でも使えます。',
 };

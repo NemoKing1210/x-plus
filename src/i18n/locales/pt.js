@@ -449,4 +449,9 @@ export default {
   'common.keyPress': 'Pressione uma tecla…',
   'common.keyNone': 'Não definida',
   'common.keyReserved': '{key} já é usada no modo Shorts',
+  'shorts.prevOpacity': 'Opacidade do post anterior',
+  'shorts.nextOpacity': 'Opacidade do próximo post',
+  'shorts.opacityHint': '0 oculta o post e 100 o mostra por inteiro; o desfoque é ajustado à parte.',
+  'shorts.translateOnlyCurrent': 'Traduzir apenas o post atual',
+  'shorts.translateOnlyCurrentHint': 'A tradução automática só atua no post do meio, depois de ele ficar ali por um instante — os posts que você passa direto não gastam requisições da API. O botão Traduzir continua funcionando em qualquer post.',
 };
