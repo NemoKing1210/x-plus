@@ -112,6 +112,154 @@ html[data-xp-shorts-on] [data-xp-shorts='aside'] article[data-testid='tweet'] {
   }
 }
 
+/* Auto-scroll: play / pause under the arrows */
+.xp-shorts-nav__btn--auto {
+  align-self: center;
+  width: 36px;
+  height: 36px;
+  margin-top: 2px;
+}
+
+.xp-shorts-nav__btn--auto .xp-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.xp-shorts-nav__btn--auto.is-on {
+  border-color: var(--xp-accent);
+  color: var(--xp-accent);
+}
+
+/* Auto-scroll ring around the "next" button */
+.xp-shorts-nav__btn--next {
+  position: relative;
+}
+
+.xp-shorts-ring {
+  position: absolute;
+  top: -7px;
+  left: -7px;
+  width: 56px;
+  height: 56px;
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  transform: rotate(-90deg);
+  transition: opacity 0.25s ease;
+}
+
+.xp-shorts-ring.is-on {
+  opacity: 1;
+}
+
+.xp-shorts-ring circle {
+  fill: none;
+  stroke-width: 3;
+}
+
+.xp-shorts-ring__track {
+  stroke: var(--xp-border);
+}
+
+.xp-shorts-ring__arc {
+  stroke: var(--xp-accent);
+  stroke-linecap: round;
+  stroke-dasharray: 157.08;
+  stroke-dashoffset: 157.08;
+  filter: drop-shadow(0 0 3px rgba(29, 155, 240, 0.65));
+  transition:
+    opacity 0.2s ease,
+    filter 0.2s ease;
+}
+
+.xp-shorts-ring.is-paused .xp-shorts-ring__arc {
+  opacity: 0.45;
+  filter: none;
+}
+
+/* Auto-scroll bar over the top edge of the current post */
+.xp-shorts-bar {
+  position: fixed;
+  z-index: 2147481000;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 0 0 3px 3px;
+  background: rgba(127, 127, 127, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.xp-shorts-bar.is-on {
+  opacity: 1;
+}
+
+.xp-shorts-bar__fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--xp-accent), #7856ff);
+  box-shadow: 0 0 6px rgba(29, 155, 240, 0.7);
+  transform: scaleX(var(--xp-auto-progress, 0));
+  transform-origin: left center;
+}
+
+.xp-shorts-bar.is-paused .xp-shorts-bar__fill {
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+/* Pause chip with the hotkey, at the right end of the bar */
+.xp-shorts-chip {
+  appearance: none;
+  position: fixed;
+  z-index: 2147481000;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  margin: 0;
+  padding: 0 8px 0 6px;
+  border: 1px solid var(--xp-border);
+  border-radius: 999px;
+  background: var(--xp-elevated);
+  color: var(--xp-fg);
+  box-shadow: var(--xp-shadow);
+  font: 600 12px/1 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-100%);
+  transition:
+    opacity 0.2s ease,
+    background-color 0.15s ease;
+}
+
+.xp-shorts-chip.is-on {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.xp-shorts-chip:hover {
+  background: var(--xp-hover);
+}
+
+.xp-shorts-chip .xp-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.xp-shorts-chip__key {
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--xp-hover);
+  color: var(--xp-fg-muted);
+  font: inherit;
+}
+
+.xp-shorts-nav__btn--auto.is-paused {
+  border-color: var(--xp-fg-muted);
+}
+
 .xp-shorts-nav__btn:disabled {
   opacity: 0.35;
   cursor: default;

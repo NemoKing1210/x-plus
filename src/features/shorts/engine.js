@@ -1,5 +1,6 @@
 import { SEL } from '../../core/constants.js';
-import { getFeatureSettings } from '../../core/settings.js';
+import { getFeatureSettings, updateFeatureSettings } from '../../core/settings.js';
+import { isAutoPaused, runAutoplay, setAutoPaused, stopAutoplay } from './autoplay.js';
 import { hideNav, pulseNav, syncNav } from './nav.js';
 
 /**
@@ -34,6 +35,9 @@ const SPEED = { slow: 1.7, normal: 1, fast: 0.55, instant: 0 };
 const FADE_SECONDS = 0.5;
 
 const KEY_STEP = { ArrowDown: 1, ArrowUp: -1, KeyJ: 1, KeyK: -1 };
+/** Space keeps its meaning on controls: it presses the focused one. */
+const PRESSABLE_SELECTOR =
+  'button, a[href], summary, [role="button"], [role="link"], [role="menuitem"], [role="tab"], [role="switch"], [role="checkbox"], [role="radio"]';
 /** Breathing room kept above / below a post that is taller than the screen. */
 const TALL_MARGIN = 48;
 /** A post whose edge is this close to the screen edge counts as fully seen. */
@@ -126,13 +130,15 @@ function update() {
   for (const cell of document.querySelectorAll(`[${CELL_ATTR}]`)) {
     if (!seen.has(cell)) cell.removeAttribute(CELL_ATTR);
   }
+  const cfg = getFeatureSettings('shorts');
   syncNav(
     {
-      visible: Boolean(current) && getFeatureSettings('shorts').buttons && !overlayOpen(),
+      visible: Boolean(current) && cfg.buttons && !overlayOpen(),
       canPrev: entries.indexOf(current) > 0 || window.scrollY > 4,
       canNext: true,
+      auto: !cfg.autoplay ? 'off' : isAutoPaused() ? 'paused' : 'running',
     },
-    step,
+    NAV_ACTIONS,
   );
 }
 
@@ -244,6 +250,20 @@ function step(direction) {
   if (active && !animating()) go(direction);
 }
 
+/** Pause or resume the running auto-scroll. */
+function togglePause() {
+  setAutoPaused(!isAutoPaused());
+  update();
+}
+
+/** The button: starts auto-scroll when it is off, otherwise pauses / resumes it. */
+function toggleAuto() {
+  if (getFeatureSettings('shorts').autoplay) togglePause();
+  else updateFeatureSettings('shorts', { autoplay: true });
+}
+
+const NAV_ACTIONS = { step, toggleAuto };
+
 /* ------------------------------------------------------------------ */
 /* Input                                                               */
 /* ------------------------------------------------------------------ */
@@ -280,12 +300,31 @@ function onWheel(event) {
 }
 
 function onKeyDown(event) {
-  if (!active || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-  if (!getFeatureSettings('shorts').keys) return;
-  const direction = KEY_STEP[event.code] ?? KEY_STEP[event.key];
+  if (!active || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+  const cfg = getFeatureSettings('shorts');
+
+  // Pause / resume key of auto-scroll (a plain key, set in the settings).
+  if (cfg.autoplay && cfg.autoKey && event.code === cfg.autoKey && !event.shiftKey) {
+    const origin = event.target instanceof Element ? event.target : document.activeElement;
+    if (origin?.closest?.(INTERACTIVE_SELECTOR) || overlayOpen()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (!event.repeat) {
+      togglePause();
+      pulseNav(0);
+    }
+    return;
+  }
+
+  if (!cfg.keys) return;
+  const space = event.code === 'Space' || event.key === ' ';
+  // Shift only turns Space around (as in the browser): Shift + Space goes back.
+  if (event.shiftKey && !space) return;
+  const direction = space ? (event.shiftKey ? -1 : 1) : (KEY_STEP[event.code] ?? KEY_STEP[event.key]);
   if (!direction) return;
   const target = event.target instanceof Element ? event.target : document.activeElement;
   if (target?.closest?.(INTERACTIVE_SELECTOR) || overlayOpen()) return;
+  if (space && target?.closest?.(PRESSABLE_SELECTOR)) return;
 
   event.preventDefault();
   event.stopPropagation();
@@ -318,8 +357,17 @@ function stop() {
   window.removeEventListener('scroll', schedule);
   window.removeEventListener('resize', schedule);
   clearMarks();
+  stopAutoplay();
   hideNav();
 }
+
+const AUTOPLAY_API = {
+  cell: () => document.querySelector(`[${CELL_ATTR}="active"]`),
+  moving: animating,
+  blocked: overlayOpen,
+  step: () => step(1),
+  toggle: togglePause,
+};
 
 /** Bring the mode in line with the settings and the current page. Idempotent. */
 export function syncShorts() {
@@ -333,4 +381,7 @@ export function syncShorts() {
   if (wanted && !active) start();
   else if (!wanted && active) stop();
   else if (active) schedule();
+
+  if (active && cfg.autoplay) runAutoplay(AUTOPLAY_API);
+  else stopAutoplay();
 }

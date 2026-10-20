@@ -1010,6 +1010,30 @@
   outline-offset: 2px;
 }
 
+.xp-hotkey-input {
+  align-self: flex-start;
+  min-width: 96px;
+  font-variant-numeric: tabular-nums;
+}
+
+.xp-hotkey-input.is-recording {
+  border-color: var(--xp-accent);
+  color: var(--xp-accent);
+  animation: xp-hotkey-wait 1.1s ease-in-out infinite;
+}
+
+@keyframes xp-hotkey-wait {
+  50% {
+    box-shadow: 0 0 0 4px rgba(29, 155, 240, 0.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xp-hotkey-input.is-recording {
+    animation: none;
+  }
+}
+
 .xp-btn-ui--compact {
   flex: 0 0 auto;
   align-self: stretch;

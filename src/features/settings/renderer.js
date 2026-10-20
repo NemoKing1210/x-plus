@@ -10,6 +10,7 @@ import {
   createButton,
   createButtonRow,
   createHint,
+  createHotkeyInput,
   createListEditor,
   createNumber,
   createRow,
@@ -38,6 +39,7 @@ import {
  *   { type: 'number',  path, labelKey, hintKey?, min?, max?, step? }
  *   { type: 'slider',  path, labelKey, hintKey?, min, max, step?, presets?: [{ value, labelKey }], zeroKey?, unit? ('px' by default) }
  *   { type: 'text' | 'password' | 'url', path, labelKey, hintKey?, placeholder? }
+ *   { type: 'hotkey',  path, labelKey, hintKey?, reserved?: string[] }   (stores a KeyboardEvent.code, '' = none)
  *   { type: 'list',    path, kind: 'handle' | 'lang', titleKey, hintKey?, ... }
  *   { type: 'hint',    textKey }
  *   { type: 'subheading', textKey }   (small title that splits a section)
@@ -181,6 +183,14 @@ export function renderTab(tab, { draft, featureId, onChange, rerender }) {
           step: spec.step,
           presets: (spec.presets ?? []).map((p) => ({ value: p.value, label: t(p.labelKey) })),
           format: (v) => (v === 0 && spec.zeroKey ? t(spec.zeroKey) : `${v} ${spec.unit ?? 'px'}`),
+          onChange: (value) => set(spec, value),
+        }).row;
+      case 'hotkey':
+        return createHotkeyInput({
+          label: label(spec.labelKey),
+          hint: label(spec.hintKey),
+          value: get(spec),
+          reserved: spec.reserved,
           onChange: (value) => set(spec, value),
         }).row;
       case 'text':

@@ -57,6 +57,7 @@ function pushControl(entries, base, spec) {
     case 'select':
     case 'number':
     case 'slider':
+    case 'hotkey':
     case 'text':
     case 'password':
     case 'url':

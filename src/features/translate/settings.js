@@ -257,6 +257,12 @@ const allTabs = [
             labelKey: 'translate.settingsSkipNative',
             hintKey: 'translate.settingsSkipNativeHint',
           },
+          {
+            type: 'switch',
+            path: 'hideErrors',
+            labelKey: 'translate.settingsHideErrors',
+            hintKey: 'translate.settingsHideErrorsHint',
+          },
         ],
       },
       {

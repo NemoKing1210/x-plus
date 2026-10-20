@@ -1,4 +1,8 @@
+import { t } from '../../i18n/index.js';
+import { showToast } from '../../ui/toast.js';
 import { el } from '../../utils/dom.js';
+import { fmt } from '../../utils/format.js';
+import { keyLabel } from '../../utils/keys.js';
 
 /**
  * Low-level settings controls. Each builder returns plain DOM and reports
@@ -150,6 +154,75 @@ export function createTextInput({ label, hint, value, type = 'text', placeholder
   input.value = value ?? '';
   input.addEventListener('input', () => onChange(input.value));
   return { row: fieldShell(label, hint, input), input };
+}
+
+const MODIFIER_CODES = new Set(['ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight', 'AltLeft', 'AltRight', 'MetaLeft', 'MetaRight']);
+
+/**
+ * Key picker: click, then press the key. Stores `KeyboardEvent.code` (so it
+ * works on every keyboard layout); Esc cancels, Backspace / Delete clears.
+ * `reserved` lists codes the feature already uses.
+ */
+export function createHotkeyInput({ label, hint, value, reserved = [], onChange }) {
+  const button = el('button', 'xp-btn-ui xp-btn-ui--ghost xp-hotkey-input');
+  button.type = 'button';
+  let current = value || '';
+  let recording = false;
+
+  function paint() {
+    button.classList.toggle('is-recording', recording);
+    button.textContent = recording ? t('common.keyPress') : current ? keyLabel(current) : t('common.keyNone');
+  }
+
+  function stop() {
+    recording = false;
+    window.removeEventListener('keydown', onKey, true);
+    paint();
+  }
+
+  // Window capture: runs before the dialog's own Esc / shortcut handling.
+  function onKey(event) {
+    if (!button.isConnected) {
+      stop();
+      return;
+    }
+    if (MODIFIER_CODES.has(event.code)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.code === 'Escape') {
+      stop();
+      return;
+    }
+    if (event.code === 'Backspace' || event.code === 'Delete') {
+      current = '';
+      onChange('');
+      stop();
+      return;
+    }
+    if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) return;
+    if (reserved.includes(event.code)) {
+      showToast(fmt(t('common.keyReserved'), { key: keyLabel(event.code) }), { type: 'warning', force: true });
+      return;
+    }
+    current = event.code;
+    onChange(current);
+    stop();
+  }
+
+  button.addEventListener('click', () => {
+    if (recording) {
+      stop();
+      return;
+    }
+    recording = true;
+    paint();
+    window.addEventListener('keydown', onKey, true);
+  });
+  button.addEventListener('blur', () => {
+    if (recording) stop();
+  });
+  paint();
+  return { row: fieldShell(label, hint, button), input: button };
 }
 
 export function createButton({ label, variant = 'ghost', onClick, compact = false }) {

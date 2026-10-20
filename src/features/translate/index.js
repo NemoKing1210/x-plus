@@ -44,6 +44,8 @@ registerFeature({
     langBlocklist: field.list('lang'),
     /** Skip posts that already show X's built-in auto-translation bar. */
     skipNativeAutoTranslate: field.bool(true),
+    /** Don't show the "Translation failed" message (the post stays untranslated). */
+    hideErrors: field.bool(true),
     /** Cache lifetime in hours; 0 disables the cache. */
     cacheHours: field.int(24, { min: 0, max: CACHE_HOURS_MAX }),
   },

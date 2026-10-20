@@ -49,6 +49,8 @@ Same engine as [x-translator](https://github.com/NemoKing1210/x-translator):
   LibreTranslate
 - Per-account blocklist, source-language allow / block lists, skip posts that
   X already auto-translated, entries in the post's ⋮ menu
+- Translation errors (“Translation failed. Try again.”) are hidden by default — a switch
+  brings them back
 - Link- and emoji-aware: URLs and hashtags survive translation intact
 - Local cache with TTL, usage meter and soft size budget
 
@@ -71,9 +73,10 @@ Same engine as [x-translator](https://github.com/NemoKing1210/x-translator):
 
 Browse the feed one post at a time, like YouTube Shorts (opt-in).
 
-- The mouse wheel or `↑` / `↓` (also `J` / `K`) jumps to the previous / next post and centres it
+- The mouse wheel or `↑` / `↓` (also `J` / `K`) jumps to the previous / next post and centres it (`Space` goes forward, `Shift` + `Space` back)
 - Round ↑ / ↓ buttons beside the current post step to the previous / next post with the mouse
 - The current post grows a little, the posts around it are blurred; size, blur and transition speed are adjustable
+- Auto-scroll (opt-in): moves to the next post by itself after a set time (1–60 s); a video longer than that keeps its post until it ends, and the countdown waits while the pointer is on the arrow buttons. Progress is a ring around the “next” button, or a bar over the top of the post when the buttons are hidden — the indicator can be switched in settings; the play / pause button sits under the arrows, and a key (`P` by default, changeable in settings) pauses and resumes it — next to the bar a small chip shows the key
 - Turn it on in settings (Shorts tab) or with the switch next to the `Ctrl + M` reminder at the bottom left
 - Works in feeds (Home, profiles, search, lists), not on a post page; a post taller than the screen scrolls normally until its edge is reached
 

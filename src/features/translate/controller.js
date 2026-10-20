@@ -180,9 +180,13 @@ async function runTranslate(postEl, btn) {
     if (error?.message !== 'missing-config') {
       logWarn(Codes.TRANSLATE_FAILED, 'translation failed', { error });
     }
-    const message =
-      error?.message === 'missing-config' ? tr('errProviderConfig') : tr('errNetwork');
-    showResult(postEl, { error: message });
+    if (error?.message === 'missing-config') {
+      showResult(postEl, { error: tr('errProviderConfig') });
+    } else if (cfg().hideErrors) {
+      clearDisplay(postEl);
+    } else {
+      showResult(postEl, { error: tr('errNetwork') });
+    }
     applyIdleButton(btn, postEl);
     postEl.setAttribute(ATTR.autoDone, '1');
   }

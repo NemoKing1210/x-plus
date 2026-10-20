@@ -459,11 +459,12 @@ async function run(state) {
   if (!alive()) return;
 
   if (failed === total) {
-    setStatus(state, missingConfig ? tr('errProviderConfig') : tr('errNetwork'), true);
+    if (missingConfig) setStatus(state, tr('errProviderConfig'), true);
+    else if (!cfg().hideErrors) setStatus(state, tr('errNetwork'), true);
     setIdle(state);
     return;
   }
-  if (failed) setStatus(state, tr('errNetwork'), true);
+  if (failed && !cfg().hideErrors) setStatus(state, tr('errNetwork'), true);
   setShown(state);
 }
 
