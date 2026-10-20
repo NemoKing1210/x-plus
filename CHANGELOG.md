@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-20
+
 ### Added
 
 - Shorts mode (Shorts tab in settings, or the switch next to the `Ctrl + M` reminder at the bottom left): browse the feed one post at a time like YouTube Shorts (a post and its replies joined by a thread line count as one) — the wheel or `↑` / `↓` (`J` / `K`, `Space`) jumps to the previous / next post and centres it, the current post grows a little and the posts around it are blurred; ↑ / ↓ buttons beside the post work with the mouse; auto-scroll can move to the next post by itself after a set time (waits for longer videos, pauses over the buttons) with a progress ring on the “next” button or a bar over the post, selectable in settings; a key (`P` by default, changeable in settings) pauses and resumes it; automatic translation can be limited to the current post (after it stays in the middle for a moment) to save API requests, with the next post translated in advance and shown only when you get to it; size, blur, the opacity of the previous / next post and transition speed are adjustable
