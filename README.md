@@ -75,6 +75,7 @@ Browse the feed one post at a time, like YouTube Shorts (opt-in).
 
 - The mouse wheel or `↑` / `↓` (also `J` / `K`) jumps to the previous / next post and centres it (`Space` goes forward, `Shift` + `Space` back)
 - Automatic translation (Translation → automatic mode) can be limited to the current post — it starts after the post has stayed in the middle for a moment, so posts you scroll past cost no API requests; the next post can be translated in advance (one request, nothing is shown until you get to it) so the swap is instant (on by default; the Translate button still works everywhere)
+- Videos play only in the current post: the ones in the neighbouring posts stay paused, and a video is paused when you move away from its post (it plays again when you come back)
 - Round ↑ / ↓ buttons beside the current post step to the previous / next post with the mouse
 - Posts joined by a thread line (a reply under its post, a self-thread) count as one post: they are highlighted, centred and stepped over together
 - The current post grows a little, the posts around it are blurred; size, blur, the opacity of the previous / next post and transition speed are adjustable

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Shorts mode: videos play only in the current post — a video that X starts in a neighbouring post is paused at once, a video is paused when you move away from its post and plays again when you come back
+
 ## [0.9.0] - 2026-10-20
 
 ### Added

@@ -4,6 +4,7 @@ import { isVerbose, logInfo } from '../../core/debug.js';
 import { getFeatureSettings, updateFeatureSettings } from '../../core/settings.js';
 import { isAutoPaused, runAutoplay, setAutoPaused, stopAutoplay } from './autoplay.js';
 import { hideNav, pulseNav, syncNav } from './nav.js';
+import { startVideos, stopVideos, syncVideos } from './videos.js';
 
 /**
  * Shorts mode: the feed moves one post at a time (wheel, ↑ / ↓, J / K). The
@@ -334,6 +335,7 @@ function update() {
   for (const cell of document.querySelectorAll(`[${CELL_ATTR}]`)) {
     if (!seen.has(cell)) cell.removeAttribute(CELL_ATTR);
   }
+  syncVideos();
   const cfg = getFeatureSettings('shorts');
   trackSettled(current, cfg.translateOnlyCurrent);
   syncNav(
@@ -621,6 +623,7 @@ function start() {
   window.addEventListener('keydown', onKeyDown, true);
   window.addEventListener('scroll', schedule, { passive: true });
   window.addEventListener('resize', schedule);
+  startVideos();
   update();
   // Settle on the post nearest to the middle right away.
   const current = pickActive(collect());
@@ -636,6 +639,7 @@ function stop() {
   window.removeEventListener('keydown', onKeyDown, true);
   window.removeEventListener('scroll', schedule);
   window.removeEventListener('resize', schedule);
+  stopVideos();
   clearMarks();
   clearSettled();
   stopAutoplay();
