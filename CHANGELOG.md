@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-12
+
 ### Changed
 
 - Shorts mode: videos play only in the current post — a video that X starts in a neighbouring post is paused at once, a video is paused when you move away from its post and plays again when you come back
@@ -129,7 +131,9 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/NemoKing1210/x-plus/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/NemoKing1210/x-plus/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/NemoKing1210/x-plus/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/NemoKing1210/x-plus/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/NemoKing1210/x-plus/compare/v0.6.0...v0.6.1
