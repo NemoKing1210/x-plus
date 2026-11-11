@@ -270,6 +270,8 @@ let pageQueued = false;
 let lastPage = 0;
 /** article → what we marked for it (node → rule ids), so stale marks can be taken back. */
 const applied = new WeakMap();
+/** rule id → nodes marked by the previous page pass (timeline cells are reused by X). */
+const pageApplied = new Map();
 
 function addToken(node, id) {
   const current = node.getAttribute(MARK_ATTR) || '';
@@ -338,11 +340,20 @@ function runPage() {
   lastPage = performance.now();
   if (stickyNeeded) markSticky();
   for (const rule of pageRules) {
+    const id = ruleId(rule);
+    let nodes;
     try {
-      for (const node of rule.find(document)) addToken(node, ruleId(rule));
+      nodes = rule.find(document);
     } catch (error) {
-      logWarn(Codes.DECLUTTER_RULE, `rule "${ruleId(rule)}" failed`, { error });
+      logWarn(Codes.DECLUTTER_RULE, `rule "${id}" failed`, { error });
+      continue;
     }
+    const fresh = new Set(nodes);
+    // X reuses timeline cells: take back marks whose target no longer holds.
+    const previous = pageApplied.get(id);
+    if (previous) for (const node of previous) if (!fresh.has(node)) removeToken(node, id);
+    for (const node of fresh) addToken(node, id);
+    pageApplied.set(id, fresh);
   }
 }
 
@@ -362,6 +373,8 @@ function schedulePage() {
 function onMutations(records) {
   let page = false;
   for (const record of records) {
+    // A cell that is emptied out (X recycles timeline cells) may hold a page-level mark.
+    if (record.removedNodes.length) page = true;
     for (const node of record.addedNodes) {
       if (node.nodeType !== 1) continue;
       const owner = node.closest(OWNER);

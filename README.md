@@ -86,8 +86,9 @@ Browse the feed one post at a time, like YouTube Shorts (opt-in).
 ### Interface
 
 Toggle-based clean-up rules: promoted posts, view counts, verified badges,
-Grok buttons, the post box and feed tabs, the right column (search, Premium
-offer, trends, *Who to follow*, footer links), left-menu entries (logo, Explore,
+Grok buttons, the post box and feed tabs, the *Who to follow* block X inserts
+into the timeline, the right column (search, Premium offer, trends,
+*Who to follow*, footer links), left-menu entries (logo, Explore,
 Notifications, Chat, Calls, Grok, History, Creator Studio, Premium, Post button,
 account menu …) and the floating Grok / Chat panels.
 Hover a setting to preview it: the dimming and blur fade out

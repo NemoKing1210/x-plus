@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-11-12
+
+### Added
+
+- Interface: the “Who to follow” block that X inserts into the timeline can be hidden (Feed → Hide)
+
 ## [0.11.0] - 2026-11-12
 
 ### Changed
@@ -146,7 +152,8 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/NemoKing1210/x-plus/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/NemoKing1210/x-plus/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/NemoKing1210/x-plus/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/NemoKing1210/x-plus/compare/v0.8.0...v0.9.0

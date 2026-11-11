@@ -68,6 +68,7 @@ export const SEL = Object.freeze({
   tweetText: '[data-testid="tweetText"]',
   quoteTweet: '[data-testid="quoteTweet"]',
   userName: '[data-testid="User-Name"]',
+  userCell: '[data-testid="UserCell"]',
   quoteAvatar: '[data-testid="Tweet-User-Avatar"]',
   caret: '[data-testid="caret"]',
   actionReply: '[data-testid="reply"]',

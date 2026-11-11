@@ -332,6 +332,40 @@ function feedTabsBlock(list) {
   return block.querySelector(`article, ${SEL.cell}`) ? null : block;
 }
 
+/**
+ * The "Who to follow" module X inserts into a timeline. It is rendered as list
+ * cells: a cell that holds only a heading, followed by cells with account
+ * suggestions (`UserCell`). The heading is localized, so the block is found by
+ * structure; the variant that keeps the whole module inside one cell is matched
+ * as well. A trailing "Show more" cell (it links to the suggestions page) goes
+ * with it.
+ */
+function feedSuggestions(root) {
+  const found = new Set();
+  // Cheap: timeline headings are few, unlike the (virtualized) cells themselves.
+  for (const heading of root.querySelectorAll(`${SEL.primaryColumn} ${SEL.cell} h2[role="heading"]`)) {
+    const cell = heading.closest(SEL.cell);
+    if (!cell || cell.parentElement?.closest(SEL.cell) || cell.querySelector('article')) continue;
+    if (cell.querySelector(SEL.userCell)) {
+      found.add(cell);
+      continue;
+    }
+    const group = [cell];
+    for (let next = cell.nextElementSibling; next?.matches(SEL.cell); next = next.nextElementSibling) {
+      if (next.querySelector('article')) break;
+      if (next.querySelector(SEL.userCell)) {
+        group.push(next);
+        continue;
+      }
+      // "Show more" that opens the full suggestions page.
+      if (next.querySelector('a[href*="/connect_people"]')) group.push(next);
+      break;
+    }
+    if (group.length > 1) group.forEach((node) => found.add(node));
+  }
+  return [...found];
+}
+
 /** Hide rule target: the tabs block (the "new posts" pill next to it stays). */
 const feedTabs = (root) => feedTabLists(root).map(feedTabsBlock).filter(Boolean);
 
@@ -426,6 +460,7 @@ export const RULES = [
     hint: true,
     css: `${SEL.article} div:has(> button[aria-label*="grok" i])`,
   },
+  { group: 'posts', key: 'whoToFollow', hint: true, find: feedSuggestions },
 
   /* Sidebar (right column), top to bottom */
   {
@@ -451,7 +486,7 @@ export const RULES = [
     group: 'sidebar',
     key: 'whoToFollow',
     hint: true,
-    find: blocksContaining('[data-testid="UserCell"]'),
+    find: blocksContaining(SEL.userCell),
   },
   {
     group: 'sidebar',
