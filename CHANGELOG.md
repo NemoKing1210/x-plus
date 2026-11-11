@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Shorts mode: videos play only in the current post — a video that X starts in a neighbouring post is paused at once, a video is paused when you move away from its post and plays again when you come back
+- Shorts mode: a paused auto-scroll stays paused after opening a post and coming back or reloading the page; switching auto-scroll off and on again starts it running
 
 ## [0.9.0] - 2026-10-20
 

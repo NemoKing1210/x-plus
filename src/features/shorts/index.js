@@ -2,6 +2,7 @@ import { on } from '../../core/bus.js';
 import { registerFeature } from '../../core/features.js';
 import { field } from '../../core/schema.js';
 import { t } from '../../i18n/index.js';
+import { setAutoPaused } from './autoplay.js';
 import { syncShortsSwitch } from './dock-switch.js';
 import { syncShorts } from './engine.js';
 
@@ -135,7 +136,12 @@ registerFeature({
     on('settings:general', syncShortsSwitch);
   },
 
-  apply: sync,
+  apply(cfg, prev) {
+    // Turning auto-scroll on is a request to run it: a pause remembered from an
+    // earlier run (persisted in storage) must not freeze the fresh start.
+    if (prev && !prev.autoplay && cfg.autoplay) setAutoPaused(false);
+    sync();
+  },
   scan: sync,
   navigate: sync,
 });

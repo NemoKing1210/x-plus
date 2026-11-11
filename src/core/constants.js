@@ -20,6 +20,8 @@ export const AUTHOR_AVATAR_URL =
 
 export const SETTINGS_KEY = 'xp_settings_v1';
 export const TRANSLATION_CACHE_KEY = 'xp_translation_cache_v1';
+/** Whether auto-scroll was paused by the user (runtime state, not a setting). */
+export const SHORTS_PAUSED_KEY = 'xp_shorts_paused_v1';
 
 /* ------------------------------------------------------------------ */
 /* DOM conventions                                                     */

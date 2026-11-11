@@ -1,5 +1,6 @@
-import { SEL } from '../../core/constants.js';
+import { SEL, SHORTS_PAUSED_KEY } from '../../core/constants.js';
 import { getFeatureSettings } from '../../core/settings.js';
+import { getValue, setValue } from '../../core/storage.js';
 import { t } from '../../i18n/index.js';
 import { icon } from '../../ui/icons.js';
 import { el } from '../../utils/dom.js';
@@ -12,9 +13,12 @@ import { navHovered, navVisible, setRing } from './nav.js';
  * The countdown restarts on every post (however it became the current one) and
  * stands still while the user paused it (button or hotkey), the pointer rests
  * on the controls, or a dialog is open; time that passes while frames are not
- * drawn (background tab) is not counted. Progress is shown as a ring around the
- * "next" button, as a bar over the top edge of the current post (with a small
- * pause chip showing the hotkey), or both — see `autoStyle`.
+ * drawn (background tab) is not counted. The user's pause is runtime state, not
+ * a setting, but it is persisted, so it survives leaving the feed (a post page)
+ * and a reload; turning auto-scroll off and on again clears it. Progress is
+ * shown as a ring around the "next" button, as a bar over the top edge of the
+ * current post (with a small pause chip showing the hotkey), or both — see
+ * `autoStyle`.
  *
  * The engine hands in what only it knows (`api`), so there is no import cycle.
  *
@@ -45,8 +49,8 @@ let elapsed = 0;
 let current = null;
 let blocked = false;
 let blockedAt = 0;
-/** Paused by the user (button / hotkey); lasts until resumed or auto-scroll restarts. */
-let userPaused = false;
+/** Paused by the user (button / hotkey); persisted so it outlives a page load. */
+let userPaused = getValue(SHORTS_PAUSED_KEY, false) === true;
 let bar = null;
 let chip = null;
 let chipOver = false;
@@ -62,7 +66,9 @@ export function isAutoPaused() {
 }
 
 export function setAutoPaused(value) {
-  userPaused = Boolean(value);
+  const next = Boolean(value);
+  if (next !== userPaused) setValue(SHORTS_PAUSED_KEY, next);
+  userPaused = next;
 }
 
 /** How long the post stays: the set time, or the longest video's length when it is longer. */
@@ -238,7 +244,8 @@ export function runAutoplay(handlers) {
   elapsed = 0;
   current = null;
   blockedAt = 0;
-  userPaused = false;
+  // The pause is deliberately kept: it comes from storage and the user asked
+  // for it to survive leaving the feed and reloads.
   frame = requestAnimationFrame(tick);
 }
 
