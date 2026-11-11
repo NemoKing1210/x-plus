@@ -30,25 +30,38 @@ export function clearButtonLoading(btn) {
 /** @param {'translate'|'hide'|'original'|'retry'} glyph */
 export function setButtonLabel(btn, label, { loading = false, glyph = 'translate' } = {}) {
   const header = btn.classList.contains('xp-btn--header');
-  btn.classList.toggle('is-loading', loading);
-  btn.disabled = loading;
-  btn.setAttribute('aria-label', label);
+  const wasLoading = btn.classList.contains('is-loading');
+  if (wasLoading !== loading) {
+    btn.classList.toggle('is-loading', loading);
+    btn.disabled = loading;
+    if (loading) btn.setAttribute('aria-busy', 'true');
+    else btn.removeAttribute('aria-busy');
+  }
+  if (btn.getAttribute('aria-label') !== label) btn.setAttribute('aria-label', label);
+  if (header) {
+    if (btn.title !== label) btn.title = label;
+  } else if (btn.hasAttribute('title')) {
+    btn.removeAttribute('title');
+  }
+
+  // Rescans re-apply the same state constantly: rewriting innerHTML every time
+  // would recreate the icon and force a layout pass for nothing.
+  const signature = `${loading ? '1' : '0'}|${glyph}|${label}`;
+  if (btn.dataset.xpLabelSig === signature) return;
+  btn.dataset.xpLabelSig = signature;
+
   if (loading) {
-    btn.setAttribute('aria-busy', 'true');
     btn.innerHTML =
       `<span class="xp-btn__spinner" aria-hidden="true"></span>` +
       `<span class="xp-btn__label">${escapeHtml(label)}</span>`;
     return;
   }
-  btn.removeAttribute('aria-busy');
   btn.innerHTML =
     `${icon(glyph, 'xp-btn__icon')}` + `<span class="xp-btn__label">${escapeHtml(label)}</span>`;
-  if (header) btn.title = label;
-  else btn.removeAttribute('title');
 }
 
 export function applyShownButton(btn, postEl) {
-  btn.dataset.xpState = 'shown';
+  if (btn.dataset.xpState !== 'shown') btn.dataset.xpState = 'shown';
   if (shouldHideShownReplaceButton()) {
     clearButtonLoading(btn);
     btn.hidden = true;
@@ -64,7 +77,7 @@ export function applyShownButton(btn, postEl) {
 }
 
 export function applyIdleButton(btn, postEl) {
-  btn.dataset.xpState = '';
+  if (btn.dataset.xpState !== '') btn.dataset.xpState = '';
   btn.hidden = false;
   setButtonLabel(btn, tr('btnTranslate'));
   syncToolbarVisibility(postEl);
@@ -90,6 +103,6 @@ export function beginTranslateUi(postEl, btn) {
 export function applyNoticeShownButton(btn, postEl) {
   btn.hidden = false;
   setButtonLabel(btn, tr('btnHide'), { glyph: 'hide' });
-  btn.dataset.xpState = 'shown';
+  if (btn.dataset.xpState !== 'shown') btn.dataset.xpState = 'shown';
   syncToolbarVisibility(postEl);
 }

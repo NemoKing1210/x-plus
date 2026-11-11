@@ -24,7 +24,6 @@ html[data-xp-theme='light'] {
   --xp-option-bg: #ffffff;
   --xp-toggle-off: #cfd9de;
   --xp-chrome-fg: #0f1419;
-  --xp-nav-hover: rgba(15, 20, 25, 0.1);
   --xp-link: #1d9bf0;
 }
 
@@ -52,7 +51,6 @@ html[data-xp-theme='dim'] {
   --xp-option-bg: #1e2732;
   --xp-toggle-off: #38444d;
   --xp-chrome-fg: #f7f9f9;
-  --xp-nav-hover: rgba(247, 249, 249, 0.1);
   --xp-link: #1d9bf0;
 }
 
@@ -81,7 +79,6 @@ html:not([data-xp-theme]) {
   --xp-option-bg: #16181c;
   --xp-toggle-off: #333639;
   --xp-chrome-fg: #e7e9ea;
-  --xp-nav-hover: rgba(231, 233, 234, 0.1);
   --xp-link: #1d9bf0;
 }
 

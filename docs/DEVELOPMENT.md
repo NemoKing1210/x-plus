@@ -11,14 +11,24 @@ Node.js 22 (see `.nvmrc`).
 npm install
 npm run dev               # userscript dev server (dev: prefix)
 npm run build             # build + refresh root x-plus.user.js / x-plus.meta.js
+npm run check:syntax      # every source module parses (node --check)
 npm run check:i18n        # every used key must exist in every locale
+npm test                  # unit tests for pure modules (node:test)
 npm run verify:artifacts  # dist/ and root artifacts must match
-npm run ci                # check:i18n + build + verify (CI gate)
+npm run ci                # syntax + i18n + tests + build + verify (CI gate)
 npm run harness           # local mock of x.com for manual testing (see below)
 ```
 
 Edit files under `src/` and rebuild — the root `.user.js` / `.meta.js` are
 generated, never hand-edited.
+
+## Tests
+
+`npm test` runs Node's built-in test runner over `test/**/*.test.js`. The tests
+cover the pure modules only (settings schema, handles / language lists, file
+names, media variants, link tokens) — no DOM or userscript manager is needed.
+`npm run check:syntax` parses every module separately, so a broken file is
+reported before the bundle is built.
 
 ## Local testing
 

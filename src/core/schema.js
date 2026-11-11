@@ -44,6 +44,13 @@ export const field = {
   }),
 
   /**
+   * Absolute http(s) URL (provider endpoints). Invalid values fall back to the
+   * default, so an imported backup cannot point the script at `javascript:`.
+   * @param {string} [def] @param {{max?: number}} [opts]
+   */
+  url: (def = '', { max = 500 } = {}) => ({ type: 'url', default: def, max }),
+
+  /**
    * Deduplicated list of normalized items.
    * @param {'handle'|'lang'|'text'} kind
    */
@@ -93,6 +100,19 @@ export function normalizeField(spec, raw) {
       if (typeof raw !== 'string') return spec.default;
       const value = spec.trim ? raw.trim() : raw;
       return value.slice(0, spec.max);
+    }
+    case 'url': {
+      if (typeof raw !== 'string') return spec.default;
+      const value = raw.trim().slice(0, spec.max);
+      if (!value) return '';
+      try {
+        const parsed = new URL(value);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+          ? value
+          : spec.default;
+      } catch {
+        return spec.default;
+      }
     }
     case 'list': {
       if (!Array.isArray(raw)) return [...spec.default];

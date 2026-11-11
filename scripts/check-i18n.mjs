@@ -14,7 +14,7 @@ const src = join(root, 'src');
 
 const NAMESPACES = [
   'panel', 'toast', 'general', 'about', 'backup', 'nav', 'menu', 'list', 'common',
-  'translate', 'media', 'interface', 'shorts',
+  'translate', 'media', 'interface', 'shorts', 'hotkey', 'peek',
 ];
 
 function* walk(dir) {

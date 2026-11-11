@@ -3,7 +3,7 @@ import { icon } from '../../ui/icons.js';
 import { el, silencePointerEvents } from '../../utils/dom.js';
 import { ATTR, cfg, tm } from './config.js';
 import { startDownload } from './flow.js';
-import { getActionGroup, getMediaHosts, photoIndex } from './tweet.js';
+import { getActionGroup, getMediaHosts, isGifHost, photoIndex } from './tweet.js';
 
 /**
  * Download buttons.
@@ -96,7 +96,12 @@ function createOverlay(article, host) {
 
 function ensureOverlay(article, host) {
   if (host.el.querySelector(`:scope > [${ATTR.overlay}]`)) return;
-  if (getComputedStyle(host.el).position === 'static') host.el.classList.add('xp-media-host');
+  // Position is checked once per host: `getComputedStyle` on every scan is
+  // avoidable, and the marker survives our own overlay being removed.
+  if (!host.el.hasAttribute(ATTR.host)) {
+    if (getComputedStyle(host.el).position === 'static') host.el.classList.add('xp-media-host');
+    host.el.setAttribute(ATTR.host, '1');
+  }
   host.el.appendChild(createOverlay(article, host));
 }
 
@@ -109,10 +114,14 @@ function removeButtons(article) {
   article.removeAttribute(ATTR.article);
 }
 
+/** Only the media kinds the user enabled get a control. */
+function isHostEnabled(host, config) {
+  if (host.kind === 'photo') return config.images;
+  return isGifHost(host) ? config.gifs : config.videos;
+}
+
 function enhanceArticle(article, config) {
-  const hosts = getMediaHosts(article).filter((host) =>
-    host.kind === 'photo' ? config.images : config.videos || config.gifs,
-  );
+  const hosts = getMediaHosts(article).filter((host) => isHostEnabled(host, config));
   if (!hosts.length) {
     if (article.hasAttribute(ATTR.article)) removeButtons(article);
     return;

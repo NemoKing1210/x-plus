@@ -41,6 +41,9 @@ let actions = null;
 /** Pointer on the controls (tracked by events: asking `:hover` every frame forces style work). */
 let hovered = false;
 const pressTimers = new WeakMap();
+/** Last written position / auto button text, to skip identical DOM writes. */
+let placedLeft = null;
+let autoTitle = '';
 
 function makeButton(name, direction) {
   const button = el('button', 'xp-shorts-nav__btn');
@@ -93,7 +96,11 @@ function place() {
   const free = edge - column.right;
   const left = free >= SIZE + GAP ? column.right + (free - SIZE) / 2 : column.right - SIZE - MARGIN;
   const clamped = Math.min(Math.max(left, MARGIN), window.innerWidth - SIZE - MARGIN);
-  box.style.left = `${Math.round(clamped)}px`;
+  const next = `${Math.round(clamped)}px`;
+  if (placedLeft !== next) {
+    box.style.left = next;
+    placedLeft = next;
+  }
 }
 
 /** @param {'off' | 'running' | 'paused'} mode */
@@ -107,9 +114,14 @@ function syncAutoButton(mode) {
   const cfg = getFeatureSettings('shorts');
   const key = mode !== 'off' && cfg.autoKey ? ` (${keyLabel(cfg.autoKey)})` : '';
   const label = t(mode === 'running' ? 'shorts.autoPause' : mode === 'paused' ? 'shorts.autoResume' : 'shorts.autoPlay');
-  auto.title = `${label}${key}`;
-  auto.setAttribute('aria-label', label);
-  auto.setAttribute('aria-pressed', String(mode === 'running'));
+  const title = `${label}${key}`;
+  if (autoTitle !== title) {
+    auto.title = title;
+    auto.setAttribute('aria-label', label);
+    autoTitle = title;
+  }
+  const pressed = String(mode === 'running');
+  if (auto.getAttribute('aria-pressed') !== pressed) auto.setAttribute('aria-pressed', pressed);
 }
 
 /**

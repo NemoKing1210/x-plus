@@ -1,5 +1,5 @@
 import { t } from '../../i18n/index.js';
-import { el } from '../../utils/dom.js';
+import { el, trapFocus } from '../../utils/dom.js';
 
 /**
  * Minimal modal confirmation shown above the settings panel.
@@ -27,7 +27,9 @@ export function confirmDialog({ title, message, confirmLabel, danger = false }) 
     box.appendChild(actions);
     overlay.appendChild(box);
 
+    const releaseTrap = trapFocus(box);
     const finish = (value) => {
+      releaseTrap();
       document.removeEventListener('keydown', onKey, true);
       overlay.remove();
       resolve(value);

@@ -27,6 +27,7 @@ import {
 } from './content.js';
 import {
   clearDisplay,
+  forgetTranslation,
   setTranslatingBlur,
   showResult,
   syncToolbarVisibility,
@@ -210,6 +211,12 @@ function onTranslateClick(postEl, btn) {
 
 function shouldAutoTranslatePost(postEl) {
   if (!isAutoMode()) return false;
+  // Posts we enhanced already carry the verdict (set during the full pass and
+  // refreshed on every settings change). This keeps the per-scan auto pass from
+  // re-running the handle / native-bar heuristics for every post on the page.
+  if (postEl.getAttribute(ATTR.post) === '1') {
+    return postEl.getAttribute(ATTR.autoEligible) === '1';
+  }
   if (shouldSkipForNativeAutoTranslate(postEl)) return false;
   const handle = resolvePostAuthorHandle(postEl);
   if (isAccountBlocked(handle)) return false;
@@ -266,7 +273,8 @@ export function translateInCell(cell) {
 
 function stopAutoTranslate() {
   autoQueue.length = 0;
-  autoInflight = 0;
+  // Do not reset `autoInflight`: requests already in flight still settle, and
+  // zeroing the counter would let a re-enabled mode exceed the concurrency cap.
   if (visibilityObserver) {
     visibilityObserver.disconnect();
     visibilityObserver = null;
@@ -301,9 +309,10 @@ function pumpAutoQueue() {
 }
 
 function enqueueAutoTranslate(postEl) {
-  if (!shouldAutoTranslatePost(postEl) || blockedByShorts(postEl)) return;
+  // Cheap DOM flags first: most posts on the page are already done or queued.
   if (postEl.getAttribute(ATTR.autoDone) === '1') return;
   if (postEl.getAttribute(ATTR.autoQueued) === '1') return;
+  if (!shouldAutoTranslatePost(postEl) || blockedByShorts(postEl)) return;
   const btn = getTranslateButton(postEl);
   if (!btn || isLoading(btn) || isShown(btn)) {
     if (btn && isShown(btn)) postEl.setAttribute(ATTR.autoDone, '1');
@@ -332,9 +341,10 @@ function ensureVisibilityObserver() {
 }
 
 function observeForAuto(postEl) {
+  // Already observed: skip the (much more expensive) eligibility checks.
+  if (postEl.getAttribute(ATTR.observed) === '1') return;
   if (!shouldAutoTranslatePost(postEl)) return;
   const observer = ensureVisibilityObserver();
-  if (postEl.getAttribute(ATTR.observed) === '1') return;
   postEl.setAttribute(ATTR.observed, '1');
   observer.observe(postEl);
 }
@@ -354,6 +364,8 @@ function teardownPostUi(el) {
   el.removeAttribute(ATTR.observed);
   el.removeAttribute(ATTR.autoDone);
   el.removeAttribute(ATTR.autoQueued);
+  el.removeAttribute(ATTR.autoEligible);
+  el.removeAttribute(ATTR.contentSig);
   try {
     visibilityObserver?.unobserve(el);
   } catch {
@@ -361,7 +373,43 @@ function teardownPostUi(el) {
   }
 }
 
-function enhancePost(el) {
+/** X replaced the text under a translation (edit / "show more"): the stored copy is stale. */
+function contentIsStale(el) {
+  const signature = el.getAttribute(ATTR.contentSig);
+  if (signature == null) return false;
+  // Hover-peek temporarily swaps the text; that is our own doing, not X's.
+  if (el.classList.contains('xp-text--peeking') || el.classList.contains('xp-text--split')) return false;
+  return String(el.textContent.length) !== signature;
+}
+
+function enhancePost(el, recheck = false) {
+  const stale = !recheck && contentIsStale(el);
+  if (stale) {
+    forgetTranslation(el);
+    el.removeAttribute(ATTR.autoDone);
+    el.removeAttribute(ATTR.autoQueued);
+  }
+
+  if (el.hasAttribute(ATTR.post) && !recheck && !stale) {
+    // Fast path: the post is already ours. Only repair chrome that X removed;
+    // running the header / native-bar heuristics on every scan is what made the
+    // full pass expensive.
+    const bar = getToolbar(el);
+    if (bar) bindToolbar(bar, el);
+
+    const btn = getTranslateButton(el);
+    if (!btn) {
+      ensureButton(el);
+    } else {
+      bindTranslateButton(btn, el);
+      const placed =
+        btn.isConnected && (btn.closest('.xp-header-action') || btn.closest(`[${ATTR.toolbar}]`));
+      if (!placed) placeTranslateButton(el, btn);
+    }
+    observeForAuto(el);
+    return;
+  }
+
   const handle = resolvePostAuthorHandle(el);
   if (isAccountBlocked(handle) || shouldSkipForNativeAutoTranslate(el)) {
     teardownPostUi(el);
@@ -373,8 +421,11 @@ function enhancePost(el) {
     return;
   }
 
+  if (isAutoTranslateAllowedForHandle(handle)) el.setAttribute(ATTR.autoEligible, '1');
+  else el.removeAttribute(ATTR.autoEligible);
+
   if (el.hasAttribute(ATTR.post)) {
-    // Re-place chrome if X re-rendered the tweet header / text tree.
+    // Settings changed (recheck): re-place chrome if X re-rendered it.
     const bar = getToolbar(el);
     if (bar) {
       placeToolbar(el, bar);
@@ -403,20 +454,26 @@ export function teardownAllPosts() {
   document.querySelectorAll(`[${ATTR.toolbar}], .xp-header-action`).forEach((n) => n.remove());
 }
 
-/** Idempotent pass over the page; called after every scan and settings change. */
-export function scanPosts() {
+/**
+ * Idempotent pass over the page; called after every scan and settings change.
+ * `recheck` re-runs the eligibility checks for posts that are already enhanced
+ * (needed when the blocklist / native-bar option changes, not on every scan).
+ */
+export function scanPosts(recheck = false) {
   if (!cfg().enabled) {
     teardownAllPosts();
     return;
   }
-  if (!isAutoMode()) stopAutoTranslate();
+  if (!isAutoMode() && (visibilityObserver || autoQueue.length)) stopAutoTranslate();
 
-  findPostTextRoots().forEach(enhancePost);
+  findPostTextRoots().forEach((el) => enhancePost(el, recheck));
 
   // Re-queue visible allowlisted posts after settings / DOM rescans.
   if (isAutoMode()) {
     document.querySelectorAll(`[${ATTR.post}]`).forEach((el) => {
-      if (shouldAutoTranslatePost(el)) enqueueAutoTranslate(el);
+      if (el.getAttribute(ATTR.autoEligible) !== '1') return;
+      if (el.getAttribute(ATTR.autoDone) === '1' || el.getAttribute(ATTR.autoQueued) === '1') return;
+      enqueueAutoTranslate(el);
     });
   }
 

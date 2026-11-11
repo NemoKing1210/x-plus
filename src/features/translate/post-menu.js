@@ -159,11 +159,16 @@ export function scanPostMenus() {
     removeMenuItems();
     return;
   }
+  // Runs on a 40 ms debounce for every DOM change: bail out before the
+  // expensive trigger / author lookups when no menu is open (the common case).
+  const menus = document.querySelectorAll('[role="menu"]');
+  if (!menus.length) return;
+
   const trigger = findOpenDropdownTrigger();
   const handle = resolveHandleFromDropdownTrigger(trigger);
   if (!handle) return;
 
-  document.querySelectorAll('[role="menu"]').forEach((menu) => {
+  menus.forEach((menu) => {
     if (isTweetActionMenu(menu)) injectIntoMenu(menu, handle);
   });
 }

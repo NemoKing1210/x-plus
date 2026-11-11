@@ -12,7 +12,7 @@ src/
 ├── main.js                  # Boot: load settings → init/apply features → start observers
 ├── core/
 │   ├── constants.js         # Identity, storage keys, X selectors (SEL), timings
-│   ├── schema.js            # Declarative settings schema: field.bool/enum/int/text/list/record
+│   ├── schema.js            # Declarative settings schema: field.bool/enum/int/text/url/list/record
 │   ├── features.js          # Feature registry (registerFeature, hooks)
 │   ├── settings.js          # Load / save / import / export + normalization (single source of truth)
 │   ├── bus.js               # Pub/sub: settings:*, scan, navigate, theme
@@ -39,9 +39,13 @@ src/
 
 ## Boot sequence
 
+The script runs at `document-start`.
+
 ```
+loadSettings()                         # normalize stored blob against every feature's schema
+applyRuleStyles()                      # interface hide rules before X paints the feed
+
 whenReady → boot()
-  loadSettings()                       # normalize stored blob against every feature's schema
   observePageTheme()                   # data-xp-theme follows X
   for feature in features (by order):
       init()                           # once
@@ -49,6 +53,7 @@ whenReady → boot()
       on('settings:<id>') → apply(cfg, prev)
   on('scan')     → feature.scan(root)  # debounced DOM changes (shared MutationObserver)
   on('navigate') → feature.navigate(url)
+  on('settings:general') → scanNow() when the language changes (re-renders chrome labels)
   startScanning(); startNavigationWatch(); scanNow()
 ```
 
@@ -67,6 +72,7 @@ section once with `field.*` builders (`core/schema.js`):
 | `field.enum(values, def)` | must be one of `values` (array or function) |
 | `field.int(def, {min,max})` | rounded and clamped |
 | `field.text(def, {max,trim})` | string, trimmed, length-capped |
+| `field.url(def, {max})` | absolute http(s) URL; anything else falls back to the default |
 | `field.list(kind, def)` | deduplicated, normalized items (`handle` / `lang` / `text`) |
 | `field.record(fields)` | nested object, recursively normalized |
 

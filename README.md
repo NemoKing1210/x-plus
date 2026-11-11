@@ -65,7 +65,7 @@ Same engine as [x-translator](https://github.com/NemoKing1210/x-translator):
   `{type}` `{text}`
 - Progress toast; works without a login via X's public syndication endpoint
   and falls back to your session for posts it does not return
-- Optional larger photos while browsing the timeline
+- Optional larger photos while browsing the timeline; switching back to "default" (or turning media off) restores X's own renditions
 - Photo gallery (opt-in): a click on a post photo opens a fast full-screen gallery instead of X's photo page — no replies or timeline are loaded; all photos of the post with thumbnails, `←` / `→`, swipe, zoom, download and open-original (Ctrl / Cmd / Shift-click still opens X's viewer)
 - Photo viewer zoom: wheel, drag, double click, `+` / `-` / `0`, pinch on touch screens
 
@@ -79,7 +79,7 @@ Browse the feed one post at a time, like YouTube Shorts (opt-in).
 - Round ↑ / ↓ buttons beside the current post step to the previous / next post with the mouse
 - Posts joined by a thread line (a reply under its post, a self-thread) count as one post: they are highlighted, centred and stepped over together
 - The current post grows a little, the posts around it are blurred; size, blur, the opacity of the previous / next post and transition speed are adjustable
-- Auto-scroll (opt-in): moves to the next post by itself after a set time (1–60 s); a video longer than that keeps its post until it ends, and the countdown waits while the pointer is on the arrow buttons. Progress is a ring around the “next” button, or a bar over the top of the post when the buttons are hidden — the indicator can be switched in settings; the play / pause button sits under the arrows, and a key (`P` by default, changeable in settings) pauses and resumes it — next to the bar a small chip shows the key; a pause is remembered, so it stays in place after opening a post and coming back or reloading the page (turning auto-scroll off and on again starts it running)
+- Auto-scroll (opt-in): moves to the next post by itself after a set time (1–60 s); a video longer than that keeps its post until it has actually played to the end (a late start, buffering or a seek cannot make the jump early), and the countdown waits while the pointer is on the arrow buttons. Pausing the video pauses the countdown, and pausing auto-scroll pauses the video; resuming brings both back. Progress is a ring around the “next” button, or a bar over the top of the post when the buttons are hidden — the indicator can be switched in settings; the play / pause button sits under the arrows, and a key (`P` by default, changeable in settings) pauses and resumes it — next to the bar a small chip shows the key; a pause is remembered, so it stays in place after opening a post and coming back or reloading the page (turning auto-scroll off and on again starts it running)
 - Turn it on in settings (Shorts tab) or with the switch next to the `Ctrl + M` reminder at the bottom left
 - Works in feeds (Home, profiles, search, lists), not on a post page; a post taller than the screen scrolls normally until its edge is reached
 

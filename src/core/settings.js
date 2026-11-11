@@ -61,9 +61,20 @@ function persist() {
   }
 }
 
+/** Cheap identity check first; only serialize when the sections are different objects. */
+function sameSection(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  try {
+    return JSON.stringify(a) === JSON.stringify(b);
+  } catch {
+    return false;
+  }
+}
+
 function announce(prev, next) {
   for (const id of Object.keys(next)) {
-    if (JSON.stringify(prev?.[id]) !== JSON.stringify(next[id])) {
+    if (!sameSection(prev?.[id], next[id])) {
       emit(`settings:${id}`, next[id], prev?.[id] ?? null);
     }
   }

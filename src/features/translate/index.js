@@ -64,7 +64,8 @@ registerFeature({
   },
 
   apply() {
-    scanPosts();
+    // Settings may change the blocklist / native-bar rule: re-check existing posts.
+    scanPosts(true);
     scanArticles();
   },
 

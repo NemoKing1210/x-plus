@@ -180,7 +180,9 @@ export function providerConfigSchema() {
               f.options.map((o) => o.value),
               f.default,
             )
-          : field.text(f.default ?? '', { max: 500 });
+          : f.type === 'url'
+            ? field.url(f.default ?? '', { max: 500 })
+            : field.text(f.default ?? '', { max: 500 });
     }
     perProvider[provider.id] = field.record(fields);
   }

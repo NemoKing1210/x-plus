@@ -30,12 +30,27 @@ export function toLibreLang(code) {
   return c.split('-')[0];
 }
 
+const displayNamesByLocale = new Map();
+const displayNameCache = new Map();
+
 export function languageDisplayName(code, uiLocale = 'en') {
+  const base = String(code || 'en')
+    .replace(/_/g, '-')
+    .split('-')[0];
+  const key = `${uiLocale}|${base}`;
+  if (displayNameCache.has(key)) return displayNameCache.get(key);
+
+  let value = code;
   try {
-    return new Intl.DisplayNames([uiLocale, 'en'], { type: 'language' }).of(
-      String(code || 'en').replace(/_/g, '-').split('-')[0]
-    );
+    let names = displayNamesByLocale.get(uiLocale);
+    if (!names) {
+      names = new Intl.DisplayNames([uiLocale, 'en'], { type: 'language' });
+      displayNamesByLocale.set(uiLocale, names);
+    }
+    value = names.of(base);
   } catch (_) {
-    return code;
+    value = code;
   }
+  displayNameCache.set(key, value);
+  return value;
 }

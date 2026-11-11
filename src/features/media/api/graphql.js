@@ -62,11 +62,13 @@ async function discoverQueryId() {
     .map((script) => script.src)
     .filter((src) => /abs\.twimg\.com\/responsive-web\/client-web/.test(src))
     .sort((a, b) => Number(/main\./.test(b)) - Number(/main\./.test(a)))
-    .slice(0, 6);
+    // Bounded probe: a handful of bundles, each with a short timeout, so an
+    // offline / throttled network cannot stall the download flow for minutes.
+    .slice(0, 4);
 
   for (const src of scripts) {
     try {
-      const text = await gmRequest({ url: src, responseType: 'text', anonymous: true, timeout: 30000 });
+      const text = await gmRequest({ url: src, responseType: 'text', anonymous: true, timeout: 12000 });
       const match = /queryId:"([^"]+)",operationName:"TweetResultByRestId"/.exec(String(text));
       if (match) {
         discoveredQueryId = match[1];
@@ -101,24 +103,33 @@ function buildUrl(queryId, tweetId, features) {
 
 /** @returns {Promise<{status: number, json: any}>} */
 async function request(queryId, tweetId, features, csrf) {
-  const response = await fetch(buildUrl(queryId, tweetId, features), {
-    credentials: 'include',
-    headers: {
-      authorization: `Bearer ${BEARER}`,
-      'x-csrf-token': csrf,
-      'x-twitter-active-user': 'yes',
-      'x-twitter-auth-type': 'OAuth2Session',
-      'x-twitter-client-language': 'en',
-      'content-type': 'application/json',
-    },
-  });
-  let json = null;
+  // `fetch` has no timeout of its own: without this a stalled request would
+  // keep the download flow (and its spinner) waiting indefinitely.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 20000);
   try {
-    json = await response.json();
-  } catch {
-    /* non-JSON error page */
+    const response = await fetch(buildUrl(queryId, tweetId, features), {
+      credentials: 'include',
+      signal: controller.signal,
+      headers: {
+        authorization: `Bearer ${BEARER}`,
+        'x-csrf-token': csrf,
+        'x-twitter-active-user': 'yes',
+        'x-twitter-auth-type': 'OAuth2Session',
+        'x-twitter-client-language': 'en',
+        'content-type': 'application/json',
+      },
+    });
+    let json = null;
+    try {
+      json = await response.json();
+    } catch {
+      /* non-JSON error page */
+    }
+    return { status: response.status, json };
+  } finally {
+    clearTimeout(timer);
   }
-  return { status: response.status, json };
 }
 
 /** Parse "The following features cannot be null: a, b, c" into flag names. */

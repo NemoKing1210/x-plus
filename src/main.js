@@ -13,6 +13,7 @@ import { getFeatures, runFeatureHook, runHook } from './core/features.js';
 import { startNavigationWatch, startScanning, scanNow } from './core/scan.js';
 import { getFeatureSettings, loadSettings } from './core/settings.js';
 import { observePageTheme } from './core/theme.js';
+import { applyRuleStyles } from './features/interface/engine.js';
 import { whenReady } from './utils/dom.js';
 
 /*
@@ -46,9 +47,20 @@ function boot() {
   on('scan', (scanRoot) => runHook('scan', scanRoot));
   on('navigate', (url) => runHook('navigate', url));
 
+  // The interface language is applied by `general` first; re-run the scans so
+  // button / menu labels in the already-rendered chrome switch language too.
+  on('settings:general', (cfg, prev) => {
+    if (prev && prev.language !== cfg.language) scanNow();
+  });
+
   startScanning();
   startNavigationWatch();
   scanNow();
 }
+
+// The script runs at document-start: inject the declarative "hide" CSS before
+// X paints the feed, then boot the rest of the UI once the DOM is ready.
+loadSettings();
+if (document.documentElement) applyRuleStyles();
 
 whenReady(boot);

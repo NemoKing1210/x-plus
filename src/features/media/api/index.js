@@ -14,6 +14,8 @@ import { fetchSyndication } from './syndication.js';
  */
 
 const TTL_MS = 10 * 60 * 1000;
+/** Bounded: a long session scrolling thousands of posts must not grow forever. */
+const MEMO_MAX = 100;
 /** @type {Map<string, { at: number, promise: Promise<import('./model.js').TweetMedia> }>} */
 const memo = new Map();
 
@@ -49,6 +51,9 @@ export function resolveTweetMedia(id) {
   const hit = memo.get(id);
   if (hit && Date.now() - hit.at < TTL_MS) return hit.promise;
 
+  if (memo.size >= MEMO_MAX && !memo.has(id)) {
+    memo.delete(memo.keys().next().value);
+  }
   const promise = resolve(id);
   memo.set(id, { at: Date.now(), promise });
   // Do not keep failures: the next click should retry.

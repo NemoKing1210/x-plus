@@ -122,7 +122,9 @@ export function plainTextWithoutLinkTokens(text) {
  * @returns {boolean}
  */
 export function hasTranslatablePlainText(text) {
-  return Boolean(plainTextWithoutLinkTokens(text));
+  // Emoji / punctuation / numbers only: a paid provider call would return the
+  // same string. Require at least one letter (CJK counts as letters).
+  return /\p{L}/u.test(plainTextWithoutLinkTokens(text));
 }
 
 /**

@@ -11,4 +11,5 @@ export const ATTR = Object.freeze({
   overlay: 'data-xp-media-overlay',
   host: 'data-xp-media-host',
   feedImage: 'data-xp-img',
+  feedImageOrig: 'data-xp-img-orig',
 });

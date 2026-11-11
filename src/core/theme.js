@@ -103,12 +103,19 @@ export function observePageTheme(onChange) {
   let last = applyPageTheme();
   onChange?.(last);
 
+  // X mutates class/style on <html> and <body> in bursts (and our own theme
+  // attribute would re-trigger a synchronous detection): coalesce into a frame.
+  let scheduled = 0;
   const run = () => {
-    const next = applyPageTheme();
-    if (next !== last) {
-      last = next;
-      onChange?.(next);
-    }
+    if (scheduled) return;
+    scheduled = requestAnimationFrame(() => {
+      scheduled = 0;
+      const next = applyPageTheme();
+      if (next !== last) {
+        last = next;
+        onChange?.(next);
+      }
+    });
   };
 
   const observer = new MutationObserver(run);
@@ -127,6 +134,7 @@ export function observePageTheme(onChange) {
   mql?.addEventListener?.('change', run);
 
   return () => {
+    if (scheduled) cancelAnimationFrame(scheduled);
     observer.disconnect();
     mql?.removeEventListener?.('change', run);
   };

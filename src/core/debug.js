@@ -37,17 +37,29 @@ const WARN_BADGE_STYLE =
 const CODE_STYLE = 'font-weight:bold';
 const INFO_STYLE = 'color:#71767b';
 
+/** `localStorage` is synchronous and can be slow: the flag is re-read at most once a second. */
+const VERBOSE_TTL_MS = 1000;
+let verbose = { at: 0, value: false };
+
 export function isVerbose() {
+  const now = Date.now();
+  if (now - verbose.at < VERBOSE_TTL_MS) return verbose.value;
+
+  let value = false;
   try {
-    if (typeof window !== 'undefined' && window.__XP_DEBUG__ === true) return true;
+    if (typeof window !== 'undefined' && window.__XP_DEBUG__ === true) value = true;
   } catch {
     /* sandbox without window access */
   }
-  try {
-    return localStorage.getItem('xp_debug') === '1';
-  } catch {
-    return false;
+  if (!value) {
+    try {
+      value = localStorage.getItem('xp_debug') === '1';
+    } catch {
+      value = false;
+    }
   }
+  verbose = { at: now, value };
+  return value;
 }
 
 /** Build an Error carrying a stable code plus structured details. */

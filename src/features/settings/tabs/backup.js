@@ -16,7 +16,11 @@ function downloadText(fileName, text) {
   const anchor = document.createElement('a');
   anchor.href = url;
   anchor.download = fileName;
+  // Some managers/browsers only honour a click on a connected anchor.
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
   anchor.click();
+  anchor.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 

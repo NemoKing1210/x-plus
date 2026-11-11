@@ -5,7 +5,7 @@ import { t } from '../../i18n/index.js';
 import { icon } from '../../ui/icons.js';
 import { lockPageScroll, unlockPageScroll } from '../../ui/scroll-lock.js';
 import { showToast } from '../../ui/toast.js';
-import { el } from '../../utils/dom.js';
+import { el, trapFocus } from '../../utils/dom.js';
 import { confirmDialog } from './confirm.js';
 import { endPeek, renderTab } from './renderer.js';
 import { buildIndex, highlight, searchIndex, tokenize } from './search.js';
@@ -23,7 +23,8 @@ const ROOT_ID = 'xp-settings-root';
  *   tabs: object[], active: string,
  *   rendered: Map<string, { panel: HTMLElement, view: ReturnType<typeof renderTab> }>,
  *   search: null | { input: HTMLInputElement, clear: HTMLElement, results: HTMLElement,
- *     index: object[] | null, found: object[], active: number }
+ *     index: object[] | null, found: object[], active: number },
+ *   releaseFocus: () => void
  * }} */
 let state = null;
 
@@ -284,6 +285,7 @@ export const isSettingsOpen = () => Boolean(state);
 
 export function closeSettings() {
   if (!state) return;
+  state.releaseFocus?.();
   document.removeEventListener('keydown', onKeyDown, true);
   endPeek();
   state.root.remove();
@@ -359,6 +361,7 @@ function buildDialog(tabs, active) {
   dialog.setAttribute('role', 'dialog');
   dialog.setAttribute('aria-modal', 'true');
   dialog.setAttribute('aria-labelledby', 'xp-settings-title');
+  dialog.tabIndex = -1;
 
   const header = el('header', 'xp-settings__header');
   const close = el('button', 'xp-settings__x');
@@ -440,12 +443,14 @@ export function openSettings(tabId) {
     active,
     rendered: new Map(),
     search,
+    releaseFocus: trapFocus(dialog),
   };
 
   document.addEventListener('keydown', onKeyDown, true);
   (document.body || document.documentElement).appendChild(root);
   lockPageScroll();
   activateTab(active);
+  dialog.focus({ preventScroll: true });
   requestAnimationFrame(() => {
     updateBadges();
     syncTabInk();

@@ -34,6 +34,43 @@ export function each(list, visit) {
   for (let i = 0; i < list.length; i += 1) visit(list[i], i);
 }
 
+const FOCUSABLE_SELECTOR =
+  'a[href], area[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), iframe, [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
+
+/**
+ * Keep Tab / Shift+Tab inside `container`. Returns a function that removes the
+ * listener. The container itself should be focusable (`tabIndex = -1`) so that
+ * focus starts inside the modal.
+ */
+export function trapFocus(container) {
+  const onKey = (event) => {
+    if (event.key !== 'Tab') return;
+    const items = [...container.querySelectorAll(FOCUSABLE_SELECTOR)].filter(
+      (node) => !node.hidden && node.getClientRects().length > 0,
+    );
+    if (!items.length) {
+      event.preventDefault();
+      container.focus?.();
+      return;
+    }
+    const first = items[0];
+    const last = items[items.length - 1];
+    const active = document.activeElement;
+    const outside = !container.contains(active) || active === container;
+    if (event.shiftKey) {
+      if (outside || active === first) {
+        event.preventDefault();
+        last.focus();
+      }
+    } else if (outside || active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+  container.addEventListener('keydown', onKey);
+  return () => container.removeEventListener('keydown', onKey);
+}
+
 /** `fn` once the DOM is ready to be touched. */
 export function whenReady(fn) {
   if (document.readyState === 'loading') {

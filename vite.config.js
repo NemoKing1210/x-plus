@@ -76,7 +76,9 @@ export default defineConfig({
           'libretranslate.com',
           '*',
         ],
-        'run-at': 'document-idle',
+        // Document-start so the declarative hide rules are injected before X
+        // paints; the rest of the boot waits for DOMContentLoaded (main.js).
+        'run-at': 'document-start',
         noframes: true,
       },
       server: {

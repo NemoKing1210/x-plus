@@ -3,14 +3,31 @@ import { normalizeHandle } from '../../utils/handle.js';
 import { normalizeHandleList, normalizeLangCode, normalizeLangList } from '../../utils/lists.js';
 import { cfg } from './config.js';
 
+/**
+ * Settings arrays are replaced (not mutated) on save, so their identity is a
+ * cheap cache key: normalization runs once per saved value instead of on every
+ * post / scan.
+ */
+let blocklistSource = null;
+let blocklistSet = null;
+
+function blocklistLookup() {
+  const list = cfg().accountBlocklist;
+  if (list !== blocklistSource) {
+    blocklistSource = list;
+    blocklistSet = new Set(normalizeHandleList(list));
+  }
+  return blocklistSet;
+}
+
 export function getAccountBlocklist() {
-  return normalizeHandleList(cfg().accountBlocklist);
+  return [...blocklistLookup()].sort();
 }
 
 export function isAccountBlocked(handle) {
   const h = normalizeHandle(handle);
   if (!h) return false;
-  return getAccountBlocklist().includes(h);
+  return blocklistLookup().has(h);
 }
 
 function persistBlocklist(list) {
@@ -55,11 +72,28 @@ export function isLangInList(detected, list) {
  * @param {string | null | undefined} detected
  * @returns {'blocked' | 'not-allowed' | null}
  */
+let langBlockSource = null;
+let langBlockList = null;
+let langAllowSource = null;
+let langAllowList = null;
+
+function normalizedLangLists() {
+  const config = cfg();
+  if (config.langBlocklist !== langBlockSource) {
+    langBlockSource = config.langBlocklist;
+    langBlockList = normalizeLangList(config.langBlocklist);
+  }
+  if (config.langAllowlist !== langAllowSource) {
+    langAllowSource = config.langAllowlist;
+    langAllowList = normalizeLangList(config.langAllowlist);
+  }
+  return { block: langBlockList, allow: langAllowList };
+}
+
 export function getLanguageSkipReason(detected) {
   if (!detected) return null;
-  const block = normalizeLangList(cfg().langBlocklist);
+  const { block, allow } = normalizedLangLists();
   if (isLangInList(detected, block)) return 'blocked';
-  const allow = normalizeLangList(cfg().langAllowlist);
   if (allow.length && !isLangInList(detected, allow)) return 'not-allowed';
   return null;
 }

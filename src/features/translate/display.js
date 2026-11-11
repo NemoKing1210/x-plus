@@ -132,6 +132,7 @@ function showFloatingPeekBadge(postEl, code) {
 
 export function restoreOriginalText(postEl) {
   hideFloatingPeekBadge(postEl);
+  postEl.removeAttribute(ATTR.contentSig);
   const stored = postEl.getAttribute(ATTR.originalHtml);
   if (stored == null) return;
   postEl.innerHTML = stored;
@@ -139,6 +140,26 @@ export function restoreOriginalText(postEl) {
   postEl.removeAttribute(ATTR.translatedHtml);
   postEl.removeAttribute(ATTR.sourceLang);
   postEl.classList.remove(...TEXT_STATE_CLASSES);
+}
+
+/**
+ * Forget a translation without touching the current DOM. Used when X itself
+ * replaced the post text under us: restoring our stored copy would undo X's
+ * update, so the stale state is dropped and the new content is left in place.
+ */
+export function forgetTranslation(postEl) {
+  hideFloatingPeekBadge(postEl);
+  postEl.removeAttribute(ATTR.originalHtml);
+  postEl.removeAttribute(ATTR.translatedHtml);
+  postEl.removeAttribute(ATTR.sourceLang);
+  postEl.removeAttribute(ATTR.contentSig);
+  postEl.classList.remove(...TEXT_STATE_CLASSES);
+  hideResult(postEl, { remove: true });
+}
+
+/** Remember the text length of what is on screen, to notice X re-rendering it. */
+function markContent(postEl) {
+  postEl.setAttribute(ATTR.contentSig, String(postEl.textContent.length));
 }
 
 /** Blur the text while a translation is in flight. */
@@ -233,6 +254,7 @@ function applyReplacedText(postEl, translated, links = [], detected = null) {
   if (lang) postEl.setAttribute(ATTR.sourceLang, lang);
   else postEl.removeAttribute(ATTR.sourceLang);
   paintTranslatedBody(postEl, restoreLinkedHtml(translated, links));
+  markContent(postEl);
 }
 
 /* ------------------------------------------------------------------ */
@@ -320,6 +342,7 @@ export function showResult(postEl, payload) {
   if (!inner) return box;
 
   inner.innerHTML = buildResultInnerHtml(payload);
+  markContent(postEl);
   box.classList.remove('is-open', 'is-closing');
   void box.offsetHeight;
   requestAnimationFrame(() => {

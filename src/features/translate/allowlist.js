@@ -3,14 +3,27 @@ import { normalizeHandle } from '../../utils/handle.js';
 import { cfg } from './config.js';
 import { isAccountBlocked } from './filters.js';
 
+/** The saved array is replaced on every save: cache its Set by identity. */
+let allowlistSource = null;
+let allowlistSet = null;
+
+function allowlistLookup() {
+  const list = cfg().autoAllowlist;
+  if (list !== allowlistSource) {
+    allowlistSource = list;
+    allowlistSet = new Set(Array.isArray(list) ? list : []);
+  }
+  return allowlistSet;
+}
+
 export function getAutoAllowlist() {
-  return Array.isArray(cfg().autoAllowlist) ? [...cfg().autoAllowlist] : [];
+  return [...allowlistLookup()];
 }
 
 export function isInAutoAllowlist(handle) {
   const h = normalizeHandle(handle);
   if (!h) return false;
-  return getAutoAllowlist().includes(h);
+  return allowlistLookup().has(h);
 }
 
 function persist(list) {

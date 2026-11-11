@@ -213,7 +213,7 @@ let autoObserver = null;
 /** Button states. The article button is never hidden (unlike the per-post one). */
 function setIdle(state) {
   setProgress(state, '');
-  state.button.dataset.xpState = '';
+  if (state.button.dataset.xpState !== '') state.button.dataset.xpState = '';
   state.button.hidden = false;
   setButtonLabel(state.button, tr('btnTranslate'));
 }
@@ -221,7 +221,7 @@ function setIdle(state) {
 function setShown(state) {
   setProgress(state, '');
   const swapped = isReplaceMode() && replaceRevealMode() !== 'split';
-  state.button.dataset.xpState = 'shown';
+  if (state.button.dataset.xpState !== 'shown') state.button.dataset.xpState = 'shown';
   state.button.hidden = false;
   setButtonLabel(state.button, swapped ? tr('btnShowOriginal') : tr('btnHide'), {
     glyph: swapped ? 'original' : 'hide',
@@ -231,19 +231,22 @@ function setShown(state) {
 /** The bar only exists visually while it holds the button or some text. */
 function updateBar(state) {
   const holdsButton = state.button.parentElement === state.bar;
-  state.bar.hidden = !holdsButton && state.status.hidden && state.progress.hidden;
+  const hidden = !holdsButton && state.status.hidden && state.progress.hidden;
+  if (state.bar.hidden !== hidden) state.bar.hidden = hidden;
 }
 
 function setStatus(state, text, error = false) {
-  state.status.textContent = text || '';
-  state.status.hidden = !text;
+  const next = text || '';
+  if (state.status.textContent !== next) state.status.textContent = next;
+  state.status.hidden = !next;
   state.status.classList.toggle('is-error', error);
   updateBar(state);
 }
 
 function setProgress(state, text) {
-  state.progress.textContent = text || '';
-  state.progress.hidden = !text;
+  const next = text || '';
+  if (state.progress.textContent !== next) state.progress.textContent = next;
+  state.progress.hidden = !next;
   updateBar(state);
 }
 
@@ -571,7 +574,13 @@ export function scanArticles() {
     } else if (!state.bar.isConnected) {
       root.insertAdjacentElement('beforebegin', state.bar);
     }
-    mountButton(state);
+    // `mountButton` probes the header (style reads + rects): only redo it when
+    // X dropped the button or our bar, or when the first scan chose the fallback.
+    const mounted =
+      state.button.isConnected &&
+      (state.button.closest('.xp-header-action') || state.button.parentElement === state.bar);
+    if (!mounted) mountButton(state);
+    else updateBar(state);
     const { button } = state;
     if (!button.classList.contains('is-loading')) {
       if (button.dataset.xpState === 'shown') setShown(state);

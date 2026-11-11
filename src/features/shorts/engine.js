@@ -316,8 +316,22 @@ function update() {
   lastUpdateAt = performance.now();
   const units = collect();
   const current = pickActive(units);
-  const seen = new Set();
+  const cfg = getFeatureSettings('shorts');
   const at = units.indexOf(current);
+
+  // Place the controls before writing cell attributes: `place()` reads layout,
+  // and interleaving reads after writes forces a synchronous reflow.
+  syncNav(
+    {
+      visible: Boolean(current) && cfg.buttons && !overlayOpen(),
+      canPrev: at > 0 || window.scrollY > 4,
+      canNext: true,
+      auto: !cfg.autoplay ? 'off' : isAutoPaused() ? 'paused' : 'running',
+    },
+    NAV_ACTIONS,
+  );
+
+  const seen = new Set();
   units.forEach((unit, index) => {
     const state = index === at ? 'active' : index === at - 1 ? 'prev' : index === at + 1 ? 'next' : 'far';
     // The current thread grows from its own middle, so the joins between its posts stay put.
@@ -336,17 +350,7 @@ function update() {
     if (!seen.has(cell)) cell.removeAttribute(CELL_ATTR);
   }
   syncVideos();
-  const cfg = getFeatureSettings('shorts');
   trackSettled(current, cfg.translateOnlyCurrent);
-  syncNav(
-    {
-      visible: Boolean(current) && cfg.buttons && !overlayOpen(),
-      canPrev: at > 0 || window.scrollY > 4,
-      canNext: true,
-      auto: !cfg.autoplay ? 'off' : isAutoPaused() ? 'paused' : 'running',
-    },
-    NAV_ACTIONS,
-  );
 }
 
 /**

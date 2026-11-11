@@ -63,8 +63,12 @@ const AD_ICON_PATH_PREFIX = 'M19.498 3h-15c-1.381';
 function isPromotedArticle(article) {
   if (article.querySelector(`svg path[d^="${AD_ICON_PATH_PREFIX}"]`)) return true;
   // Cheapest checks first: a leaf span with a short text, and only then the label set and
-  // the (costly) `closest`.
+  // the (costly) `closest`. The label sits near the top of the post, so a
+  // bounded walk is enough even for very long posts.
+  let examined = 0;
   for (const span of article.querySelectorAll('span')) {
+    if (examined >= 250) break;
+    examined += 1;
     if (span.firstElementChild || span.textContent.length > 20) continue;
     if (AD_LABELS.has(span.textContent.trim().toLowerCase()) && !span.closest(SEL.tweetText)) return true;
   }

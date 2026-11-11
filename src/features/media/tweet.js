@@ -65,6 +65,17 @@ export function getMediaHosts(article) {
 }
 
 /**
+ * An animated GIF is an inline `<video loop>` in X's DOM: it must honour the
+ * `gifs` switch, not the `videos` one.
+ */
+export function isGifHost(host) {
+  if (!host || host.kind !== 'video') return false;
+  const el = host.el;
+  const video = el.matches?.('video') ? el : el.querySelector?.('video');
+  return Boolean(video?.loop);
+}
+
+/**
  * Index (1-based) of a photo host among the photos of the same owner —
  * matches the order of `mediaDetails` in the API response.
  */

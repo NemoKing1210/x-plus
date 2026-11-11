@@ -5,7 +5,22 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.11.0] - 2026-11-12
+
+### Changed
+
+- Shorts mode: auto-scroll waits for the video to actually finish — a late start, buffering or seeking no longer make it jump early
+- Shorts mode: pausing the video pauses the auto-scroll countdown, and pausing auto-scroll (button or hotkey) pauses the video; resuming brings both back
+- Timeline scanning and the translation cache do less repeated work, so long feeds stay responsive while scrolling and auto-translating
+- Interface hide rules are applied before the page first paints; hidden elements no longer flash on load
+- The settings and confirmation dialogs keep keyboard focus inside the dialog and focus it when opened
+
+### Fixed
+
+- Shorts mode: a video started by hand stays playing while the countdown is paused, and turning auto-scroll off resumes every video it paused
+- Media: switching the timeline photo quality back to "default" (or turning media off) restores X's original image renditions
+- Media: GIFs are controlled by the GIF switch even when X serves them as looping videos
+- Translation: a post whose text X replaces (edit, "show more") is translated again instead of keeping stale text; emoji-only posts no longer make provider requests
 
 ## [0.10.0] - 2026-11-12
 
@@ -131,7 +146,8 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/NemoKing1210/x-plus/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/NemoKing1210/x-plus/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/NemoKing1210/x-plus/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/NemoKing1210/x-plus/compare/v0.7.0...v0.8.0

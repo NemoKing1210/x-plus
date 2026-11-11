@@ -22,6 +22,8 @@ import { Codes, logError } from './debug.js';
 
 /** @type {Map<string, FeatureDefinition>} */
 const features = new Map();
+/** @type {FeatureDefinition[] | null} sorted registry, rebuilt after a registration */
+let ordered = null;
 
 export function registerFeature(definition) {
   if (!definition?.id || !definition.fields) {
@@ -31,11 +33,17 @@ export function registerFeature(definition) {
     throw new Error(`registerFeature: duplicate feature "${definition.id}"`);
   }
   features.set(definition.id, { order: 100, ...definition });
+  ordered = null;
 }
 
-/** @returns {FeatureDefinition[]} features sorted by `order` */
+/**
+ * Features sorted by `order`. The array is shared: callers must treat it as
+ * read-only (it is rebuilt only when a feature is registered).
+ * @returns {FeatureDefinition[]}
+ */
 export function getFeatures() {
-  return [...features.values()].sort((a, b) => a.order - b.order);
+  ordered ??= [...features.values()].sort((a, b) => a.order - b.order);
+  return ordered;
 }
 
 /** Run one lifecycle hook on every feature; a failing feature never blocks the rest. */

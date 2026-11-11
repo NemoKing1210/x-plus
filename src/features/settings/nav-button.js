@@ -65,7 +65,13 @@ function observeNativeNavHoverClass(nav) {
       if (role !== 'link' && role !== 'button') continue;
       const before = new Set(String(mutation.oldValue || '').split(/\s+/).filter(Boolean));
       const added = [...node.classList].filter((c) => !before.has(c) && /^r-[a-z0-9]+$/i.test(c));
-      if (added.length === 1) navHoverClass = added[0];
+      if (added.length === 1) {
+        navHoverClass = added[0];
+        // Learned once per navigation bar: stop observing class churn on the
+        // whole sidebar for the rest of the session.
+        observer.disconnect();
+        break;
+      }
     }
   });
   observer.observe(nav, {
@@ -137,9 +143,10 @@ function findNavInsertBefore(nav) {
 
 function syncNavButtonLabels(btn) {
   const label = t('nav.label');
-  btn.setAttribute('aria-label', label);
+  if (btn.getAttribute('aria-label') !== label) btn.setAttribute('aria-label', label);
   const node = btn.querySelector('[data-xp-nav-label]') || btn.querySelector('div[dir] > span');
-  if (node) node.textContent = label;
+  if (node && node.textContent !== label) node.textContent = label;
+  btn.dataset.xpNavOk = '1';
 }
 
 function stripNavBadges(root) {
@@ -204,6 +211,7 @@ function buildNavButton(template) {
   applyNavIcon(btn.querySelector('svg'));
   applyNavLabel(btn, t('nav.label'));
   bindNavHoverChrome(btn);
+  btn.dataset.xpNavOk = '1';
 
   btn.addEventListener('click', (event) => {
     event.preventDefault();
@@ -214,11 +222,15 @@ function buildNavButton(template) {
 }
 
 function navButtonNeedsRebuild(btn) {
+  // Checked once at build: the layout reads (getComputedStyle) and DOM queries
+  // below are far too expensive to repeat on every scan.
+  if (btn.dataset.xpNavOk === '1') return false;
   if (!btn.querySelector('svg') || !btn.querySelector('div[dir]')) return true;
   // Cloned from active Home → bold label; rebuild from an inactive template.
   const weight = navLabelWeight(btn);
   if (weight != null && weight >= 600) return true;
-  return btn.dataset.xpNavHover !== '1';
+  btn.dataset.xpNavOk = '1';
+  return false;
 }
 
 /** Remove our row (feature switched off). */
@@ -235,16 +247,19 @@ export function ensureNavButton() {
   for (const nav of findSideNavs()) {
     observeNativeNavHoverClass(nav);
     const existing = nav.querySelector(`[${NAV_ATTR}]`);
+
+    // Fast path: our row is healthy — no template search, no style reads.
+    if (existing && !navButtonNeedsRebuild(existing)) {
+      syncNavButtonLabels(existing);
+      bindNavHoverChrome(existing);
+      continue;
+    }
+
     const template = findNavTemplate(nav);
     if (!template) continue;
 
     if (existing) {
-      if (navButtonNeedsRebuild(existing)) {
-        existing.replaceWith(buildNavButton(template));
-      } else {
-        syncNavButtonLabels(existing);
-        bindNavHoverChrome(existing);
-      }
+      existing.replaceWith(buildNavButton(template));
       continue;
     }
 

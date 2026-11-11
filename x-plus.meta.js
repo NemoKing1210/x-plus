@@ -8,7 +8,7 @@
 // @name:fr            X Plus
 // @name:ja            X Plus
 // @namespace          https://github.com/NemoKing1210/x-plus
-// @version            0.10.0
+// @version            0.11.0
 // @author             NemoKing1210
 // @description        Translation, video download and many improvements for X (x.com)
 // @description:ru     Перевод, скачивание видео и множество улучшений для X (x.com)
@@ -53,6 +53,6 @@
 // @grant              GM_registerMenuCommand
 // @grant              GM_setValue
 // @grant              GM_xmlhttpRequest
-// @run-at             document-idle
+// @run-at             document-start
 // @noframes
 // ==/UserScript==

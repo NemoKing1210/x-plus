@@ -1,6 +1,6 @@
 import { NAVIGATION_POLL_MS, SCAN_DEBOUNCE_MS } from './constants.js';
 import { emit } from './bus.js';
-import { debounce, each, isOwnNode } from '../utils/dom.js';
+import { debounce, isOwnNode } from '../utils/dom.js';
 
 /**
  * Shared DOM observation. One MutationObserver feeds every consumer; added
@@ -27,7 +27,8 @@ function ensureObserver() {
   if (observer) return;
   observer = new MutationObserver((mutations) => {
     if (!isRelevantMutation(mutations)) return;
-    each([...subscribers], (subscriber) => subscriber.schedule());
+    // Iterate the Set directly: no array copy on every mutation batch.
+    for (const subscriber of subscribers) subscriber.schedule();
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
 }

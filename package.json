@@ -1,6 +1,6 @@
 {
   "name": "x-plus",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "private": true,
   "type": "module",
   "description": "Userscript that adds translation, video download and many quality-of-life improvements to X (x.com)",
@@ -21,8 +21,10 @@
     "dev": "vite",
     "build": "vite build && node scripts/copy-dist.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
+    "check:syntax": "node scripts/check-syntax.mjs",
+    "test": "node --test \"test/**/*.test.js\"",
     "verify:artifacts": "node scripts/verify-artifacts.mjs",
-    "ci": "npm run check:i18n && npm run build && npm run verify:artifacts",
+    "ci": "npm run check:syntax && npm run check:i18n && npm run test && npm run build && npm run verify:artifacts",
     "preview": "vite preview",
     "harness": "node dev/harness/serve.mjs"
   },

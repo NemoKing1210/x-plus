@@ -148,8 +148,18 @@ function findHeaderActionsSlot(postEl) {
 export function getToolbar(postEl) {
   const child = postEl.querySelector(`[${ATTR.toolbar}]`);
   if (child) return child;
-  const sibling = postEl.nextElementSibling;
-  if (sibling?.hasAttribute?.(ATTR.toolbar)) return sibling;
+
+  // X sometimes inserts notices between the text and our toolbar: look through
+  // a few siblings, but stop at anything that belongs to another tweet.
+  const parent = postEl.parentElement;
+  if (parent) {
+    for (let node = postEl.nextElementSibling; node; node = node.nextElementSibling) {
+      if (node.hasAttribute?.(ATTR.toolbar)) return node;
+      if (node.matches?.(SEL.tweetText) || node.matches?.(SEL.article)) break;
+      if (node.querySelector?.(SEL.tweetText)) break;
+    }
+  }
+
   const quote = getQuoteCard(postEl);
   if (quote) {
     const owned = quote.querySelector(`[${ATTR.toolbar}]`);

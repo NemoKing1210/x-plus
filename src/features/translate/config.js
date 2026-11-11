@@ -26,9 +26,11 @@ export const ATTR = Object.freeze({
   observed: 'data-xp-observed',
   autoDone: 'data-xp-auto-done',
   autoQueued: 'data-xp-auto-queued',
+  autoEligible: 'data-xp-auto-eligible',
   originalHtml: 'data-xp-original-html',
   translatedHtml: 'data-xp-translated-html',
   sourceLang: 'data-xp-source-lang',
+  contentSig: 'data-xp-content-sig',
   peekBound: 'data-xp-peek-bound',
 });
 
