@@ -105,12 +105,32 @@ filled or shadow, adjustable corner radius), space between posts, inner padding,
 no dividers, text size, avatar shape (circle, rounded or square) and hiding of
 avatars, quoted posts, images, videos, link previews, articles, the “Source language” notice, @handles, the action bar, view counts, verified badges and the Grok button.
 
+### Filtering
+
+A rule builder for hiding posts you do not want to see, separate from the
+Interface clean-up.
+
+- Each post is hidden when it matches **any** rule; inside a rule, conditions
+  are combined with **all** (AND) or **any** (OR)
+- Conditions on the author name, @handle, post text, language, media (photo,
+  video or GIF), attachments (link card, quoted post, poll, article) and
+  flags (promoted, verified author, repost / pinned context)
+- Text operators: contains / does not contain, whole word, starts / ends with,
+  exactly / not exactly, empty / not empty, regular expression
+- Emoji-aware: a flag or emoji in an author name or post text is matched as you
+  see it
+- **Test on this page** outlines and counts the matching posts — including ones
+  already hidden — before you save
+- Hiding happens live while you scroll and takes the whole post cell away, so no
+  empty gap stays behind; the focal post on a post page is never hidden
+- Master switch and a switch per rule
+
 ### Settings
 
 - Open / close them with **Ctrl + M** (a faint reminder sits in the bottom left corner;
   switch it off in General), the left-menu entry or the userscript manager menu
-- Tabs: **General · Translation (incl. provider) · Cache · Media · Interface ·
-  Backup · About**; edits are drafted and applied on **Save**
+- Tabs: **General · Translation (incl. provider) · Media · Shorts · Interface ·
+  Filtering · Cache · Backup · About**; edits are drafted and applied on **Save**
 - UI languages: English, Русский, 中文, Español, Português, Deutsch, Français,
   日本語 (or automatic)
 - Notifications: on / off, corner, display time

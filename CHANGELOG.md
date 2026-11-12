@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Filtering: hide posts with custom rules — conditions on the author name, @handle, text, language, media, attachments and flags, combined with AND/OR inside a rule and OR between rules, with a live “Test on this page” preview
+
 ## [0.13.0] - 2026-11-12
 
 ### Added

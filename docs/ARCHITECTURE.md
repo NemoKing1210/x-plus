@@ -12,7 +12,7 @@ src/
 ├── main.js                  # Boot: load settings → init/apply features → start observers
 ├── core/
 │   ├── constants.js         # Identity, storage keys, X selectors (SEL), timings
-│   ├── schema.js            # Declarative settings schema: field.bool/enum/int/text/url/list/record
+│   ├── schema.js            # Declarative settings schema: field.bool/enum/int/text/url/list/records
 │   ├── features.js          # Feature registry (registerFeature, hooks)
 │   ├── settings.js          # Load / save / import / export + normalization (single source of truth)
 │   ├── bus.js               # Pub/sub: settings:*, scan, navigate, theme
@@ -31,10 +31,11 @@ src/
 │   ├── media/               # Video / GIF / photo download + feed image quality
 │   ├── shorts/              # Shorts mode: one post at a time (wheel / arrows), focus + blur
 │   ├── interface/           # Declarative clean-up rules (ads, suggestions, menu entries)
+│   ├── filter/              # Post filtering: condition catalog, matcher, post facts, engine, tab
 │   └── settings/            # Settings dialog, spec renderer, nav button, Backup / About tabs
 ├── ui/                      # icons, toast, popup menu, scroll lock, bottom-left dock, boot intro
 ├── utils/                   # dom, html, format, handle, lists, linked-text
-└── styles/                  # tokens, base, translate, media, settings (xp- prefix)
+└── styles/                  # tokens, base, translate, media, settings, filter (xp- prefix)
 ```
 
 ## Boot sequence
@@ -249,6 +250,48 @@ Speed rules of thumb, fastest first:
 
 The feature has no `scan` hook on purpose: the shared debounced scan would be
 starved by X's constant DOM churn and walks the whole page.
+
+### filter
+
+`config.js` is the condition catalog: `FIELDS` (author name, @handle, post
+text, language, media, attachment, post flags), each with its operators and
+value kind; `LIMITS`; the schema (`filterFields`) and `newRule()` /
+`newCondition()`. An operator or enum value that is not valid for its field is
+blanked by `sanitizeCondition` during normalization, so a half-edited
+condition becomes incomplete rather than broad. `match.js` is the pure
+matcher: `conditionProblem` marks a condition `incomplete` or `regex` (such a
+condition never matches), `compileRules` drops disabled rules and rules with
+no complete condition, and `postMatches` hides a post when **any** rule
+matches. A rule has one level: its conditions are combined with
+`match: 'all' | 'any'`.
+
+`facts.js` reads one post, read-only: the outer author header and text
+(quoted posts excluded), language, media kind, attachments and flags. Text is
+emoji-aware — X renders emoji, flags included, as `<img alt>` or
+`[role="img"][aria-label]`, so plain `textContent` would lose the very thing
+users filter by. The focal post of a `/status/` page is never read; promoted,
+verified and context flags are scoped to the outer post and its cell.
+Selectors live at the top of the file.
+
+`engine.js` marks the whole timeline cell (`SEL.cell`) with
+`data-xp-filtered`; a generated stylesheet hides
+`[data-xp-filtered]:not([data-xp-peek])`. It keeps one `MutationObserver` on
+the page, processes added posts synchronously before paint within an 8 ms
+budget, and re-checks a recycled cell so a stale mark is taken back. With no
+complete rules it disconnects and clears every mark. `previewRule(rule)` marks
+matches with `data-xp-peek` — which lifts the hide, revealing an already
+hidden post — and returns how many are on screen; `clearPreview()` restores
+the page.
+
+`settings.js` renders the Filtering tab: rule cards, the all/any mode,
+condition rows built from the catalog and a four-second page preview. It
+edits the settings draft directly: structural changes rebuild the list
+locally, while text edits only update the draft so typing keeps focus.
+
+`field.records(fields, { max, idKey, idPrefix, sanitizeItem })` is the schema
+type behind the rule and condition lists: it normalizes and caps nested
+objects, generates stable ids where needed, and runs its per-item sanitizer
+after normalization.
 
 ## Conventions
 
