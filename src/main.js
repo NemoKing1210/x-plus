@@ -27,6 +27,7 @@ import './features/translate/index.js';
 import './features/media/index.js';
 import './features/shorts/index.js';
 import './features/interface/index.js';
+import './features/filter/index.js';
 import './features/settings/index.js';
 
 function boot() {
