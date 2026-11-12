@@ -64,7 +64,26 @@ export const field = {
 
   /** Nested object with its own field map. */
   record: (fields) => ({ type: 'record', fields }),
+
+  /**
+   * List of nested objects, each normalized against `fields`. `idKey` (set to
+   * `null` to disable) keeps a stable, unique id per item for the settings UI;
+   * `sanitizeItem(item)` runs last for cross-field checks.
+   */
+  records: (
+    fields,
+    { max = 50, idKey = 'id', idPrefix = 'r', sanitizeItem } = {},
+  ) => ({ type: 'records', fields, max, idKey, idPrefix, sanitizeItem }),
 };
+
+/** Unique-ish id for a normalized record ("r-<base36 time + counter + random>"). */
+let recordsSeq = 0;
+function recordsId(prefix) {
+  recordsSeq += 1;
+  return `${prefix}-${Date.now().toString(36)}${recordsSeq.toString(36)}${Math.random()
+    .toString(36)
+    .slice(2, 5)}`.slice(0, 40);
+}
 
 function enumValues(spec) {
   return typeof spec.values === 'function' ? spec.values() : spec.values;
@@ -74,6 +93,7 @@ function enumValues(spec) {
 export function defaultOf(spec) {
   if (spec.type === 'record') return defaultsOf(spec.fields);
   if (spec.type === 'list') return [...spec.default];
+  if (spec.type === 'records') return [];
   return spec.default;
 }
 
@@ -122,6 +142,27 @@ export function normalizeField(spec, raw) {
     }
     case 'record':
       return normalizeFields(spec.fields, raw);
+    case 'records': {
+      if (!Array.isArray(raw)) return [];
+      const out = [];
+      const seen = new Set();
+      for (const item of raw) {
+        if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+        const normalized = normalizeFields(spec.fields, item);
+        if (spec.idKey) {
+          let id =
+            typeof normalized[spec.idKey] === 'string'
+              ? normalized[spec.idKey].trim().toLowerCase()
+              : '';
+          if (!/^[a-z0-9][a-z0-9-]{0,39}$/.test(id) || seen.has(id)) id = recordsId(spec.idPrefix);
+          normalized[spec.idKey] = id;
+          seen.add(id);
+        }
+        out.push(spec.sanitizeItem ? spec.sanitizeItem(normalized) : normalized);
+        if (out.length >= spec.max) break;
+      }
+      return out;
+    }
     default:
       return spec.default;
   }

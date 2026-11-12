@@ -71,3 +71,56 @@ test('getPath / setPath', () => {
   assert.equal(getPath(object, 'a.b.c'), 1);
   assert.equal(getPath(object, 'a.missing.c'), undefined);
 });
+
+test('records normalize items, cap the list and generate ids', () => {
+  const conditionFields = {
+    field: field.enum(['text'], 'text'),
+    op: field.text('contains'),
+    value: field.text(''),
+  };
+  const ruleFields = {
+    id: field.text('', { max: 40 }),
+    name: field.text(''),
+    conditions: field.records(conditionFields, { max: 1, idKey: null }),
+  };
+  const spec = field.records(ruleFields, { max: 2, idPrefix: 'r' });
+
+  const out = normalizeField(spec, [
+    { name: ' a ', conditions: [{ field: 'text', op: 'contains', value: 'x', junk: 1 }, { field: 'text', op: 'contains', value: 'y' }], junk: true },
+    { id: 'bad id !', name: 'b' },
+    { name: 'c' },
+    null,
+    'nope',
+  ]);
+
+  assert.equal(out.length, 2);
+  assert.equal(out[0].name, 'a');
+  assert.equal(out[0].conditions.length, 1); // nested max
+  assert.deepEqual(Object.keys(out[0].conditions[0]).sort(), ['field', 'op', 'value']);
+  assert.match(out[0].id, /^r-[a-z0-9]+$/);
+  assert.match(out[1].id, /^r-[a-z0-9]+$/);
+  assert.notEqual(out[0].id, out[1].id);
+});
+
+test('records keep valid unique ids and run sanitizeItem', () => {
+  const spec = field.records(
+    { id: field.text(''), value: field.text('') },
+    { sanitizeItem: (item) => ({ ...item, value: item.value === 'bad' ? '' : item.value }) },
+  );
+  const out = normalizeField(spec, [
+    { id: 'keep-me', value: 'ok' },
+    { id: 'keep-me', value: 'bad' },
+  ]);
+  assert.equal(out[0].id, 'keep-me');
+  assert.notEqual(out[1].id, 'keep-me');
+  assert.equal(out[1].value, '');
+});
+
+test('records default to a fresh empty array', () => {
+  const spec = field.records({ id: field.text('') });
+  const a = defaultOf(spec);
+  const b = defaultOf(spec);
+  assert.deepEqual(a, []);
+  assert.notEqual(a, b);
+  assert.deepEqual(normalizeField(spec, 'not an array'), []);
+});
