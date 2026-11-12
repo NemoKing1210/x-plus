@@ -85,11 +85,13 @@ const SIDEBAR_RIGHT_CSS = `${SEL.sidebar}{position:fixed!important;top:0;right:0
 /**
  * Centre the feed on the screen: both side columns leave the layout (menu
  * pinned left, right column pinned right) and the feed wrapper centres itself.
+ * The wrapper fills its parent row with `100%`, not `100vw`: viewport units
+ * include the vertical scrollbar, which would add a horizontal scrollbar.
  */
 const CENTER_CSS = [
   'header[role="banner"]{position:fixed!important;top:0;bottom:0;left:0;z-index:2;width:auto!important;flex-grow:0!important}',
   SIDEBAR_RIGHT_CSS,
-  'main[role="main"]{flex:none!important;display:flex!important;flex-direction:row!important;justify-content:center!important;align-items:flex-start!important;width:100vw!important;max-width:none!important}',
+  'main[role="main"]{flex:none!important;display:flex!important;flex-direction:row!important;justify-content:center!important;align-items:flex-start!important;width:100%!important;max-width:none!important}',
   'main[role="main"] > div,main[role="main"] > div > div{flex:0 1 auto!important;width:auto!important;max-width:none!important;margin:0!important}',
   `div:has(> ${SEL.primaryColumn}){width:auto!important;max-width:none!important;flex-grow:0!important}`,
 ].join('\n');
