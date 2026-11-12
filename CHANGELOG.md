@@ -5,11 +5,11 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.13.0] - 2026-11-12
 
-### Changed
+### Added
 
-- A short intro plays when the script starts: the page is briefly frosted while X Plus applies its settings, then the posts on screen resolve in a wave instead of the clean-up and the injected buttons snapping into place
+- A short intro plays when the script starts: the page is briefly covered by a dark blurred veil while X Plus applies its settings, then the posts on screen resolve in a wave instead of the clean-up and the injected buttons snapping into place
 
 ## [0.12.1] - 2026-11-12
 
@@ -164,7 +164,9 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/NemoKing1210/x-plus/compare/v0.12.1...v0.13.0
+[0.12.1]: https://github.com/NemoKing1210/x-plus/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/NemoKing1210/x-plus/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/NemoKing1210/x-plus/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/NemoKing1210/x-plus/compare/v0.9.0...v0.10.0
