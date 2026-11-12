@@ -60,7 +60,7 @@ const AD_LABELS = new Set([
 /** Path prefix of the "Ad" rectangle glyph X draws next to promoted posts. */
 const AD_ICON_PATH_PREFIX = 'M19.498 3h-15c-1.381';
 
-function isPromotedArticle(article) {
+export function isPromotedArticle(article) {
   if (article.querySelector(`svg path[d^="${AD_ICON_PATH_PREFIX}"]`)) return true;
   // Cheapest checks first: a leaf span with a short text, and only then the label set and
   // the (costly) `closest`. The label sits near the top of the post, so a
@@ -172,7 +172,7 @@ const memoized = (memo, key, compute) => {
  * `role="link"` block nested in the article (the article's own avatar uses the same
  * `Tweet-User-Avatar` test id, so that id cannot tell them apart).
  */
-function quoteCardOf(node, article) {
+export function quoteCardOf(node, article) {
   const legacy = node.closest(SEL.quoteTweet);
   if (legacy) return legacy;
   const card = node.closest('[role="link"]');
