@@ -1,0 +1,180 @@
+/* X Plus — post filter rule builder (styles/settings.css owns the dialog) */
+
+.xp-filter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 4px 0 8px;
+}
+
+.xp-filter-limit {
+  min-width: 0;
+}
+
+.xp-filter-rule {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 12px;
+  border: 1px solid var(--xp-border);
+  border-radius: 12px;
+}
+
+.xp-filter-rule__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* The enable switch is icon-sized inside the header; the name tells the row apart. */
+.xp-filter-rule__toggle {
+  flex: 0 0 auto;
+}
+
+.xp-filter-rule__toggle .xp-check {
+  gap: 0;
+}
+
+.xp-filter-rule__toggle .xp-check__text {
+  display: none;
+}
+
+.xp-filter-rule__name {
+  box-sizing: border-box;
+  flex: 1 1 160px;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--xp-input-border);
+  border-radius: 4px;
+  outline: none;
+  background: var(--xp-input-bg);
+  color: var(--xp-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 20px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.xp-filter-rule__name::placeholder {
+  color: var(--xp-fg-muted);
+}
+
+.xp-filter-rule__name:hover {
+  border-color: var(--xp-fg-muted);
+}
+
+.xp-filter-rule__name:focus {
+  border-color: var(--xp-accent);
+  box-shadow: 0 0 0 1px var(--xp-accent);
+}
+
+.xp-filter-rule__actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.xp-filter-rule__actions .xp-btn-ui {
+  min-width: 36px;
+  padding: 8px 10px;
+}
+
+.xp-filter-rule__remove:hover,
+.xp-filter-cond__remove:hover {
+  border-color: var(--xp-danger-border);
+  background: var(--xp-danger-bg);
+  color: var(--xp-danger);
+}
+
+.xp-filter-conditions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 2px 0 4px;
+}
+
+.xp-filter-cond {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 6px 8px 4px;
+  border: 1px solid var(--xp-border);
+  border-radius: 10px;
+  background: var(--xp-inset);
+}
+
+.xp-filter-cond__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.xp-filter-cond__row > .xp-row {
+  flex: 1 1 120px;
+  min-width: 0;
+}
+
+/* The value control gets the leftover room; the field / operator stay compact. */
+.xp-filter-cond__row > .xp-row:nth-child(3) {
+  flex: 2 1 160px;
+}
+
+.xp-filter-cond__row .xp-field {
+  min-width: 0;
+  padding: 6px 0;
+}
+
+.xp-filter-cond__remove {
+  flex: 0 0 auto;
+  min-width: 36px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+}
+
+.xp-filter-cond__hint-slot {
+  min-width: 0;
+}
+
+.xp-filter-cond__hint-slot:empty {
+  display: none;
+}
+
+.xp-filter-cond__hint {
+  padding: 0 0 4px;
+}
+
+.xp-filter-cond__hint.is-invalid {
+  color: var(--xp-danger);
+}
+
+.xp-filter-cond__hint.is-incomplete {
+  color: var(--xp-fg-muted);
+}
+
+@media (max-width: 420px) {
+  .xp-filter-rule {
+    padding: 10px;
+  }
+
+  .xp-filter-rule__name {
+    flex-basis: 100%;
+  }
+
+  .xp-filter-cond__row > .xp-row {
+    flex-basis: 100%;
+  }
+}

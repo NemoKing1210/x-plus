@@ -5,6 +5,7 @@ import './styles/media.css';
 import './styles/gallery.css';
 import './styles/shorts.css';
 import './styles/settings.css';
+import './styles/filter.css';
 import './styles/motion.css';
 
 import { emit, on } from './core/bus.js';

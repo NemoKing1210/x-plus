@@ -473,6 +473,8 @@ export default {
   'filter.matchAll': 'Все условия (И)',
   'filter.matchAny': 'Любое условие (ИЛИ)',
   'filter.conditions': 'Условия',
+  'filter.fieldLabel': 'Поле',
+  'filter.opLabel': 'Оператор',
   'filter.addCondition': 'Добавить условие',
   'filter.limitConditions': 'Достигнут лимит условий ({max}).',
   'filter.removeCondition': 'Удалить условие',

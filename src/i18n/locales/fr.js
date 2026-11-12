@@ -473,6 +473,8 @@ export default {
   'filter.matchAll': 'Toutes les conditions (ET)',
   'filter.matchAny': 'N’importe quelle condition (OU)',
   'filter.conditions': 'Conditions',
+  'filter.fieldLabel': 'Champ',
+  'filter.opLabel': 'Opérateur',
   'filter.addCondition': 'Ajouter une condition',
   'filter.limitConditions': 'Limite de conditions atteinte ({max}).',
   'filter.removeCondition': 'Supprimer la condition',

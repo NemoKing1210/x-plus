@@ -473,6 +473,8 @@ export default {
   'filter.matchAll': '全部条件（AND）',
   'filter.matchAny': '任意条件（OR）',
   'filter.conditions': '条件',
+  'filter.fieldLabel': '字段',
+  'filter.opLabel': '运算符',
   'filter.addCondition': '添加条件',
   'filter.limitConditions': '已达到条件上限（{max}）。',
   'filter.removeCondition': '删除条件',

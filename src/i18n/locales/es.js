@@ -473,6 +473,8 @@ export default {
   'filter.matchAll': 'Todas las condiciones (Y)',
   'filter.matchAny': 'Cualquier condición (O)',
   'filter.conditions': 'Condiciones',
+  'filter.fieldLabel': 'Campo',
+  'filter.opLabel': 'Operador',
   'filter.addCondition': 'Añadir condición',
   'filter.limitConditions': 'Se alcanzó el límite de condiciones ({max}).',
   'filter.removeCondition': 'Eliminar condición',

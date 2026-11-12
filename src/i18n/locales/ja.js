@@ -473,6 +473,8 @@ export default {
   'filter.matchAll': 'すべての条件（AND）',
   'filter.matchAny': 'いずれかの条件（OR）',
   'filter.conditions': '条件',
+  'filter.fieldLabel': '項目',
+  'filter.opLabel': '演算子',
   'filter.addCondition': '条件を追加',
   'filter.limitConditions': '条件の上限に達しました（{max}）。',
   'filter.removeCondition': '条件を削除',

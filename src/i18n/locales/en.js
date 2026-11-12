@@ -473,6 +473,8 @@ export default {
   'filter.matchAll': 'All conditions (AND)',
   'filter.matchAny': 'Any condition (OR)',
   'filter.conditions': 'Conditions',
+  'filter.fieldLabel': 'Field',
+  'filter.opLabel': 'Operator',
   'filter.addCondition': 'Add condition',
   'filter.limitConditions': 'Condition limit reached ({max}).',
   'filter.removeCondition': 'Remove condition',
