@@ -16,14 +16,21 @@ function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/** `/pattern/flags` or a bare pattern compiled with `iu`; null when invalid. */
+/**
+ * `/pattern/flags` or a bare pattern; null when invalid. Facts text is
+ * lower-cased, so every regex is case-insensitive: `/Airdrop/` and
+ * `notRegex /Airdrop/` must behave like their bare forms. `g` / `y` are
+ * dropped (stateful lastIndex would make repeated tests unstable); `u` is
+ * added unless the pattern opts into `v`.
+ */
 function compileRegex(source) {
   const text = String(source);
   const literal = /^\/([\s\S]+)\/([a-z]*)$/.exec(text);
+  const flags = new Set((literal?.[2] ?? '').replace(/[gy]/g, '').split(''));
+  flags.add('i');
+  if (!flags.has('u') && !flags.has('v')) flags.add('u');
   try {
-    return literal
-      ? new RegExp(literal[1], literal[2].replace(/[gy]/g, ''))
-      : new RegExp(text, 'iu');
+    return new RegExp(literal ? literal[1] : text, [...flags].join(''));
   } catch {
     return null;
   }

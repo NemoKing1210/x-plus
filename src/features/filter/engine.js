@@ -83,7 +83,9 @@ function onMutations(records) {
       if (node.nodeType !== 1) continue;
       const owner = node.closest?.(SEL.article);
       if (owner) {
-        if (!owner.closest(`[${UI_ATTR}]`)) dirty.add(owner);
+        // The added node may be our own UI inside a post: ignore it, but not
+        // the article that happens to contain it.
+        if (!node.closest(`[${UI_ATTR}]`)) dirty.add(owner);
         continue;
       }
       for (const article of node.querySelectorAll?.(SEL.article) ?? []) {
@@ -128,6 +130,9 @@ export function sync(cfg) {
 
 /** Navigation: drop marks from recycled cells and re-check what is on screen. */
 export function sweep() {
+  // With no complete rules sync already cleared the marks and stopped the
+  // observer: navigation must not pay for fact extraction.
+  if (!rules.length) return;
   for (const cell of document.querySelectorAll(`[${MARK_ATTR}]`)) {
     if (!cell.querySelector(SEL.article)) cell.removeAttribute(MARK_ATTR);
   }

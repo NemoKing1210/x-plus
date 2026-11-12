@@ -43,6 +43,12 @@ test('text operators', () => {
   assert.equal(test1({ field: 'text', op: 'notRegex', value: '^bye' }), true);
 });
 
+test('literal regex flags stay case-insensitive', () => {
+  assert.equal(test1({ field: 'text', op: 'regex', value: '/Airdrop/' }), true);
+  assert.equal(test1({ field: 'text', op: 'notRegex', value: '/Airdrop/' }), false);
+  assert.equal(test1({ field: 'text', op: 'regex', value: '/AIRDROP/u' }), true);
+});
+
 test('text fields use their own facts and flags survive', () => {
   assert.equal(test1({ field: 'authorName', op: 'contains', value: '🇺🇦' }), true);
   assert.equal(test1({ field: 'handle', op: 'equals', value: '@HiddNest' }), true);

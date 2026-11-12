@@ -16,7 +16,7 @@ const LINK_CARD = '[data-testid="card.wrapper"]';
 const ARTICLE_COVER = '[data-testid="article-cover-image"]';
 const VERIFIED = '[data-testid="icon-verified"]';
 const SOCIAL_CONTEXT = '[data-testid="socialContext"]';
-const VIDEO = `${SEL.videoPlayer}, [data-testid="previewInterstitial"]`;
+const VIDEO = `${SEL.videoPlayer}, [data-testid="previewInterstitial"], [data-testid="videoComponent"], [data-testid="playButton"], video`;
 
 /** Read-only, emoji-aware text; lower-cased and whitespace-collapsed. */
 function plainText(root) {
@@ -64,18 +64,15 @@ function outerHeader(article, quotes) {
   return null;
 }
 
-/* The focal post on a status page must never be filtered. Resolve the first
- * article of the primary column once per path. */
-let focalPath = '';
-let focalArticle = null;
-
-function isFocal(article) {
-  if (!location.pathname.includes('/status/')) return false;
-  if (focalPath !== location.pathname) {
-    focalPath = location.pathname;
-    focalArticle = document.querySelector(`${SEL.primaryColumn} ${SEL.article}`);
-  }
-  return article === focalArticle;
+/**
+ * The focal post on a status page is the first article of the primary column.
+ * Resolve it on every call: SPA navigation fires `navigate` while the old
+ * timeline is still mounted, so a per-path cache would point at a post that is
+ * about to be replaced — and the real focal post would then be hidden.
+ */
+export function focalArticleFor(doc = document, pathname = location.pathname) {
+  if (!pathname.includes('/status/')) return null;
+  return doc.querySelector(`${SEL.primaryColumn} ${SEL.article}`);
 }
 
 /**
@@ -86,7 +83,7 @@ function isFocal(article) {
 export function readPost(article) {
   if (!article?.isConnected) return null;
   if (article.closest(`[role="dialog"], [${UI_ATTR}]`)) return null;
-  if (isFocal(article)) return null;
+  if (article === focalArticleFor()) return null;
 
   const quotes = quoteCards(article);
   const quoted = (node) => quotes.some((card) => card.contains(node));
