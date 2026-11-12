@@ -14,6 +14,7 @@ import { startNavigationWatch, startScanning, scanNow } from './core/scan.js';
 import { getFeatureSettings, loadSettings } from './core/settings.js';
 import { observePageTheme } from './core/theme.js';
 import { applyRuleStyles } from './features/interface/engine.js';
+import { runBootIntro, startBootVeil } from './ui/boot.js';
 import { whenReady } from './utils/dom.js';
 
 /*
@@ -36,6 +37,12 @@ function boot() {
   loadSettings();
   observePageTheme(() => emit('theme'));
 
+  // Everything that injects or reshapes the page runs under the boot veil, so
+  // the first applied state is revealed as a transition instead of a snap.
+  runBootIntro(applyFeatures);
+}
+
+function applyFeatures() {
   // Feature by feature: one-time init, then the initial apply. `general`
   // (order 0) therefore configures the UI language before anything renders.
   for (const feature of getFeatures()) {
@@ -58,8 +65,10 @@ function boot() {
   scanNow();
 }
 
-// The script runs at document-start: inject the declarative "hide" CSS before
-// X paints the feed, then boot the rest of the UI once the DOM is ready.
+// The script runs at document-start: put the boot veil up before X's first
+// paint, inject the declarative "hide" CSS, then boot the rest of the UI once
+// the DOM is ready (the veil lifts when the applied page is ready).
+startBootVeil();
 loadSettings();
 if (document.documentElement) applyRuleStyles();
 

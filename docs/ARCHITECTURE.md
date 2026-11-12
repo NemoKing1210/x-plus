@@ -32,7 +32,7 @@ src/
 │   ├── shorts/              # Shorts mode: one post at a time (wheel / arrows), focus + blur
 │   ├── interface/           # Declarative clean-up rules (ads, suggestions, menu entries)
 │   └── settings/            # Settings dialog, spec renderer, nav button, Backup / About tabs
-├── ui/                      # icons, toast, popup menu, scroll lock, bottom-left dock
+├── ui/                      # icons, toast, popup menu, scroll lock, bottom-left dock, boot intro
 ├── utils/                   # dom, html, format, handle, lists, linked-text
 └── styles/                  # tokens, base, translate, media, settings (xp- prefix)
 ```
@@ -42,24 +42,34 @@ src/
 The script runs at `document-start`.
 
 ```
+startBootVeil()                        # frosted veil before X's first paint (ui/boot.js)
 loadSettings()                         # normalize stored blob against every feature's schema
 applyRuleStyles()                      # interface hide rules before X paints the feed
 
 whenReady → boot()
   observePageTheme()                   # data-xp-theme follows X
-  for feature in features (by order):
-      init()                           # once
-      apply(cfg, null)                 # initial configuration
-      on('settings:<id>') → apply(cfg, prev)
-  on('scan')     → feature.scan(root)  # debounced DOM changes (shared MutationObserver)
-  on('navigate') → feature.navigate(url)
-  on('settings:general') → scanNow() when the language changes (re-renders chrome labels)
-  startScanning(); startNavigationWatch(); scanNow()
+  runBootIntro(applyFeatures)          # everything below applies under the veil
+    for feature in features (by order):
+        init()                         # once
+        apply(cfg, null)               # initial configuration
+        on('settings:<id>') → apply(cfg, prev)
+    on('scan')     → feature.scan(root)  # debounced DOM changes (shared MutationObserver)
+    on('navigate') → feature.navigate(url)
+    on('settings:general') → scanNow() when the language changes (re-renders chrome labels)
+    startScanning(); startNavigationWatch(); scanNow()
+  ← veil lifts, the posts on screen resolve in a wave
 ```
 
 `general` has `order: 0`, so the UI language is configured before any other
 feature renders text. Hook failures are isolated and logged
 (`XP-1010`); one broken feature never blocks the rest.
+
+The initial apply runs under the **boot intro** (`ui/boot.js`): a frosted veil
+drawn by `html[data-xp-booting]` pseudo-elements is put up at document-start so
+it covers X's first paint, stays while the features inject their chrome, then
+lifts and lets the visible posts fade in with a short stagger. A watchdog drops
+it if boot never happens; reduced motion and a script injected after the page
+has loaded skip it, in which case `applyFeatures` runs synchronously as before.
 
 ## Settings
 

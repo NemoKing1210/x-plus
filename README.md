@@ -95,6 +95,11 @@ Hover a setting to preview it: the dimming and blur fade out
 and the affected element on the page behind it is outlined (shown
 if it is currently hidden).
 
+When the script starts, a short intro frosts the page while the settings are
+applied, then lets the posts on screen fade in one after another — the clean-up
+and the injected controls never snap into place. It follows the
+`prefers-reduced-motion` preference.
+
 A separate **Post** section styles a single post and its parts: posts as cards (outline,
 filled or shadow, adjustable corner radius), space between posts, inner padding,
 no dividers, text size, avatar shape (circle, rounded or square) and hiding of

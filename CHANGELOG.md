@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- A short intro plays when the script starts: the page is briefly frosted while X Plus applies its settings, then the posts on screen resolve in a wave instead of the clean-up and the injected buttons snapping into place
+
 ## [0.12.1] - 2026-11-12
 
 ### Fixed

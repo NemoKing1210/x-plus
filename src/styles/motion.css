@@ -248,7 +248,76 @@
   animation-delay: 0.16s;
 }
 
+/* ── Boot: the script applies under a dark veil, then the feed resolves ── */
+/*
+ * ui/boot.js sets data-xp-booting="on" at document-start (before X's first
+ * paint) and switches it to "leaving" once the applied state is ready. The
+ * veil lives on <html>::before: no extra DOM, and it paints above the whole
+ * page whatever X is rendering.
+ */
+/*
+ * The wash is neutral before X's theme is known (the veil starts at
+ * document-start, before core/theme.js runs) and theme-matched afterwards.
+ */
+html[data-xp-booting] {
+  --xp-boot-wash: rgba(0, 0, 0, 0.55);
+}
+
+html[data-xp-theme='light'][data-xp-booting] {
+  --xp-boot-wash: rgba(0, 0, 0, 0.38);
+}
+
+html[data-xp-theme='dim'][data-xp-booting] {
+  --xp-boot-wash: rgba(0, 0, 0, 0.72);
+}
+
+html[data-xp-theme='dark'][data-xp-booting] {
+  --xp-boot-wash: rgba(0, 0, 0, 0.82);
+}
+
+html[data-xp-booting]::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 2147483600;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      70% 55% at 50% 42%,
+      color-mix(in srgb, var(--xp-accent) 15%, transparent),
+      transparent 72%
+    ),
+    var(--xp-boot-wash);
+  -webkit-backdrop-filter: blur(16px) saturate(1.12);
+  backdrop-filter: blur(16px) saturate(1.12);
+  opacity: 1;
+}
+
+html[data-xp-booting='leaving']::before {
+  opacity: 0;
+  transition: opacity 0.42s var(--xp-ease-out);
+}
+
+/* The posts on screen arrive in a short wave as the veil lifts. */
+.xp-post-in {
+  animation: xp-boot-post-in 0.55s var(--xp-ease-out) both;
+  animation-delay: calc(60ms + var(--xp-post-in-delay, 0ms));
+}
+
+@keyframes xp-boot-post-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.992);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  html[data-xp-booting]::before,
+  .xp-post-in,
   .xp-text--reveal,
   .xp-text--swap,
   .xp-split__pane,
