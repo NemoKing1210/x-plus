@@ -14,7 +14,7 @@ const src = join(root, 'src');
 
 const NAMESPACES = [
   'panel', 'toast', 'general', 'about', 'backup', 'nav', 'menu', 'list', 'common',
-  'translate', 'media', 'interface', 'shorts', 'hotkey', 'peek',
+  'translate', 'media', 'interface', 'shorts', 'hotkey', 'peek', 'filter',
 ];
 
 function* walk(dir) {
@@ -88,6 +88,15 @@ async function dynamicKeys() {
   for (const rule of rules.RULES.filter((candidate) => !candidate.view)) {
     keys.add(rules.ruleLabelKey(rule));
     if (rule.hint) keys.add(`${rules.ruleLabelKey(rule)}Hint`);
+  }
+  const filter = await import(pathToFileURL(join(src, 'features', 'filter', 'config.js')).href);
+  for (const fieldName of Object.keys(filter.FIELDS)) {
+    keys.add(`filter.field.${fieldName}`);
+    const spec = filter.FIELDS[fieldName];
+    for (const op of spec.ops) keys.add(`filter.op.${op}`);
+    if (Array.isArray(spec.value)) {
+      for (const value of spec.value) keys.add(`filter.value.${fieldName}.${value}`);
+    }
   }
   for (const level of ['success', 'info', 'warning', 'error']) keys.add(`toast.title.${level}`);
   return keys;
