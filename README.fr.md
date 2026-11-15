@@ -114,7 +114,8 @@ Le même moteur que [x-translator](https://github.com/NemoKing1210/x-translator)
   « par défaut » (ou désactiver les médias) restaure les versions propres à X
 - Galerie de photos (en option) : un clic sur une photo du post ouvre une galerie
   plein écran rapide au lieu de la page photo de X — sans réponses ni timeline ;
-  toutes les photos du post avec vignettes, `←` / `→`, balayage, zoom,
+  toutes les photos du post avec vignettes (la bande défile à la molette),
+  `←` / `→`, balayage, zoom,
   téléchargement et ouverture de l’original (Ctrl / Cmd / Maj + clic ouvrent
   toujours la visionneuse de X)
 - Zoom de la visionneuse : molette, glisser, double clic, `+` / `-` / `0`,

@@ -108,7 +108,8 @@ O mesmo motor do [x-translator](https://github.com/NemoKing1210/x-translator):
   (ou desativar a mídia) restaura as versões próprias do X
 - Galeria de fotos (opcional): um clique em uma foto do post abre uma galeria
   em tela cheia em vez da página de foto do X — sem respostas ou linha do tempo;
-  todas as fotos do post com miniaturas, `←` / `→`, deslize, zoom, download e
+  todas as fotos do post com miniaturas (a faixa rola com a roda), `←` / `→`,
+  deslize, zoom, download e
   abrir original (Ctrl / Cmd / Shift + clique ainda abrem o visualizador do X)
 - Zoom do visualizador de fotos: roda, arrastar, clique duplo, `+` / `-` / `0`,
   pinça em telas de toque

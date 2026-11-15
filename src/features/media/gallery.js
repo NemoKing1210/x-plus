@@ -17,7 +17,8 @@ import { getMediaHosts, getTweetId } from './tweet.js';
  * no replies, no timeline, no route change.
  *
  *  - all photos of the post (or of the quoted post) in one carousel, with
- *    thumbnails, ← / → keys, buttons and swipe;
+ *    thumbnails (the strip scrolls with the wheel), ← / → keys, buttons and
+ *    swipe;
  *  - wheel / pinch zoom towards the cursor, drag to pan, double click toggles
  *    zoom, `+` `-` `0` keys; the original rendition loads while zoomed;
  *  - download (honours the file name template) and open-original buttons;
@@ -477,6 +478,18 @@ function createView({ slides, index, post }) {
     zoomAt(event.clientX, event.clientY, state.scale * Math.exp(-event.deltaY * unit * speed));
   }
 
+  /** Wheel over the thumbnails scrolls the strip sideways; mice only scroll vertically. */
+  function onStripWheel(event) {
+    if (event.ctrlKey) return;
+    const overflow = strip.scrollWidth - strip.clientWidth;
+    if (overflow <= 1) return;
+    const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? strip.clientWidth : 1;
+    const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+    if (!delta) return;
+    event.preventDefault();
+    strip.scrollLeft = clamp(strip.scrollLeft + delta * unit, 0, overflow);
+  }
+
   function pinchDistance() {
     const [a, b] = [...state.pointers.values()];
     return Math.hypot(a.x - b.x, a.y - b.y);
@@ -631,6 +644,7 @@ function createView({ slides, index, post }) {
   };
 
   stage.addEventListener('wheel', onWheel, { passive: false });
+  strip.addEventListener('wheel', onStripWheel, { passive: false });
   stage.addEventListener('pointerdown', onPointerDown);
   stage.addEventListener('pointermove', onPointerMove);
   stage.addEventListener('pointerup', onPointerEnd);

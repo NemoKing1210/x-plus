@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Photo gallery: the thumbnail strip scrolls horizontally with the mouse wheel
+
 ## [0.15.0] - 2026-11-15
 
 ### Changed

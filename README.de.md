@@ -117,7 +117,8 @@ Dieselbe Engine wie in [x-translator](https://github.com/NemoKing1210/x-translat
   her
 - Fotogalerie (optional): Ein Klick auf ein Foto im Beitrag öffnet eine schnelle
   Vollbildgalerie statt X' Fotoseite — ohne Antworten oder Timeline; alle Fotos
-  des Beitrags mit Miniaturen, `←` / `→`, Wischen, Zoom, Download und Original
+  des Beitrags mit Miniaturen (die Leiste scrollt mit dem Mausrad), `←` / `→`,
+  Wischen, Zoom, Download und Original
   öffnen (Strg / Cmd / Umschalt + Klick öffnet weiterhin X' Viewer)
 - Zoom im Foto-Viewer: Mausrad, Ziehen, Doppelklick, `+` / `-` / `0`, Pinch auf
   Touchscreens

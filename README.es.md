@@ -113,7 +113,8 @@ El mismo motor que [x-translator](https://github.com/NemoKing1210/x-translator):
   (o desactivar los medios) restaura las versiones propias de X
 - Galería de fotos (opcional): al hacer clic en una foto de la publicación se
   abre una galería a pantalla completa en lugar de la página de foto de X, sin
-  cargar respuestas ni cronología; todas las fotos con miniaturas, `←` / `→`,
+  cargar respuestas ni cronología; todas las fotos con miniaturas (la tira se
+  desplaza con la rueda), `←` / `→`,
   deslizamiento, zoom, descarga y abrir original (Ctrl / Cmd / Mayús + clic
   siguen abriendo el visor de X)
 - Zoom del visor de fotos: rueda, arrastre, doble clic, `+` / `-` / `0`, pellizco
