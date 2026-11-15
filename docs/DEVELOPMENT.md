@@ -13,9 +13,11 @@ npm run dev               # userscript dev server (dev: prefix)
 npm run build             # build + refresh root x-plus.user.js / x-plus.meta.js
 npm run check:syntax      # every source module parses (node --check)
 npm run check:i18n        # every used key must exist in every locale
+npm run check:readmes     # localized READMEs stay in sync with README.md
+npm run readmes           # regenerate README headers (badges, version, language links)
 npm test                  # unit tests for pure modules (node:test)
 npm run verify:artifacts  # dist/ and root artifacts must match
-npm run ci                # syntax + i18n + tests + build + verify (CI gate)
+npm run ci                # syntax + i18n + readmes + tests + build + verify (CI gate)
 npm run harness           # local mock of x.com for manual testing (see below)
 ```
 
@@ -68,11 +70,28 @@ All selectors are centralised:
 | header action slot (Grok / caret) | `src/features/translate/placement.js` |
 | sidebar nav template | `src/features/settings/nav-button.js` |
 
+## Localized READMEs
+
+`README.md` is the English source. The other supported UI languages have their
+own files: `README.ru.md`, `README.zh.md`, `README.es.md`, `README.pt.md`,
+`README.de.md`, `README.fr.md`, `README.ja.md`.
+
+The badge block and the language switcher at the top are generated — never edit
+them by hand. `npm run readmes` rewrites that block in every file (version from
+`package.json`, links to the install script and the other languages);
+`npm run check:readmes` (part of `npm run ci`) fails when a header is stale,
+when a translation loses a heading, code fence or link target, or when the raw
+install URL is missing.
+
+When user-visible behavior changes, update the English README, mirror the change
+in every translation, then run `npm run readmes` and `npm run check:readmes`.
+
 ## Releasing
 
 1. Bump `version` in `package.json` once per release (SemVer).
 2. `npm run ci` — builds and refreshes the root `x-plus.user.js` / `.meta.js`.
 3. Move the `[Unreleased]` notes of `CHANGELOG.md` under the new version.
-4. Update `README.md` wherever the change is user-visible.
+4. Update `README.md` wherever the change is user-visible, mirror it in the
+   localized READMEs and run `npm run readmes`.
 5. Commit the root artifacts together with the sources: `@updateURL` /
    `@downloadURL` point at them on `main`.

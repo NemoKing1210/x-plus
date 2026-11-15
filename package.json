@@ -21,10 +21,12 @@
     "dev": "vite",
     "build": "vite build && node scripts/copy-dist.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
+    "check:readmes": "node scripts/sync-readmes.mjs --check",
     "check:syntax": "node scripts/check-syntax.mjs",
+    "readmes": "node scripts/sync-readmes.mjs",
     "test": "node --test \"test/**/*.test.js\"",
     "verify:artifacts": "node scripts/verify-artifacts.mjs",
-    "ci": "npm run check:syntax && npm run check:i18n && npm run test && npm run build && npm run verify:artifacts",
+    "ci": "npm run check:syntax && npm run check:i18n && npm run check:readmes && npm run test && npm run build && npm run verify:artifacts",
     "preview": "vite preview",
     "harness": "node dev/harness/serve.mjs"
   },

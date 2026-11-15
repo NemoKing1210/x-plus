@@ -15,8 +15,9 @@ reference for architecture and conventions.
 - Version source of truth: `package.json`
 - Generated install artifacts (committed): `x-plus.user.js`, `x-plus.meta.js`
   — produced only by `npm run build`; never hand-edit them
-- Docs: `README.md`, `CHANGELOG.md` (Keep a Changelog + SemVer),
-  `docs/ARCHITECTURE.md`, `docs/DEVELOPMENT.md`
+- Docs: `README.md` (plus localized `README.<lang>.md` for every UI locale),
+  `CHANGELOG.md` (Keep a Changelog + SemVer), `docs/ARCHITECTURE.md`,
+  `docs/DEVELOPMENT.md`
 - License: MIT
 
 ## Architecture in one paragraph
@@ -60,6 +61,12 @@ Keys are flat `namespace.key` strings. Add every new user-facing string to
 **all** locale files; `npm run check:i18n` fails on a missing key and lists
 unused ones. Keep localized `@name` / `@description` in `vite.config.js`
 aligned with the product description.
+
+`README.md` is the English source; each UI locale has its own
+`README.<lang>.md` with the same headings, code blocks and links. The badge
+block and language switcher at the top of every README are generated — edit
+`scripts/sync-readmes.mjs`, not the files, then run `npm run readmes`.
+`npm run check:readmes` (part of `npm run ci`) enforces the structure.
 
 ## Releases
 
