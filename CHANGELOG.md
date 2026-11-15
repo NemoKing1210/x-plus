@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-15
+
 ### Added
 
 - Filtering: hide posts with custom rules — conditions on the author name, @handle, text, language, media, attachments and flags, combined with AND/OR inside a rule and OR between rules, with a live “Test on this page” preview
@@ -171,7 +173,8 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/NemoKing1210/x-plus/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/NemoKing1210/x-plus/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/NemoKing1210/x-plus/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/NemoKing1210/x-plus/compare/v0.11.0...v0.12.0
