@@ -14,7 +14,7 @@ const src = join(root, 'src');
 
 const NAMESPACES = [
   'panel', 'toast', 'general', 'about', 'backup', 'nav', 'menu', 'list', 'common',
-  'translate', 'media', 'interface', 'shorts', 'hotkey', 'peek', 'filter',
+  'translate', 'media', 'interface', 'shorts', 'hotkey', 'peek', 'filter', 'screenshot',
 ];
 
 function* walk(dir) {
@@ -46,6 +46,7 @@ function usedKeys(en) {
   const scoped = [
     [/\btr\(\s*'([\w.]+)'/g, 'translate.'],
     [/\btm\(\s*'([\w.]+)'/g, 'media.'],
+    [/\bss\(\s*'([\w.]+)'/g, 'screenshot.'],
   ];
   for (const file of walk(src)) {
     const text = readFileSync(file, 'utf8');
@@ -98,6 +99,16 @@ async function dynamicKeys() {
       for (const value of spec.value) keys.add(`filter.value.${fieldName}.${value}`);
     }
   }
+  const background = await import(
+    pathToFileURL(join(src, 'features', 'screenshot', 'background.js')).href
+  );
+  for (const mode of background.BACKGROUND_MODES) {
+    keys.add(`screenshot.background.${mode}`);
+  }
+  const naming = await import(
+    pathToFileURL(join(src, 'features', 'screenshot', 'naming.js')).href
+  );
+  for (const mode of naming.SCALE_MODES) keys.add(`screenshot.scale.${mode}`);
   for (const level of ['success', 'info', 'warning', 'error']) keys.add(`toast.title.${level}`);
   return keys;
 }

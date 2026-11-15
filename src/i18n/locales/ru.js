@@ -521,4 +521,45 @@ export default {
   'filter.value.meta.promoted': 'Реклама / промо',
   'filter.value.meta.verified': 'Верифицированный автор',
   'filter.value.meta.context': 'Строка контекста (репост / закреплено / понравилось)',
+
+  'screenshot.title': 'Скриншот',
+  'screenshot.sectionMain': 'Скриншот',
+  'screenshot.sectionMainDesc': 'Копировать пост как PNG-изображение в буфер обмена.',
+  'screenshot.enabled': 'Включить скриншоты постов',
+  'screenshot.enabledHint':
+    'Добавляет кнопку камеры в шапку поста. Изображение копируется в буфер обмена; если браузер не умеет копировать картинки, оно сохраняется в файл.',
+  'screenshot.button': 'Скопировать пост как изображение',
+  'screenshot.copying': 'Копирование…',
+  'screenshot.copied': 'Пост скопирован в буфер обмена',
+  'screenshot.saved': 'Не удалось скопировать изображение — сохранено в файл',
+  'screenshot.captureFailed': 'Не удалось создать скриншот',
+  'screenshot.sectionAppearance': 'Внешний вид',
+  'screenshot.sectionAppearanceDesc': 'Как выглядит само изображение.',
+  'screenshot.background': 'Фон',
+  'screenshot.backgroundHint':
+    '«Тема страницы» повторяет текущий фон X. «Прозрачный» создаёт PNG без фона.',
+  'screenshot.background.theme': 'Тема страницы',
+  'screenshot.background.white': 'Белый',
+  'screenshot.background.black': 'Чёрный',
+  'screenshot.background.transparent': 'Прозрачный',
+  'screenshot.background.custom': 'Свой цвет',
+  'screenshot.customBackground': 'Свой цвет фона',
+  'screenshot.customBackgroundHint':
+    'Любой CSS-цвет, например #15202b или rgb(21, 32, 43).',
+  'screenshot.scale': 'Масштаб изображения',
+  'screenshot.scaleHint':
+    '«Авто» использует плотность пикселей экрана (2–3×). Чем выше масштаб, тем чётче и больше файл.',
+  'screenshot.scale.auto': 'Авто',
+  'screenshot.scale.1': '1×',
+  'screenshot.scale.2': '2×',
+  'screenshot.scale.3': '3×',
+  'screenshot.sectionContent': 'Содержимое',
+  'screenshot.sectionContentDesc': 'Что оставлять на изображении.',
+  'screenshot.actions': 'Строка действий',
+  'screenshot.actionsHint':
+    'Оставлять ответы, репосты, лайки и просмотры. Если выключить, низ изображения обрезается.',
+  'screenshot.save': 'Сохранять в файл',
+  'screenshot.saveHint':
+    'Скачивать PNG вместо копирования в буфер обмена.',
+  'screenshot.downloaded': 'Скриншот сохранён',
 };

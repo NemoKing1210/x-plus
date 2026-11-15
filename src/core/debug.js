@@ -28,6 +28,8 @@ export const Codes = {
   MEDIA_DOWNLOAD: 'XP-1302',
   /** A declutter rule threw while searching the DOM. */
   DECLUTTER_RULE: 'XP-1401',
+  /** A post screenshot could not be rendered or delivered. */
+  SCREENSHOT_FAILED: 'XP-1501',
 };
 
 const BADGE_STYLE =

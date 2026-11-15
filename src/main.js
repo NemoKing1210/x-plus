@@ -25,6 +25,7 @@ import { whenReady } from './utils/dom.js';
  */
 import './features/general/index.js';
 import './features/translate/index.js';
+import './features/screenshot/index.js';
 import './features/media/index.js';
 import './features/shorts/index.js';
 import './features/interface/index.js';

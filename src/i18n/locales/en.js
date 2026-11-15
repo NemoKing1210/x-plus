@@ -521,4 +521,45 @@ export default {
   'filter.value.meta.promoted': 'Promoted / ad',
   'filter.value.meta.verified': 'Verified author',
   'filter.value.meta.context': 'Context line (reposted / pinned / liked)',
+
+  'screenshot.title': 'Screenshot',
+  'screenshot.sectionMain': 'Screenshot',
+  'screenshot.sectionMainDesc': 'Copy a post as a PNG image to the clipboard.',
+  'screenshot.enabled': 'Enable post screenshots',
+  'screenshot.enabledHint':
+    'Adds a camera button to the post header. The image is copied to the clipboard; if the browser cannot copy images, it is saved as a file.',
+  'screenshot.button': 'Copy post as image',
+  'screenshot.copying': 'Copying…',
+  'screenshot.copied': 'Post copied to the clipboard',
+  'screenshot.saved': 'Could not copy the image — saved as a file',
+  'screenshot.captureFailed': 'Could not create the screenshot',
+  'screenshot.sectionAppearance': 'Appearance',
+  'screenshot.sectionAppearanceDesc': 'How the image itself looks.',
+  'screenshot.background': 'Background',
+  'screenshot.backgroundHint':
+    '“Page theme” follows X’s current background. “Transparent” produces a PNG with no background.',
+  'screenshot.background.theme': 'Page theme',
+  'screenshot.background.white': 'White',
+  'screenshot.background.black': 'Black',
+  'screenshot.background.transparent': 'Transparent',
+  'screenshot.background.custom': 'Custom color',
+  'screenshot.customBackground': 'Custom background color',
+  'screenshot.customBackgroundHint':
+    'Any CSS color, e.g. #15202b or rgb(21, 32, 43).',
+  'screenshot.scale': 'Image scale',
+  'screenshot.scaleHint':
+    '“Auto” uses the screen pixel density (2–3×). Higher scales are sharper and larger.',
+  'screenshot.scale.auto': 'Auto',
+  'screenshot.scale.1': '1×',
+  'screenshot.scale.2': '2×',
+  'screenshot.scale.3': '3×',
+  'screenshot.sectionContent': 'Content',
+  'screenshot.sectionContentDesc': 'What to keep in the image.',
+  'screenshot.actions': 'Action row',
+  'screenshot.actionsHint':
+    'Keep replies, reposts, likes and views. Turning it off trims the bottom of the image.',
+  'screenshot.save': 'Save as a file',
+  'screenshot.saveHint':
+    'Download the PNG instead of copying it to the clipboard.',
+  'screenshot.downloaded': 'Screenshot saved',
 };

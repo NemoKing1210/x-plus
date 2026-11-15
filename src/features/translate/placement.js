@@ -80,7 +80,7 @@ const COMPACT_ACTIONS_ROW_MAX_WIDTH = 120;
  * sibling before Grok (or before caret if no Grok).
  * @returns {{ row: Element, before: Element | null } | null}
  */
-function findHeaderActionsSlot(postEl) {
+export function findHeaderActionsSlot(postEl) {
   const quoteSlot = findQuoteHeaderActionsSlot(postEl);
   if (quoteSlot) return quoteSlot;
 

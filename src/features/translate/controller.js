@@ -451,7 +451,11 @@ function enhancePost(el, recheck = false) {
 export function teardownAllPosts() {
   stopAutoTranslate();
   document.querySelectorAll(`[${ATTR.post}]`).forEach(teardownPostUi);
-  document.querySelectorAll(`[${ATTR.toolbar}], .xp-header-action`).forEach((n) => n.remove());
+  document.querySelectorAll(`[${ATTR.toolbar}]`).forEach((n) => n.remove());
+  // Only our own wrappers: another feature may share the header row.
+  document.querySelectorAll('.xp-header-action').forEach((n) => {
+    if (n.querySelector(`[${ATTR.button}]`) || !n.firstElementChild) n.remove();
+  });
 }
 
 /**

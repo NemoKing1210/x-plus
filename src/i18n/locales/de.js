@@ -521,4 +521,45 @@ export default {
   'filter.value.meta.promoted': 'Beworben / Anzeige',
   'filter.value.meta.verified': 'Verifizierter Autor',
   'filter.value.meta.context': 'Kontextzeile (repostet / angepinnt / gefällt)',
+
+  'screenshot.title': 'Screenshot',
+  'screenshot.sectionMain': 'Screenshot',
+  'screenshot.sectionMainDesc': 'Einen Beitrag als PNG-Bild in die Zwischenablage kopieren.',
+  'screenshot.enabled': 'Beitrags-Screenshots aktivieren',
+  'screenshot.enabledHint':
+    'Fügt der Beitragskopfzeile eine Kamera-Schaltfläche hinzu. Das Bild wird in die Zwischenablage kopiert; wenn der Browser keine Bilder kopieren kann, wird es als Datei gespeichert.',
+  'screenshot.button': 'Beitrag als Bild kopieren',
+  'screenshot.copying': 'Wird kopiert…',
+  'screenshot.copied': 'Beitrag in die Zwischenablage kopiert',
+  'screenshot.saved': 'Bild konnte nicht kopiert werden — als Datei gespeichert',
+  'screenshot.captureFailed': 'Screenshot konnte nicht erstellt werden',
+  'screenshot.sectionAppearance': 'Darstellung',
+  'screenshot.sectionAppearanceDesc': 'Wie das Bild selbst aussieht.',
+  'screenshot.background': 'Hintergrund',
+  'screenshot.backgroundHint':
+    '„Seitendesign“ folgt dem aktuellen Hintergrund von X. „Transparent“ erzeugt ein PNG ohne Hintergrund.',
+  'screenshot.background.theme': 'Seitendesign',
+  'screenshot.background.white': 'Weiß',
+  'screenshot.background.black': 'Schwarz',
+  'screenshot.background.transparent': 'Transparent',
+  'screenshot.background.custom': 'Eigene Farbe',
+  'screenshot.customBackground': 'Eigene Hintergrundfarbe',
+  'screenshot.customBackgroundHint':
+    'Beliebige CSS-Farbe, z. B. #15202b oder rgb(21, 32, 43).',
+  'screenshot.scale': 'Bildskalierung',
+  'screenshot.scaleHint':
+    '„Automatisch“ nutzt die Bildschirm-Pixeldichte (2–3×). Höhere Werte sind schärfer und größer.',
+  'screenshot.scale.auto': 'Automatisch',
+  'screenshot.scale.1': '1×',
+  'screenshot.scale.2': '2×',
+  'screenshot.scale.3': '3×',
+  'screenshot.sectionContent': 'Inhalt',
+  'screenshot.sectionContentDesc': 'Was im Bild bleiben soll.',
+  'screenshot.actions': 'Aktionsleiste',
+  'screenshot.actionsHint':
+    'Antworten, Reposts, Likes und Aufrufe behalten. Ausgeschaltet wird der untere Rand des Bildes abgeschnitten.',
+  'screenshot.save': 'Als Datei speichern',
+  'screenshot.saveHint':
+    'Das PNG herunterladen, statt es in die Zwischenablage zu kopieren.',
+  'screenshot.downloaded': 'Screenshot gespeichert',
 };

@@ -521,4 +521,45 @@ export default {
   'filter.value.meta.promoted': 'Promocionado / anuncio',
   'filter.value.meta.verified': 'Autor verificado',
   'filter.value.meta.context': 'Línea de contexto (republicado / fijado / me gusta)',
+
+  'screenshot.title': 'Captura',
+  'screenshot.sectionMain': 'Captura',
+  'screenshot.sectionMainDesc': 'Copiar una publicación como imagen PNG al portapapeles.',
+  'screenshot.enabled': 'Activar capturas de publicaciones',
+  'screenshot.enabledHint':
+    'Añade un botón de cámara a la cabecera de la publicación. La imagen se copia al portapapeles; si el navegador no puede copiar imágenes, se guarda como archivo.',
+  'screenshot.button': 'Copiar publicación como imagen',
+  'screenshot.copying': 'Copiando…',
+  'screenshot.copied': 'Publicación copiada al portapapeles',
+  'screenshot.saved': 'No se pudo copiar la imagen — se guardó como archivo',
+  'screenshot.captureFailed': 'No se pudo crear la captura',
+  'screenshot.sectionAppearance': 'Apariencia',
+  'screenshot.sectionAppearanceDesc': 'Cómo se ve la imagen en sí.',
+  'screenshot.background': 'Fondo',
+  'screenshot.backgroundHint':
+    '«Tema de la página» sigue el fondo actual de X. «Transparente» genera un PNG sin fondo.',
+  'screenshot.background.theme': 'Tema de la página',
+  'screenshot.background.white': 'Blanco',
+  'screenshot.background.black': 'Negro',
+  'screenshot.background.transparent': 'Transparente',
+  'screenshot.background.custom': 'Color personalizado',
+  'screenshot.customBackground': 'Color de fondo personalizado',
+  'screenshot.customBackgroundHint':
+    'Cualquier color CSS, p. ej. #15202b o rgb(21, 32, 43).',
+  'screenshot.scale': 'Escala de la imagen',
+  'screenshot.scaleHint':
+    '«Auto» usa la densidad de píxeles de la pantalla (2–3×). Una escala mayor es más nítida y más pesada.',
+  'screenshot.scale.auto': 'Auto',
+  'screenshot.scale.1': '1×',
+  'screenshot.scale.2': '2×',
+  'screenshot.scale.3': '3×',
+  'screenshot.sectionContent': 'Contenido',
+  'screenshot.sectionContentDesc': 'Qué mantener en la imagen.',
+  'screenshot.actions': 'Fila de acciones',
+  'screenshot.actionsHint':
+    'Mantener respuestas, reposts, me gusta y vistas. Al desactivarlo se recorta la parte inferior de la imagen.',
+  'screenshot.save': 'Guardar como archivo',
+  'screenshot.saveHint':
+    'Descargar el PNG en lugar de copiarlo al portapapeles.',
+  'screenshot.downloaded': 'Captura guardada',
 };

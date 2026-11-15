@@ -521,4 +521,45 @@ export default {
   'filter.value.meta.promoted': 'プロモーション / 広告',
   'filter.value.meta.verified': '認証済みの投稿者',
   'filter.value.meta.context': 'コンテキスト行（リポスト / 固定 / いいね）',
+
+  'screenshot.title': 'スクリーンショット',
+  'screenshot.sectionMain': 'スクリーンショット',
+  'screenshot.sectionMainDesc': '投稿を PNG 画像としてクリップボードにコピーします。',
+  'screenshot.enabled': '投稿のスクリーンショットを有効にする',
+  'screenshot.enabledHint':
+    '投稿のヘッダーにカメラボタンを追加します。画像はクリップボードにコピーされ、ブラウザが画像のコピーに対応していない場合はファイルとして保存されます。',
+  'screenshot.button': '投稿を画像としてコピー',
+  'screenshot.copying': 'コピー中…',
+  'screenshot.copied': '投稿をクリップボードにコピーしました',
+  'screenshot.saved': '画像をコピーできませんでした — ファイルとして保存しました',
+  'screenshot.captureFailed': 'スクリーンショットを作成できませんでした',
+  'screenshot.sectionAppearance': '外観',
+  'screenshot.sectionAppearanceDesc': '画像自体の見た目です。',
+  'screenshot.background': '背景',
+  'screenshot.backgroundHint':
+    '「ページテーマ」は X の現在の背景に合わせます。「透明」は背景なしの PNG を作成します。',
+  'screenshot.background.theme': 'ページテーマ',
+  'screenshot.background.white': '白',
+  'screenshot.background.black': '黒',
+  'screenshot.background.transparent': '透明',
+  'screenshot.background.custom': 'カスタムカラー',
+  'screenshot.customBackground': '背景色をカスタム',
+  'screenshot.customBackgroundHint':
+    '任意の CSS カラー（例: #15202b、rgb(21, 32, 43)）。',
+  'screenshot.scale': '画像の拡大率',
+  'screenshot.scaleHint':
+    '「自動」は画面のピクセル密度（2–3×）を使います。高いほど鮮明で大きくなります。',
+  'screenshot.scale.auto': '自動',
+  'screenshot.scale.1': '1×',
+  'screenshot.scale.2': '2×',
+  'screenshot.scale.3': '3×',
+  'screenshot.sectionContent': '内容',
+  'screenshot.sectionContentDesc': '画像に残す内容です。',
+  'screenshot.actions': 'アクション行',
+  'screenshot.actionsHint':
+    '返信、リポスト、いいね、表示回数を残します。オフにすると画像の下部が切り取られます。',
+  'screenshot.save': 'ファイルとして保存',
+  'screenshot.saveHint':
+    'クリップボードにコピーせず、PNG をダウンロードします。',
+  'screenshot.downloaded': 'スクリーンショットを保存しました',
 };

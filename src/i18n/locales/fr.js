@@ -521,4 +521,45 @@ export default {
   'filter.value.meta.promoted': 'Sponsorisé / publicité',
   'filter.value.meta.verified': 'Auteur vérifié',
   'filter.value.meta.context': 'Ligne de contexte (reposté / épinglé / aimé)',
+
+  'screenshot.title': 'Capture',
+  'screenshot.sectionMain': 'Capture',
+  'screenshot.sectionMainDesc': 'Copier une publication en image PNG dans le presse-papiers.',
+  'screenshot.enabled': 'Activer les captures de publications',
+  'screenshot.enabledHint':
+    'Ajoute un bouton appareil photo à l’en-tête de la publication. L’image est copiée dans le presse-papiers ; si le navigateur ne peut pas copier d’images, elle est enregistrée dans un fichier.',
+  'screenshot.button': 'Copier la publication en image',
+  'screenshot.copying': 'Copie…',
+  'screenshot.copied': 'Publication copiée dans le presse-papiers',
+  'screenshot.saved': 'Impossible de copier l’image — enregistrée dans un fichier',
+  'screenshot.captureFailed': 'Impossible de créer la capture',
+  'screenshot.sectionAppearance': 'Apparence',
+  'screenshot.sectionAppearanceDesc': 'À quoi ressemble l’image elle-même.',
+  'screenshot.background': 'Arrière-plan',
+  'screenshot.backgroundHint':
+    '« Thème de la page » suit l’arrière-plan actuel de X. « Transparent » produit un PNG sans arrière-plan.',
+  'screenshot.background.theme': 'Thème de la page',
+  'screenshot.background.white': 'Blanc',
+  'screenshot.background.black': 'Noir',
+  'screenshot.background.transparent': 'Transparent',
+  'screenshot.background.custom': 'Couleur personnalisée',
+  'screenshot.customBackground': 'Couleur d’arrière-plan personnalisée',
+  'screenshot.customBackgroundHint':
+    'Toute couleur CSS, par ex. #15202b ou rgb(21, 32, 43).',
+  'screenshot.scale': 'Échelle de l’image',
+  'screenshot.scaleHint':
+    '« Auto » utilise la densité de pixels de l’écran (2–3×). Une échelle plus élevée est plus nette et plus lourde.',
+  'screenshot.scale.auto': 'Auto',
+  'screenshot.scale.1': '1×',
+  'screenshot.scale.2': '2×',
+  'screenshot.scale.3': '3×',
+  'screenshot.sectionContent': 'Contenu',
+  'screenshot.sectionContentDesc': 'Ce qui doit rester sur l’image.',
+  'screenshot.actions': 'Barre d’actions',
+  'screenshot.actionsHint':
+    'Conserver les réponses, reposts, j’aime et vues. Désactivé, le bas de l’image est rogné.',
+  'screenshot.save': 'Enregistrer dans un fichier',
+  'screenshot.saveHint':
+    'Télécharger le PNG au lieu de le copier dans le presse-papiers.',
+  'screenshot.downloaded': 'Capture enregistrée',
 };
