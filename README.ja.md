@@ -17,6 +17,19 @@
 
 > X Corp. / Twitter とは提携していません。
 
+## スクリーンショット
+
+プロジェクトのローカル X テスト環境（モック投稿）で、ビルド済みユーザースクリプトを使って撮影しました。
+
+![X Plus の設定パネル（「一般」「翻訳」「スクリーンショット」「メディア」「Shorts」「インターフェース」「フィルタリング」「キャッシュ」「バックアップ」「情報」タブ）](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/settings-panel.png)
+
+| | |
+|---|---|
+| ![ロシア語の投稿をその場で翻訳し、「原文を表示」とカメラボタンが表示された状態](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/translation.png)<br>**翻訳** — その場で表示、*原文を表示*、カメラボタン、引用投稿も翻訳 | ![現在の投稿が中央にあり、前後の投稿がぼやけた Shorts モード](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/shorts.png)<br>**Shorts** — 1 投稿ずつ、矢印ボタン、前後の投稿はぼかし |
+| ![1080p、720p、360p、270p とビットレートを並べたダウンロード選択](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/media-download.png)<br>**メディアのダウンロード** — 各解像度とビットレート、または最高 / 解像度上限 / 最小 | ![ルールと条件を表示した「フィルタリング」タブ](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/filtering.png)<br>**フィルタリング** — 投稿者・本文・言語・メディア・フラグを条件にできるルールビルダー |
+
+さらに、X 記事の段落ごとの翻訳、投稿の PNG コピー、高速フォトギャラリー、クリーンアップルールのホバープレビュー。
+
 ## インストール
 
 1. ユーザースクリプトマネージャー（[Tampermonkey](https://www.tampermonkey.net/)、

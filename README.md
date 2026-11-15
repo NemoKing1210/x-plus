@@ -16,6 +16,22 @@ theme.
 
 > Not affiliated with X Corp. / Twitter.
 
+## Screenshots
+
+Captured with the built userscript in the project's local X test harness (mock
+posts).
+
+![X Plus settings panel with the General, Translation, Screenshot, Media, Shorts, Interface, Filtering, Cache, Backup and About tabs](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/settings-panel.png)
+
+| | |
+|---|---|
+| ![A Russian post translated in place, with Show original and the camera button](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/translation.png)<br>**Translation** — in place, with *Show original*, the camera button and the quoted post translated too | ![Shorts mode with the current post centred and its neighbours blurred](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/shorts.png)<br>**Shorts** — one post at a time, arrow buttons, blurred neighbours |
+| ![The download picker listing 1080p, 720p, 360p and 270p renditions with their bitrates](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/media-download.png)<br>**Media download** — every rendition with its bitrate, or best / a resolution cap / smallest | ![The Filtering tab with rules and conditions](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/filtering.png)<br>**Filtering** — a rule builder with conditions on author, text, language, media and flags |
+
+Also: X Articles translated paragraph by paragraph, a post copied to the
+clipboard as a PNG, photos in the fast gallery, and every clean-up rule
+previewed by hovering it.
+
 ## Install
 
 1. Install a userscript manager — [Tampermonkey](https://www.tampermonkey.net/),

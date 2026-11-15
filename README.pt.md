@@ -16,6 +16,22 @@ que acompanha os temas claro, esmaecido e escuro do X.
 
 > Não afiliado ao X Corp. / Twitter.
 
+## Capturas de tela
+
+Feitas com o userscript compilado no ambiente local de testes do X
+(publicações simuladas).
+
+![Painel de configurações do X Plus com as abas Geral, Tradução, Captura, Mídia, Shorts, Interface, Filtragem, Cache, Backup e Sobre](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/settings-panel.png)
+
+| | |
+|---|---|
+| ![Publicação em russo traduzida no lugar, com Mostrar original e o botão de câmera](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/translation.png)<br>**Tradução** — no lugar, com *Mostrar original*, o botão de câmera e a citação traduzida | ![Modo Shorts com a publicação atual centralizada e as vizinhas desfocadas](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/shorts.png)<br>**Shorts** — uma publicação por vez, botões de seta, vizinhas desfocadas |
+| ![Seletor de download com 1080p, 720p, 360p e 270p e suas taxas de bits](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/media-download.png)<br>**Download de mídia** — cada versão com sua taxa de bits, ou a melhor / um limite de resolução / a menor | ![Aba Filtragem com regras e condições](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/filtering.png)<br>**Filtragem** — um construtor de regras com condições de autor, texto, idioma, mídia e sinalizadores |
+
+Também: artigos do X traduzidos parágrafo a parágrafo, uma publicação copiada
+para a área de transferência como PNG, galeria rápida de fotos e prévia de cada
+regra de limpeza ao passar o mouse.
+
 ## Instalação
 
 1. Instale um gerenciador de userscripts: [Tampermonkey](https://www.tampermonkey.net/),

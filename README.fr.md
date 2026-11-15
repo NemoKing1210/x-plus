@@ -17,6 +17,22 @@ suit le thème clair, atténué et sombre de X.
 
 > Non affilié à X Corp. / Twitter.
 
+## Captures d’écran
+
+Réalisées avec le userscript compilé dans le banc de test X local du projet
+(posts simulés).
+
+![Panneau de réglages de X Plus avec les onglets Général, Traduction, Capture, Médias, Shorts, Interface, Filtrage, Cache, Sauvegarde et À propos](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/settings-panel.png)
+
+| | |
+|---|---|
+| ![Un post russe traduit sur place, avec Afficher l’original et le bouton appareil photo](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/translation.png)<br>**Traduction** — sur place, avec *Afficher l’original*, le bouton appareil photo et la citation traduite | ![Mode Shorts avec le post courant au centre et les voisins flous](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/shorts.png)<br>**Shorts** — un post à la fois, boutons fléchés, voisins flous |
+| ![Sélecteur de téléchargement listant 1080p, 720p, 360p et 270p avec leurs débits](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/media-download.png)<br>**Téléchargement des médias** — chaque version avec son débit, ou la meilleure / un plafond de résolution / la plus légère | ![Onglet Filtrage avec des règles et des conditions](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/filtering.png)<br>**Filtrage** — un constructeur de règles avec des conditions sur l’auteur, le texte, la langue, les médias et les marqueurs |
+
+Aussi : les articles X traduits paragraphe par paragraphe, un post copié dans le
+presse-papiers en PNG, la galerie photo rapide et un aperçu de chaque règle de
+nettoyage au survol.
+
 ## Installation
 
 1. Installez un gestionnaire de userscripts : [Tampermonkey](https://www.tampermonkey.net/),

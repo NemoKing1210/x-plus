@@ -17,6 +17,22 @@ folgt.
 
 > Nicht mit X Corp. / Twitter verbunden.
 
+## Screenshots
+
+Aufgenommen mit dem gebauten Userscript im lokalen X-Teststand des Projekts
+(Mock-Beiträge).
+
+![X-Plus-Einstellungen mit den Tabs Allgemein, Übersetzung, Screenshot, Medien, Shorts, Oberfläche, Filterung, Cache, Backup und Über](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/settings-panel.png)
+
+| | |
+|---|---|
+| ![Ein russischer Beitrag direkt an Ort und Stelle übersetzt, mit „Original anzeigen“ und der Kamera-Schaltfläche](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/translation.png)<br>**Übersetzung** — an Ort und Stelle, mit *Original anzeigen*, Kamera-Schaltfläche und übersetztem Zitat | ![Shorts-Modus mit dem aktuellen Beitrag in der Mitte und unscharfen Nachbarn](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/shorts.png)<br>**Shorts** — ein Beitrag auf einmal, Pfeiltasten, unscharfe Nachbarn |
+| ![Download-Auswahl mit 1080p, 720p, 360p und 270p samt Bitraten](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/media-download.png)<br>**Medien-Download** — jede Fassung mit Bitrate, oder beste / Auflösungsgrenze / kleinste | ![Der Tab Filterung mit Regeln und Bedingungen](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/filtering.png)<br>**Filterung** — ein Regel-Builder mit Bedingungen für Autor, Text, Sprache, Medien und Merkmale |
+
+Außerdem: X-Artikel Absatz für Absatz übersetzt, Beiträge als PNG in der
+Zwischenablage, schnelle Foto-Galerie und Vorschau jeder Aufräumregel beim
+Darüberfahren.
+
 ## Installation
 
 1. Installiere einen Userscript-Manager: [Tampermonkey](https://www.tampermonkey.net/),

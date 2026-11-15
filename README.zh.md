@@ -15,6 +15,19 @@
 
 > 与 X Corp. / Twitter 无关联。
 
+## 截图
+
+使用本地 X 测试页（模拟帖子）中的已构建用户脚本截取。
+
+![X Plus 设置面板，包含“通用”“翻译”“截图”“媒体”“Shorts”“界面”“过滤”“缓存”“备份”和“关于”标签页](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/settings-panel.png)
+
+| | |
+|---|---|
+| ![俄语帖子原位翻译，带“显示原文”和相机按钮](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/translation.png)<br>**翻译** — 原位显示，带*显示原文*、相机按钮，引用的帖子也会翻译 | ![Shorts 模式：当前帖子居中，相邻帖子模糊](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/shorts.png)<br>**Shorts** — 一次一条帖子，箭头按钮，相邻帖子模糊 |
+| ![下载选择器列出 1080p、720p、360p 和 270p 及码率](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/media-download.png)<br>**媒体下载** — 每个清晰度及码率，或最佳 / 限制分辨率 / 最小 | ![“过滤”标签页中的规则和条件](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/filtering.png)<br>**过滤** — 规则构建器，可按作者、文本、语言、媒体和标记设置条件 |
+
+此外：X 文章逐段翻译、将帖子复制为 PNG、快速照片画廊，以及悬停即可预览任意清理规则。
+
 ## 安装
 
 1. 安装用户脚本管理器：[Tampermonkey](https://www.tampermonkey.net/)、

@@ -57,6 +57,14 @@ window.__store                     // the shimmed GM storage
 localStorage.setItem('xp_debug', '1')   // verbose X Plus traces
 ```
 
+## Screenshots
+
+README screenshots live in `docs/screenshots/`. They are captures of the
+**built** bundle in the local harness (mock posts); refresh the matching image
+when a change alters the injected UI, and keep the filenames referenced by
+`README.md` the same in every localized README. Reference them with absolute
+`raw.githubusercontent.com` URLs so they also render on Greasy Fork / ScriptCat.
+
 ## Verifying X selectors
 
 When X changes its markup, features degrade silently (no button, no hiding).

@@ -15,6 +15,20 @@
 
 > Не связан с X Corp. / Twitter.
 
+## Скриншоты
+
+Снято со встроенного скрипта на локальном X-стенде проекта (моковые посты).
+
+![Панель настроек X Plus с вкладками «Общие», «Перевод», «Скриншот», «Медиа», «Shorts», «Интерфейс», «Фильтрация», «Кэш», «Резервная копия» и «О программе»](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/settings-panel.png)
+
+| | |
+|---|---|
+| ![Русский пост, переведённый на месте, с «Показать оригинал» и кнопкой камеры](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/translation.png)<br>**Перевод** — на месте, с *«Показать оригинал»*, кнопкой камеры и переводом цитаты | ![Режим Shorts: текущий пост по центру, соседние размыты](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/shorts.png)<br>**Shorts** — по одному посту, кнопки-стрелки, размытые соседние посты |
+| ![Выбор качества скачивания: 1080p, 720p, 360p и 270p с битрейтом](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/media-download.png)<br>**Скачивание медиа** — все варианты с битрейтом, либо лучший / с ограничением разрешения / самый лёгкий | ![Вкладка «Фильтрация» с правилами и условиями](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/docs/screenshots/filtering.png)<br>**Фильтрация** — конструктор правил с условиями по автору, тексту, языку, медиа и признакам |
+
+Ещё: перевод статей X по абзацам, копирование поста в PNG, быстрая галерея
+фото и предпросмотр любого правила очистки при наведении.
+
 ## Установка
 
 1. Установите менеджер юзерскриптов — [Tampermonkey](https://www.tampermonkey.net/),
