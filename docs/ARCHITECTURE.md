@@ -28,6 +28,7 @@ src/
 ├── features/
 │   ├── general/             # UI language, sidebar button, toast settings
 │   ├── translate/           # In-place post translation (port of x-translator)
+│   ├── screenshot/          # Copy a post to the clipboard as a PNG
 │   ├── media/               # Video / GIF / photo download + feed image quality
 │   ├── shorts/              # Shorts mode: one post at a time (wheel / arrows), focus + blur
 │   ├── interface/           # Declarative clean-up rules (ads, suggestions, menu entries)
@@ -292,6 +293,53 @@ locally, while text edits only update the draft so typing keeps focus.
 type behind the rule and condition lists: it normalizes and caps nested
 objects, generates stable ids where needed, and runs its per-item sanitizer
 after normalization.
+
+### screenshot
+
+`button.js` mounts one camera control per top-level post (`SEL.article`) into
+the tweet header actions row, reusing `findHeaderActionsSlot` /
+`mountHeaderButton` from `translate/placement.js`. It is placed after the
+Translate wrapper when that feature is on and works independently of it; the
+shared debounced `scan` re-mounts it after X re-renders the header and does
+nothing while the feature is off (default).
+
+```
+click → capturePost(article)                  # modern-screenshot
+      → clone → computed styles / fonts / images embedded
+      → [data-xp-ui] filtered out; poster-less <video> filtered
+      → PNG blob
+      → ClipboardItem({ 'image/png': blobPromise })   # inside the click gesture
+      → navigator.clipboard.write
+          success → toast; failure / Firefox → saveBlob + warning toast
+```
+
+`modern-screenshot` clones the article and renders it through an SVG
+`foreignObject`. X's CDNs send `access-control-allow-origin: *` and x.com's CSP
+allows `data:`/`blob:` images, so the library's own fetch embeds avatars,
+photos and the Chirp font; `fetchFn` is the escape hatch if that ever breaks.
+
+`capture.js` resolves the canvas background through `background.js`: `theme`
+(default) uses the first opaque page color from `<body>`/`<html>` or above the
+article and falls back to the theme's own color (`#ffffff` / `#15202b` /
+`#000000`), so a transparent PNG can never be produced by accident; white,
+black, transparent and a custom CSS color are also available. The scale comes
+from the `scale` setting (`auto` clamps the device pixel ratio to 2–3×). When
+the action row is turned off, that row is filtered out and the capture height
+is trimmed to its top edge, so the image has no empty gap. The `save` setting
+skips the clipboard and downloads the PNG. Poster videos come from their
+poster, and a video without one is filtered out (the renderer would wait for a
+`seeked` event that never fires) while its player container keeps a sized
+block. The render is raced against a timeout so a stuck renderer still ends in
+the error toast. The live post is never mutated.
+
+| File | Role |
+|------|------|
+| `button.js` | Mount / place / bind the header control; remove all on disable |
+| `capture.js` | Clone preparation and `domToBlob` options |
+| `background.js` | Pure background color parsing / fallbacks (unit-tested) |
+| `copy.js` | Clipboard write, download fallback, save mode, toasts, file naming |
+| `naming.js` | Pure scale / file-name rules (unit-tested) |
+| `config.js` | Settings access, scoped `t()`, DOM markers, limits |
 
 ## Conventions
 

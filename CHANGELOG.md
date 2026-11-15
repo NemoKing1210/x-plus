@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Filtering: hide posts with custom rules — conditions on the author name, @handle, text, language, media, attachments and flags, combined with AND/OR inside a rule and OR between rules, with a live “Test on this page” preview
+- Screenshots: a camera button next to “Translate” copies the post — theme, translated text, media, quote and action row included — to the clipboard as a PNG, with a file download when the browser cannot copy images (off by default); the background, image scale, action row and copy-or-save behavior are configurable, and the page theme is used by default so the image is never transparent
 
 ## [0.13.0] - 2026-11-12
 

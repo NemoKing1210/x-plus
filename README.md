@@ -54,6 +54,20 @@ Same engine as [x-translator](https://github.com/NemoKing1210/x-translator):
 - Link- and emoji-aware: URLs and hashtags survive translation intact
 - Local cache with TTL, usage meter and soft size budget
 
+### Screenshots
+
+- Camera button next to **Translate** in the post header: one click copies the
+  post — as it appears on the page, including the current theme, translated
+  text, media, quote and action row — to the clipboard as a PNG
+- Background is configurable: the page theme (default, so the PNG is never
+  transparent), white, black, transparent, or any CSS color
+- Image scale (auto, 1×, 2×, 3×), keep or trim the action row, and copy to the
+  clipboard or save the file
+- Videos and GIFs are captured as their poster frame
+- When the browser cannot put images on the clipboard (Firefox), the PNG is
+  saved as a file instead
+- Off by default
+
 ### Media download
 
 - Button in the post's action bar and (optionally) over each video / photo
