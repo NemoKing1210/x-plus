@@ -15,7 +15,7 @@ import { startNavigationWatch, startScanning, scanNow } from './core/scan.js';
 import { getFeatureSettings, loadSettings } from './core/settings.js';
 import { observePageTheme } from './core/theme.js';
 import { applyRuleStyles } from './features/interface/engine.js';
-import { runBootIntro, startBootVeil } from './ui/boot.js';
+import { runBootIntro, setBootIntroEnabled, startBootVeil } from './ui/boot.js';
 import { whenReady } from './utils/dom.js';
 
 /*
@@ -68,11 +68,13 @@ function applyFeatures() {
   scanNow();
 }
 
-// The script runs at document-start: put the boot veil up before X's first
-// paint, inject the declarative "hide" CSS, then boot the rest of the UI once
+// The script runs at document-start: read the settings first, then put the
+// boot veil up (General → Startup intro, off by default) before X's first
+// paint, inject the declarative "hide" CSS, and boot the rest of the UI once
 // the DOM is ready (the veil lifts when the applied page is ready).
-startBootVeil();
 loadSettings();
+setBootIntroEnabled(getFeatureSettings('general').bootIntro);
+startBootVeil();
 if (document.documentElement) applyRuleStyles();
 
 whenReady(boot);

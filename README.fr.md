@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![Installer le userscript](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![Licence : MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.15.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 [English](https://github.com/NemoKing1210/x-plus/blob/main/README.md) · [Русский](https://github.com/NemoKing1210/x-plus/blob/main/README.ru.md) · [中文](https://github.com/NemoKing1210/x-plus/blob/main/README.zh.md) · [Español](https://github.com/NemoKing1210/x-plus/blob/main/README.es.md) · [Português](https://github.com/NemoKing1210/x-plus/blob/main/README.pt.md) · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · **Français** · [日本語](https://github.com/NemoKing1210/x-plus/blob/main/README.ja.md)
 <!-- /xp:readme -->
@@ -177,9 +177,10 @@ flottants Grok / Chat. Survolez un réglage pour le prévisualiser : l’assombr
 et le flou s’estompent et l’élément concerné sur la page derrière le panneau est
 surligné (affiché même s’il est masqué).
 
-Au démarrage, une brève introduction fige la page pendant l’application des
-réglages, puis les publications visibles apparaissent l’une après l’autre — le
-nettoyage et les contrôles injectés n’arrivent jamais d’un coup. Elle respecte la
+Si l’introduction au démarrage est activée dans Général, elle fige brièvement la
+page pendant l’application des réglages, puis les publications visibles
+apparaissent l’une après l’autre — le nettoyage et les contrôles injectés
+n’arrivent jamais d’un coup. Elle est désactivée par défaut et respecte la
 préférence `prefers-reduced-motion`.
 
 Une section **Post** distincte met en forme un post et ses parties : posts en

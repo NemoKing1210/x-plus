@@ -143,6 +143,9 @@ export default {
   'general.hotkeyHint': 'Strg + M öffnet die X-Plus-Einstellungen.',
   'general.hotkeyReminder': 'Hinweis zum Kürzel',
   'general.hotkeyReminderHint': 'Zeigt einen dezenten Hinweis unten links auf dem Bildschirm.',
+  'general.bootIntro': 'Start-Einblendung',
+  'general.bootIntroHint':
+    'Friert die Seite kurz ein, während X Plus die Einstellungen anwendet, und blendet dann die Beiträge ein. Wirkt nach dem Neuladen von X.',
   'hotkey.hint': 'X-Plus-Einstellungen',
   'general.sectionToasts': 'Benachrichtigungen',
   'general.toasts': 'Benachrichtigungen anzeigen',

@@ -143,6 +143,9 @@ export default {
   'general.hotkeyHint': 'Ctrl + M abre as configurações do X Plus.',
   'general.hotkeyReminder': 'Lembrete do atalho',
   'general.hotkeyReminderHint': 'Mostra um lembrete discreto no canto inferior esquerdo.',
+  'general.bootIntro': 'Introdução ao iniciar',
+  'general.bootIntroHint':
+    'Congela brevemente a página enquanto o X Plus aplica as configurações e depois mostra os posts com um fade. Aplica-se ao recarregar o X.',
   'hotkey.hint': 'configurações do X Plus',
   'general.sectionToasts': 'Notificações',
   'general.toasts': 'Mostrar notificações',

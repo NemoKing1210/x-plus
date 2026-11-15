@@ -143,6 +143,9 @@ export default {
   'general.hotkeyHint': 'Ctrl + M で X Plus の設定を開きます。',
   'general.hotkeyReminder': 'ショートカットの表示',
   'general.hotkeyReminderHint': '画面左下に薄いヒントを表示します。',
+  'general.bootIntro': '起動時のイントロ',
+  'general.bootIntroHint':
+    'X Plus が設定を適用する間ページを短くフリーズさせ、その後投稿をフェードインします。X の再読み込み後に反映されます。',
   'hotkey.hint': 'X Plus の設定',
   'general.sectionToasts': '通知',
   'general.toasts': '通知を表示',

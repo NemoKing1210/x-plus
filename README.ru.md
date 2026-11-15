@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![Установить юзерскрипт](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![Лицензия: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![Версия](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![Версия](https://img.shields.io/badge/version-0.15.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 [English](https://github.com/NemoKing1210/x-plus/blob/main/README.md) · **Русский** · [中文](https://github.com/NemoKing1210/x-plus/blob/main/README.zh.md) · [Español](https://github.com/NemoKing1210/x-plus/blob/main/README.es.md) · [Português](https://github.com/NemoKing1210/x-plus/blob/main/README.pt.md) · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · [Français](https://github.com/NemoKing1210/x-plus/blob/main/README.fr.md) · [日本語](https://github.com/NemoKing1210/x-plus/blob/main/README.ja.md)
 <!-- /xp:readme -->
@@ -164,10 +164,11 @@ Premium, тренды, *Кого читать*, ссылки в подвале),
 исчезают, а затронутый элемент на странице за панелью обводится (показывается,
 даже если сейчас скрыт).
 
-При запуске скрипта короткая заставка замораживает страницу, пока применяются
-настройки, затем посты на экране проявляются один за другим — очистка и
-добавленные элементы управления никогда не появляются рывком. Заставка
-соблюдает настройку `prefers-reduced-motion`.
+Если в разделе «Общие» включена заставка при запуске, она ненадолго
+замораживает страницу, пока применяются настройки, затем посты на экране
+проявляются один за другим — очистка и добавленные элементы управления никогда
+не появляются рывком. По умолчанию заставка выключена и соблюдает настройку
+`prefers-reduced-motion`.
 
 Отдельный раздел **«Пост»** оформляет один пост и его части: посты как
 карточки (контур, заливка или тень, настраиваемый радиус углов), расстояние

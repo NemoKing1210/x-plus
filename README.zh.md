@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![安装用户脚本](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![许可证：MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![版本](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![版本](https://img.shields.io/badge/version-0.15.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 [English](https://github.com/NemoKing1210/x-plus/blob/main/README.md) · [Русский](https://github.com/NemoKing1210/x-plus/blob/main/README.ru.md) · **中文** · [Español](https://github.com/NemoKing1210/x-plus/blob/main/README.es.md) · [Português](https://github.com/NemoKing1210/x-plus/blob/main/README.pt.md) · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · [Français](https://github.com/NemoKing1210/x-plus/blob/main/README.fr.md) · [日本語](https://github.com/NemoKing1210/x-plus/blob/main/README.ja.md)
 <!-- /xp:readme -->
@@ -137,9 +137,9 @@ https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js
 聊天面板。将鼠标悬停在设置上即可预览：变暗和模糊会淡出，面板后方页面上受
 影响的元素会被描边（即使当前隐藏也会显示）。
 
-脚本启动时会播放一段简短开场：页面被短暂冻结，同时应用设置，然后屏幕上的
-帖子依次淡入——清理效果和注入的控件绝不会突然出现。开场遵循
-`prefers-reduced-motion` 偏好。
+在「常规」中开启启动开场后，脚本启动时会播放一段简短开场：页面被短暂冻结，
+同时应用设置，然后屏幕上的帖子依次淡入——清理效果和注入的控件绝不会突然出现。
+开场默认关闭，并遵循 `prefers-reduced-motion` 偏好。
 
 单独的**帖子**部分用于设置单条帖子及其各部分：帖子卡片样式（描边、填充或
 阴影，可调圆角）、帖子间距、内边距、无分隔线、文字大小、头像形状（圆形、

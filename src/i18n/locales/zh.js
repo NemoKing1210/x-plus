@@ -143,6 +143,9 @@ export default {
   'general.hotkeyHint': '按 Ctrl + M 打开 X Plus 设置。',
   'general.hotkeyReminder': '快捷键提示',
   'general.hotkeyReminderHint': '在屏幕左下角显示淡淡的提示。',
+  'general.bootIntro': '启动开场',
+  'general.bootIntroHint':
+    '在 X Plus 应用设置时短暂冻结页面，然后让帖子淡入。重新加载 X 后生效。',
   'hotkey.hint': 'X Plus 设置',
   'general.sectionToasts': '通知',
   'general.toasts': '显示通知',

@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.15.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 **English** · [Русский](https://github.com/NemoKing1210/x-plus/blob/main/README.ru.md) · [中文](https://github.com/NemoKing1210/x-plus/blob/main/README.zh.md) · [Español](https://github.com/NemoKing1210/x-plus/blob/main/README.es.md) · [Português](https://github.com/NemoKing1210/x-plus/blob/main/README.pt.md) · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · [Français](https://github.com/NemoKing1210/x-plus/blob/main/README.fr.md) · [日本語](https://github.com/NemoKing1210/x-plus/blob/main/README.ja.md)
 <!-- /xp:readme -->
@@ -129,10 +129,10 @@ Hover a setting to preview it: the dimming and blur fade out
 and the affected element on the page behind it is outlined (shown
 if it is currently hidden).
 
-When the script starts, a short intro frosts the page while the settings are
-applied, then lets the posts on screen fade in one after another — the clean-up
-and the injected controls never snap into place. It follows the
-`prefers-reduced-motion` preference.
+When the startup intro is enabled in General, a short intro frosts the page
+while the settings are applied, then lets the posts on screen fade in one after
+another — the clean-up and the injected controls never snap into place. It is
+off by default and follows the `prefers-reduced-motion` preference.
 
 A separate **Post** section styles a single post and its parts: posts as cards (outline,
 filled or shadow, adjustable corner radius), space between posts, inner padding,

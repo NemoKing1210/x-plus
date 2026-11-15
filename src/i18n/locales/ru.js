@@ -143,6 +143,9 @@ export default {
   'general.hotkeyHint': 'Ctrl + M открывает настройки X Plus.',
   'general.hotkeyReminder': 'Подсказка о сочетании',
   'general.hotkeyReminderHint': 'Показывает бледную подсказку в левом нижнем углу экрана.',
+  'general.bootIntro': 'Заставка при запуске',
+  'general.bootIntroHint':
+    'Ненадолго замораживает страницу, пока X Plus применяет настройки, затем плавно показывает посты. Применяется после перезагрузки X.',
   'hotkey.hint': 'настройки X Plus',
   'general.sectionToasts': 'Уведомления',
   'general.toasts': 'Показывать уведомления',

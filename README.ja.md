@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![ユーザースクリプトをインストール](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![ライセンス: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![バージョン](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![バージョン](https://img.shields.io/badge/version-0.15.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 [English](https://github.com/NemoKing1210/x-plus/blob/main/README.md) · [Русский](https://github.com/NemoKing1210/x-plus/blob/main/README.ru.md) · [中文](https://github.com/NemoKing1210/x-plus/blob/main/README.zh.md) · [Español](https://github.com/NemoKing1210/x-plus/blob/main/README.es.md) · [Português](https://github.com/NemoKing1210/x-plus/blob/main/README.pt.md) · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · [Français](https://github.com/NemoKing1210/x-plus/blob/main/README.fr.md) · **日本語**
 <!-- /xp:readme -->
@@ -155,9 +155,10 @@ YouTube Shorts のように、フィードを 1 投稿ずつ閲覧します（�
 でき、暗転とぼかしが消えて、パネルの後ろのページ上で対象要素が枠線で示されます
 （現在非表示でも表示されます）。
 
-スクリプト起動時には短いイントロが流れ、設定の適用中はページが一瞬凍結し、
-その後画面内の投稿が次々に現れます。整理や注入されたコントロールが急に
-表示されることはありません。`prefers-reduced-motion` の設定に従います。
+「一般」で起動時のイントロを有効にすると、スクリプト起動時に短いイントロが
+流れ、設定の適用中はページが一瞬凍結し、その後画面内の投稿が次々に現れます。
+整理や注入されたコントロールが急に表示されることはありません。既定ではオフで、
+`prefers-reduced-motion` の設定に従います。
 
 **投稿**セクションでは、1 つの投稿とその各部分を装飾できます。投稿をカード
 （枠線、塗りつぶし、影、調整可能な角の丸み）、投稿間の余白、内側の余白、

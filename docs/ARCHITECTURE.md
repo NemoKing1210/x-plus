@@ -44,8 +44,9 @@ src/
 The script runs at `document-start`.
 
 ```
-startBootVeil()                        # frosted veil before X's first paint (ui/boot.js)
 loadSettings()                         # normalize stored blob against every feature's schema
+setBootIntroEnabled(...)               # General → Startup intro (off by default)
+startBootVeil()                        # frosted veil before X's first paint (ui/boot.js)
 applyRuleStyles()                      # interface hide rules before X paints the feed
 
 whenReady → boot()
@@ -66,12 +67,13 @@ whenReady → boot()
 feature renders text. Hook failures are isolated and logged
 (`XP-1010`); one broken feature never blocks the rest.
 
-The initial apply runs under the **boot intro** (`ui/boot.js`): a frosted veil
-drawn by `html[data-xp-booting]` pseudo-elements is put up at document-start so
-it covers X's first paint, stays while the features inject their chrome, then
-lifts and lets the visible posts fade in with a short stagger. A watchdog drops
-it if boot never happens; reduced motion and a script injected after the page
-has loaded skip it, in which case `applyFeatures` runs synchronously as before.
+The initial apply can run under the **boot intro** (`ui/boot.js`, enabled by
+`general.bootIntro`, off by default): a frosted veil drawn by
+`html[data-xp-booting]` pseudo-elements is put up at document-start so it covers
+X's first paint, stays while the features inject their chrome, then lifts and
+lets the visible posts fade in with a short stagger. A watchdog drops it if boot
+never happens; with the setting off, reduced motion, or a script injected after
+the page has loaded, `applyFeatures` runs synchronously without the veil.
 
 ## Settings
 

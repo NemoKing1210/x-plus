@@ -7,7 +7,8 @@ import { SEL } from '../core/constants.js';
  * and layout change appears in one abrupt frame right after the script loads.
  *
  * The veil itself is drawn by `styles/motion.css` on <html>::before, so it
- * needs no DOM of its own and follows the detected X theme.
+ * needs no DOM of its own and follows the detected X theme. It is off by
+ * default and enabled through General → Startup intro.
  */
 
 /** Attribute driving the veil (set on <html>). Mirrored in motion.css. */
@@ -32,6 +33,13 @@ let startedAt = 0;
 let watchdog = 0;
 /** The watchdog dropped the veil: boot must not put it back. */
 let expired = false;
+/** The `general.bootIntro` setting, read at script start (off by default). */
+let enabled = false;
+
+/** @param {boolean} value */
+export function setBootIntroEnabled(value) {
+  enabled = value === true;
+}
 
 const prefersReducedMotion = () =>
   Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches);
@@ -44,6 +52,7 @@ const prefersReducedMotion = () =>
 export function startBootVeil() {
   const root = document.documentElement;
   if (
+    !enabled ||
     expired ||
     !root ||
     root.hasAttribute(BOOT_ATTR) ||

@@ -143,6 +143,9 @@ export default {
   'general.hotkeyHint': 'Ctrl + M ouvre les réglages de X Plus.',
   'general.hotkeyReminder': 'Rappel du raccourci',
   'general.hotkeyReminderHint': 'Affiche un rappel discret en bas à gauche de l’écran.',
+  'general.bootIntro': 'Introduction au démarrage',
+  'general.bootIntroHint':
+    'Fige brièvement la page pendant que X Plus applique les réglages, puis fait apparaître les publications en fondu. S’applique après le rechargement de X.',
   'hotkey.hint': 'réglages de X Plus',
   'general.sectionToasts': 'Notifications',
   'general.toasts': 'Afficher les notifications',

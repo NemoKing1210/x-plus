@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![Instalar userscript](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![Licencia: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![Versión](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![Versión](https://img.shields.io/badge/version-0.15.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 [English](https://github.com/NemoKing1210/x-plus/blob/main/README.md) · [Русский](https://github.com/NemoKing1210/x-plus/blob/main/README.ru.md) · [中文](https://github.com/NemoKing1210/x-plus/blob/main/README.zh.md) · **Español** · [Português](https://github.com/NemoKing1210/x-plus/blob/main/README.pt.md) · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · [Français](https://github.com/NemoKing1210/x-plus/blob/main/README.fr.md) · [日本語](https://github.com/NemoKing1210/x-plus/blob/main/README.ja.md)
 <!-- /xp:readme -->
@@ -174,10 +174,11 @@ ratón sobre un ajuste para previsualizarlo: la atenuación y el desenfoque se
 desvanecen y el elemento afectado de la página detrás del panel se delinea (se
 muestra aunque esté oculto).
 
-Al iniciar el script, una breve introducción congela la página mientras se
-aplican los ajustes y luego las publicaciones visibles aparecen una tras otra:
-la limpieza y los controles inyectados nunca aparecen de golpe. Respeta la
-preferencia `prefers-reduced-motion`.
+Si la introducción al iniciar está activada en General, una breve introducción
+congela la página mientras se aplican los ajustes y luego las publicaciones
+visibles aparecen una tras otra: la limpieza y los controles inyectados nunca
+aparecen de golpe. Está desactivada por defecto y respeta la preferencia
+`prefers-reduced-motion`.
 
 Una sección **Publicación** aparte da estilo a una publicación y sus partes:
 publicaciones como tarjetas (contorno, relleno o sombra, radio de esquina

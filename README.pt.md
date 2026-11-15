@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![Instalar userscript](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![Licença: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![Versão](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/version-0.15.0-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 [English](https://github.com/NemoKing1210/x-plus/blob/main/README.md) · [Русский](https://github.com/NemoKing1210/x-plus/blob/main/README.ru.md) · [中文](https://github.com/NemoKing1210/x-plus/blob/main/README.zh.md) · [Español](https://github.com/NemoKing1210/x-plus/blob/main/README.es.md) · **Português** · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · [Français](https://github.com/NemoKing1210/x-plus/blob/main/README.fr.md) · [日本語](https://github.com/NemoKing1210/x-plus/blob/main/README.ja.md)
 <!-- /xp:readme -->
@@ -163,10 +163,11 @@ painéis flutuantes do Grok / Chat. Passe o mouse sobre uma configuração para
 visualizá-la: o escurecimento e o desfoque desaparecem e o elemento afetado na
 página atrás do painel é contornado (mostrado mesmo se estiver oculto).
 
-Quando o script inicia, uma breve introdução congela a página enquanto as
-configurações são aplicadas, e então os posts na tela aparecem um após o outro —
-a limpeza e os controles injetados nunca surgem de repente. Respeita a
-preferência `prefers-reduced-motion`.
+Se a introdução ao iniciar estiver ativada em Geral, uma breve introdução congela
+a página enquanto as configurações são aplicadas, e então os posts na tela
+aparecem um após o outro — a limpeza e os controles injetados nunca surgem de
+repente. Vem desativada por padrão e respeita a preferência
+`prefers-reduced-motion`.
 
 Uma seção **Post** separada estiliza um post e suas partes: posts como cartões
 (contorno, preenchimento ou sombra, raio dos cantos ajustável), espaço entre

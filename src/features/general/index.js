@@ -37,6 +37,8 @@ registerFeature({
     toastPosition: field.enum(TOAST_POSITIONS, 'top-right'),
     /** Seconds; 0 keeps toasts until dismissed. */
     toastDuration: field.int(5, { min: 0, max: 120 }),
+    /** Frosted boot transition; read at script start, so it applies on reload. */
+    bootIntro: field.bool(false),
   },
 
   tabs: [
@@ -72,6 +74,12 @@ registerFeature({
               labelKey: 'general.hotkeyReminder',
               hintKey: 'general.hotkeyReminderHint',
               showIf: (section) => section.hotkey,
+            },
+            {
+              type: 'switch',
+              path: 'bootIntro',
+              labelKey: 'general.bootIntro',
+              hintKey: 'general.bootIntroHint',
             },
           ],
         },

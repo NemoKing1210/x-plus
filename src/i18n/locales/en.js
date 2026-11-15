@@ -143,6 +143,9 @@ export default {
   'general.hotkeyHint': 'Ctrl + M opens the X Plus settings.',
   'general.hotkeyReminder': 'Shortcut reminder',
   'general.hotkeyReminderHint': 'Shows a faint reminder in the bottom left corner of the screen.',
+  'general.bootIntro': 'Startup intro',
+  'general.bootIntroHint':
+    'Briefly frosts the page while X Plus applies its settings, then fades the posts in. Takes effect after X reloads.',
   'hotkey.hint': 'X Plus settings',
   'general.sectionToasts': 'Notifications',
   'general.toasts': 'Show notifications',
