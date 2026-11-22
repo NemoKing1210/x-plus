@@ -33,4 +33,7 @@ _No active task._
 
 ### Done ✓
 
+- [x] Let photos be saved or copied to the clipboard ~2h #media @NemoKing1210 2026-11-22  
+  - [x] Save / Copy menu on the photo button and in the multi-file picker; copy button in the gallery  
+  - [x] PNG conversion with clipboard-image support detection; errors surface as toasts  
 - [x] Add `TODO.md` and document the task workflow in `AGENTS.md` 2026-11-22  

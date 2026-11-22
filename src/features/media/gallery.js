@@ -7,6 +7,7 @@ import { el } from '../../utils/dom.js';
 import { formatBytes, sanitizeFileName } from '../../utils/format.js';
 import { handleFromHref } from '../../utils/handle.js';
 import { cfg, tm } from './config.js';
+import { canCopyImages, copyImage } from './copy.js';
 import { downloadFile } from './download.js';
 import { buildFileName } from './filename.js';
 import { getMediaHosts, getTweetId } from './tweet.js';
@@ -201,10 +202,13 @@ function createView({ slides, index, post }) {
   open.addEventListener('click', (event) => event.stopPropagation());
   const save = iconButton('xp-gallery__btn', 'download', tm('galleryDownload'), () => saveCurrent());
   save.insertAdjacentHTML('beforeend', '<span class="xp-gallery__btnspin" aria-hidden="true"></span>');
+  const copy = iconButton('xp-gallery__btn', 'copy', tm('galleryCopy'), () => copyCurrent());
+  copy.insertAdjacentHTML('beforeend', '<span class="xp-gallery__btnspin" aria-hidden="true"></span>');
+  copy.hidden = !canCopyImages();
 
   const bar = el('div', 'xp-gallery__bar');
   const actions = el('div', 'xp-gallery__actions');
-  actions.append(open, save);
+  actions.append(open, save, copy);
   bar.append(close, counter, actions);
 
   const prev = iconButton('xp-gallery__nav xp-gallery__nav--prev', 'chevronLeft', tm('galleryPrev'), () => go(-1));
@@ -428,11 +432,12 @@ function createView({ slides, index, post }) {
     show(state.index + step);
   }
 
-  /* ---- download ---- */
+  /* ---- download / copy ---- */
 
-  async function saveCurrent() {
-    if (state.busy) return;
-    const slide = state.slides[state.index];
+  const SPINNER = '<span class="xp-gallery__btnspin" aria-hidden="true"></span>';
+  let copyFlash = 0;
+
+  function fileNameFor(slide) {
     const base = buildFileName(cfg().fileTemplate, {
       user: state.post.user,
       id: state.post.id,
@@ -442,7 +447,22 @@ function createView({ slides, index, post }) {
       type: 'photo',
       text: state.post.text,
     });
-    const fileName = `${sanitizeFileName(base)}.${extensionOf(slide.full)}`;
+    return `${sanitizeFileName(base)}.${extensionOf(slide.full)}`;
+  }
+
+  /** Confirm the copy with a short check mark on the button. */
+  function flashCopied() {
+    const token = (copyFlash += 1);
+    copy.innerHTML = icon('check') + SPINNER;
+    setTimeout(() => {
+      if (copyFlash === token && copy.isConnected) copy.innerHTML = icon('copy') + SPINNER;
+    }, 1500);
+  }
+
+  async function saveCurrent() {
+    if (state.busy) return;
+    const slide = state.slides[state.index];
+    const fileName = fileNameFor(slide);
     state.busy = true;
     save.classList.add('is-loading');
     const toast = showToast(fileName, { title: tm('downloading'), duration: 0 });
@@ -466,6 +486,47 @@ function createView({ slides, index, post }) {
     } finally {
       state.busy = false;
       save.classList.remove('is-loading');
+    }
+  }
+
+  async function copyCurrent() {
+    if (state.busy) return;
+    const slide = state.slides[state.index];
+    const fileName = fileNameFor(slide);
+    state.busy = true;
+    copy.classList.add('is-loading');
+    const toast = showToast(fileName, { title: tm('copying'), duration: 0 });
+    try {
+      // Called synchronously from the click, so the browser keeps the gesture
+      // the clipboard API requires.
+      const bytes = await copyImage({
+        url: slide.full,
+        onProgress: (ratio, loaded) =>
+          toast.update({
+            message: `${fileName}${
+              ratio == null ? ` · ${formatBytes(loaded)}` : ` · ${Math.round(ratio * 100)}%`
+            }`,
+            progress: ratio == null ? 0 : ratio,
+          }),
+      });
+      toast.update({
+        type: 'success',
+        title: tm('copied'),
+        message: tm('copiedText', { size: formatBytes(bytes) }),
+        progress: 1,
+        duration: 4000,
+      });
+      copy.classList.remove('is-loading');
+      flashCopied();
+    } catch (error) {
+      logError(Codes.MEDIA_COPY, 'failed to copy gallery photo', { url: slide.full, error });
+      toast.dismiss();
+      showToast(tm('copyFailed'), { type: 'error', force: true });
+      copyFlash += 1;
+      copy.innerHTML = icon('copy') + SPINNER;
+    } finally {
+      state.busy = false;
+      copy.classList.remove('is-loading');
     }
   }
 

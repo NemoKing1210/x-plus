@@ -12,6 +12,20 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..', '..');
 const PORT = 5179;
 
+/** Canned syndication response for the three-photo fixture post (id 123456). */
+const PHOTO_TWEET = {
+  __typename: 'Tweet',
+  id_str: '123456',
+  text: 'Three photos for the gallery.',
+  created_at: '2026-05-05T12:00:00.000Z',
+  user: { screen_name: 'nasa', name: 'NASA' },
+  mediaDetails: ['AAA111', 'BBB222', 'CCC333'].map((name) => ({
+    type: 'photo',
+    media_url_https: `http://localhost:${PORT}/pbs.twimg.com/media/${name}.jpg?name=orig`,
+    original_info: { width: 300, height: 198 },
+  })),
+};
+
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
 
@@ -50,6 +64,22 @@ const server = createServer(async (req, res) => {
   // Stand-in for GM_xmlhttpRequest: forwards the request server-side (no CORS).
   if (url.pathname === '/proxy') {
     const target = url.searchParams.get('url');
+    // The photo fixture post has a fake id: answer the media resolution locally
+    // so the Save / Copy flow can be exercised without a real tweet.
+    try {
+      const upstream = new URL(target);
+      if (
+        upstream.hostname === 'cdn.syndication.twimg.com' &&
+        upstream.pathname === '/tweet-result' &&
+        upstream.searchParams.get('id') === PHOTO_TWEET.id_str
+      ) {
+        res.setHeader('content-type', 'application/json; charset=utf-8');
+        res.end(JSON.stringify(PHOTO_TWEET));
+        return;
+      }
+    } catch {
+      /* malformed target: let the generic proxy report it */
+    }
     try {
       const chunks = [];
       for await (const chunk of req) chunks.push(chunk);

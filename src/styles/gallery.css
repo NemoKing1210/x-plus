@@ -216,7 +216,8 @@
 }
 
 .xp-gallery__nav[hidden],
-.xp-gallery__strip[hidden] {
+.xp-gallery__strip[hidden],
+.xp-gallery__btn[hidden] {
   display: none;
 }
 

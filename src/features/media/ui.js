@@ -73,13 +73,17 @@ function ensureActionButton(article) {
 /* Overlay buttons                                                     */
 /* ------------------------------------------------------------------ */
 
+function overlayLabel(host) {
+  return host.kind === 'photo' ? tm('photoActions') : tm('download');
+}
+
 function createOverlay(article, host) {
   const button = el('button', 'xp-media-btn');
   button.type = 'button';
   button.setAttribute(ATTR.overlay, '1');
   button.innerHTML = icon('download') + '<span class="xp-action__spinner" aria-hidden="true"></span>';
-  button.setAttribute('aria-label', tm('download'));
-  button.title = tm('download');
+  button.setAttribute('aria-label', overlayLabel(host));
+  button.title = overlayLabel(host);
 
   bindButton(button, () => {
     const filter =
@@ -95,7 +99,15 @@ function createOverlay(article, host) {
 }
 
 function ensureOverlay(article, host) {
-  if (host.el.querySelector(`:scope > [${ATTR.overlay}]`)) return;
+  let button = host.el.querySelector(`:scope > [${ATTR.overlay}]`);
+  if (button) {
+    const label = overlayLabel(host);
+    if (button.getAttribute('aria-label') !== label) {
+      button.setAttribute('aria-label', label);
+      button.title = label;
+    }
+    return;
+  }
   // Position is checked once per host: `getComputedStyle` on every scan is
   // avoidable, and the marker survives our own overlay being removed.
   if (!host.el.hasAttribute(ATTR.host)) {

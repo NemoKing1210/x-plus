@@ -98,7 +98,8 @@ O mesmo motor do [x-translator](https://github.com/NemoKing1210/x-translator):
 - Vídeos, GIFs e fotos; posts citados incluídos
 - Qualidade do vídeo: melhor, até 1080 / 720 / 480p, menor arquivo ou
   **perguntar sempre** (o seletor lista todas as versões com seu bitrate)
-- Fotos em qualidade original ou grande; vários arquivos → perguntar ou baixar
+- Fotos em qualidade original ou grande; cada foto pode ser baixada ou copiada
+  para a área de transferência como PNG; vários arquivos → perguntar ou baixar
   todos
 - Modelo de nome de arquivo: `{user}` `{id}` `{date}` `{time}` `{n}` `{quality}`
   `{type}` `{text}`
@@ -109,7 +110,7 @@ O mesmo motor do [x-translator](https://github.com/NemoKing1210/x-translator):
 - Galeria de fotos (opcional): um clique em uma foto do post abre uma galeria
   em tela cheia em vez da página de foto do X — sem respostas ou linha do tempo;
   todas as fotos do post com miniaturas (a faixa rola com a roda), `←` / `→`,
-  deslize, zoom, download e
+  deslize, zoom, download, cópia para a área de transferência e
   abrir original (Ctrl / Cmd / Shift + clique ainda abrem o visualizador do X)
 - Zoom do visualizador de fotos: roda, arrastar, clique duplo, `+` / `-` / `0`,
   pinça em telas de toque

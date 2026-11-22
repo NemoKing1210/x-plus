@@ -94,13 +94,13 @@ Same engine as [x-translator](https://github.com/NemoKing1210/x-translator):
 - Videos, GIFs and photos; quoted posts included
 - Video quality: best, up to 1080 / 720 / 480p, smallest, or **ask every time**
   (picker lists every rendition with its bitrate)
-- Photos in original or large quality; several files → ask or download all
+- Photos in original or large quality; each photo can be saved or copied to the clipboard as PNG; several files → ask or download all
 - File name template: `{user}` `{id}` `{date}` `{time}` `{n}` `{quality}`
   `{type}` `{text}`
 - Progress toast; works without a login via X's public syndication endpoint
   and falls back to your session for posts it does not return
 - Optional larger photos while browsing the timeline; switching back to "default" (or turning media off) restores X's own renditions
-- Photo gallery (opt-in): a click on a post photo opens a fast full-screen gallery instead of X's photo page — no replies or timeline are loaded; all photos of the post with thumbnails (the strip scrolls with the wheel), `←` / `→`, swipe, zoom, download and open-original (Ctrl / Cmd / Shift-click still opens X's viewer)
+- Photo gallery (opt-in): a click on a post photo opens a fast full-screen gallery instead of X's photo page — no replies or timeline are loaded; all photos of the post with thumbnails (the strip scrolls with the wheel), `←` / `→`, swipe, zoom, download, copy to the clipboard and open-original (Ctrl / Cmd / Shift-click still opens X's viewer)
 - Photo viewer zoom: wheel, drag, double click, `+` / `-` / `0`, pinch on touch screens
 
 ### Shorts mode

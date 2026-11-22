@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Media download: photos can be copied to the clipboard as PNG — a Save / Copy choice on the photo button and in the multi-file picker, plus a copy button in the gallery; browsers without clipboard image support keep the copy option disabled
 - Photo gallery: the thumbnail strip scrolls horizontally with the mouse wheel
 
 ## [0.15.0] - 2026-11-15

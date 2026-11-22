@@ -29,7 +29,7 @@ src/
 │   ├── general/             # UI language, sidebar button, toast settings
 │   ├── translate/           # In-place post translation (port of x-translator)
 │   ├── screenshot/          # Copy a post to the clipboard as a PNG
-│   ├── media/               # Video / GIF / photo download + feed image quality
+│   ├── media/               # Video / GIF / photo download, photo clipboard copy + feed image quality
 │   ├── shorts/              # Shorts mode: one post at a time (wheel / arrows), focus + blur
 │   ├── interface/           # Declarative clean-up rules (ads, suggestions, menu entries)
 │   ├── filter/              # Post filtering: condition catalog, matcher, post facts, engine, tab

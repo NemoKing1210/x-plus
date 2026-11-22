@@ -105,7 +105,8 @@ Dieselbe Engine wie in [x-translator](https://github.com/NemoKing1210/x-translat
 - Videos, GIFs und Fotos; zitierte Beiträge inklusive
 - Videoqualität: beste, bis 1080 / 720 / 480p, kleinste Datei oder **jedes Mal
   fragen** (die Auswahl listet jede Fassung mit ihrer Bitrate)
-- Fotos in Original- oder großer Qualität; mehrere Dateien → fragen oder alle
+- Fotos in Original- oder großer Qualität; jedes Foto lässt sich speichern oder
+  als PNG in die Zwischenablage kopieren; mehrere Dateien → fragen oder alle
   herunterladen
 - Dateinamen-Vorlage: `{user}` `{id}` `{date}` `{time}` `{n}` `{quality}`
   `{type}` `{text}`
@@ -118,7 +119,7 @@ Dieselbe Engine wie in [x-translator](https://github.com/NemoKing1210/x-translat
 - Fotogalerie (optional): Ein Klick auf ein Foto im Beitrag öffnet eine schnelle
   Vollbildgalerie statt X' Fotoseite — ohne Antworten oder Timeline; alle Fotos
   des Beitrags mit Miniaturen (die Leiste scrollt mit dem Mausrad), `←` / `→`,
-  Wischen, Zoom, Download und Original
+  Wischen, Zoom, Download, Kopieren in die Zwischenablage und Original
   öffnen (Strg / Cmd / Umschalt + Klick öffnet weiterhin X' Viewer)
 - Zoom im Foto-Viewer: Mausrad, Ziehen, Doppelklick, `+` / `-` / `0`, Pinch auf
   Touchscreens

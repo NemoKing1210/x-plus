@@ -102,8 +102,8 @@ El mismo motor que [x-translator](https://github.com/NemoKing1210/x-translator):
 - Calidad de vídeo: la mejor, hasta 1080 / 720 / 480p, el archivo más pequeño o
   **preguntar cada vez** (el selector muestra todas las versiones con su
   bitrate)
-- Fotos en calidad original o grande; varios archivos → preguntar o descargar
-  todos
+- Fotos en calidad original o grande; cada foto se puede descargar o copiar al
+  portapapeles como PNG; varios archivos → preguntar o descargar todos
 - Plantilla de nombre de archivo: `{user}` `{id}` `{date}` `{time}` `{n}`
   `{quality}` `{type}` `{text}`
 - Aviso de progreso; funciona sin iniciar sesión mediante el endpoint público
@@ -115,8 +115,8 @@ El mismo motor que [x-translator](https://github.com/NemoKing1210/x-translator):
   abre una galería a pantalla completa en lugar de la página de foto de X, sin
   cargar respuestas ni cronología; todas las fotos con miniaturas (la tira se
   desplaza con la rueda), `←` / `→`,
-  deslizamiento, zoom, descarga y abrir original (Ctrl / Cmd / Mayús + clic
-  siguen abriendo el visor de X)
+  deslizamiento, zoom, descarga, copia al portapapeles y abrir original (Ctrl /
+  Cmd / Mayús + clic siguen abriendo el visor de X)
 - Zoom del visor de fotos: rueda, arrastre, doble clic, `+` / `-` / `0`, pellizco
   en pantallas táctiles
 

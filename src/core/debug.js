@@ -26,6 +26,8 @@ export const Codes = {
   MEDIA_RESOLVE: 'XP-1301',
   /** Downloading a media file failed. */
   MEDIA_DOWNLOAD: 'XP-1302',
+  /** Copying a media image to the clipboard failed. */
+  MEDIA_COPY: 'XP-1303',
   /** A declutter rule threw while searching the DOM. */
   DECLUTTER_RULE: 'XP-1401',
   /** A post screenshot could not be rendered or delivered. */

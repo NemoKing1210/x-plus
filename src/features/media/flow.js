@@ -5,6 +5,7 @@ import { showToast } from '../../ui/toast.js';
 import { formatBitrate, formatBytes } from '../../utils/format.js';
 import { resolveTweetMedia } from './api/index.js';
 import { cfg, tm } from './config.js';
+import { canCopyImages, copyImage } from './copy.js';
 import { downloadFile } from './download.js';
 import { buildFileName } from './filename.js';
 import { getTweetId } from './tweet.js';
@@ -96,6 +97,19 @@ function uniqueName(base, ext, used) {
   return name;
 }
 
+function entryFileName(entry, model, config, used = new Set()) {
+  const base = buildFileName(config.fileTemplate, {
+    user: entry.item.user || model.user,
+    id: entry.item.tweetId || model.id,
+    createdAt: model.createdAt,
+    n: entry.n,
+    quality: entry.quality,
+    type: entry.item.type,
+    text: model.text,
+  });
+  return uniqueName(base, entry.ext, used);
+}
+
 async function downloadEntries(entries, model, config) {
   const toast = showToast('', { title: tm('downloading'), duration: 0 });
   const used = new Set();
@@ -106,16 +120,7 @@ async function downloadEntries(entries, model, config) {
   for (let i = 0; i < entries.length; i += 1) {
     const entry = entries[i];
     const prefix = entries.length > 1 ? `${i + 1}/${entries.length} · ` : '';
-    const base = buildFileName(config.fileTemplate, {
-      user: entry.item.user || model.user,
-      id: entry.item.tweetId || model.id,
-      createdAt: model.createdAt,
-      n: entry.n,
-      quality: entry.quality,
-      type: entry.item.type,
-      text: model.text,
-    });
-    const fileName = uniqueName(base, entry.ext, used);
+    const fileName = entryFileName(entry, model, config, used);
 
     toast.update({ message: `${prefix}${fileName}`, progress: 0 });
     try {
@@ -159,13 +164,73 @@ async function downloadEntries(entries, model, config) {
   }
 }
 
+async function copyEntry(entry, model, config) {
+  const fileName = entryFileName(entry, model, config);
+  const toast = showToast(fileName, { title: tm('copying'), duration: 0 });
+  try {
+    const bytes = await copyImage({
+      url: entry.url,
+      onProgress: (ratio, loaded) =>
+        toast.update({
+          message: `${fileName}${
+            ratio == null ? ` · ${formatBytes(loaded)}` : ` · ${Math.round(ratio * 100)}%`
+          }`,
+          progress: ratio == null ? 0 : ratio,
+        }),
+    });
+    toast.update({
+      type: 'success',
+      title: tm('copied'),
+      message: tm('copiedText', { size: formatBytes(bytes) }),
+      progress: 1,
+      duration: 4000,
+    });
+  } catch (error) {
+    logError(Codes.MEDIA_COPY, 'failed to copy media', { entry, error });
+    toast.dismiss();
+    showToast(tm('copyFailed'), { type: 'error', force: true });
+  }
+}
+
+/** Download or copy a single photo; the browser needs the click for the clipboard. */
+function showPhotoChoice(anchor, entry, model, config) {
+  const copy = canCopyImages();
+  const quality = entry.quality === 'large' ? tm('image.large') : tm('image.orig');
+  const owner = entry.item.user ? `@${entry.item.user}` : '';
+  openPopup({
+    anchor,
+    title: [owner, entry.label].filter(Boolean).join(' · ') || tm('item.photoSingle'),
+    items: [
+      {
+        label: tm('photoDownload'),
+        hint: [entry.hint, quality].filter(Boolean).join(' · '),
+        iconHtml: icon('download'),
+        onSelect: () => downloadEntries([entry], model, config),
+      },
+      {
+        label: tm('photoCopy'),
+        hint: copy ? tm('photoCopyHint') : tm('photoCopyUnsupported'),
+        iconHtml: icon('copy'),
+        disabled: !copy,
+        onSelect: () => copyEntry(entry, model, config),
+      },
+    ],
+  });
+}
+
+/** A photo asks download-or-copy; every other file downloads straight away. */
+function pickEntry(entry, model, config, anchor) {
+  if (entry.item.type === 'photo') showPhotoChoice(anchor, entry, model, config);
+  else downloadEntries([entry], model, config);
+}
+
 function showPicker(anchor, entries, model, config, multipleItems) {
   // One media item with several qualities: the quality is the headline.
   const items = entries.map((entry) => ({
     label: multipleItems ? entry.label : entry.quality || entry.label,
     hint: multipleItems ? entry.hint : entry.bitrate || entry.hint,
     iconHtml: icon(entry.item.type === 'photo' ? 'image' : 'video'),
-    onSelect: () => downloadEntries([entry], model, config),
+    onSelect: () => pickEntry(entry, model, config, anchor),
   }));
 
   if (multipleItems) {
@@ -221,8 +286,11 @@ export async function startDownload({ article, anchor, filter, setBusy }) {
     const multipleItems = new Set(entries.map((e) => e.item)).size > 1;
     const askQuality = config.videoQuality === 'ask' && entries.length > new Set(entries.map((e) => e.item)).size;
     const askMultiple = multipleItems && config.onMultiple === 'ask';
+    const singlePhoto = entries.length === 1 && entries[0].item.type === 'photo';
 
-    if (askQuality || askMultiple) {
+    if (singlePhoto) {
+      showPhotoChoice(anchor, entries[0], model, config);
+    } else if (askQuality || askMultiple) {
       showPicker(anchor, entries, model, config, multipleItems);
     } else {
       await downloadEntries(entries, model, config);

@@ -103,7 +103,8 @@ Le même moteur que [x-translator](https://github.com/NemoKing1210/x-translator)
 - Qualité vidéo : la meilleure, jusqu’à 1080 / 720 / 480p, le plus petit
   fichier, ou **demander à chaque fois** (le sélecteur liste toutes les versions
   avec leur débit)
-- Photos en qualité originale ou grande ; plusieurs fichiers → demander ou tout
+- Photos en qualité originale ou grande ; chaque photo peut être téléchargée ou
+  copiée dans le presse-papiers en PNG ; plusieurs fichiers → demander ou tout
   télécharger
 - Modèle de nom de fichier : `{user}` `{id}` `{date}` `{time}` `{n}` `{quality}`
   `{type}` `{text}`
@@ -116,8 +117,8 @@ Le même moteur que [x-translator](https://github.com/NemoKing1210/x-translator)
   plein écran rapide au lieu de la page photo de X — sans réponses ni timeline ;
   toutes les photos du post avec vignettes (la bande défile à la molette),
   `←` / `→`, balayage, zoom,
-  téléchargement et ouverture de l’original (Ctrl / Cmd / Maj + clic ouvrent
-  toujours la visionneuse de X)
+  téléchargement, copie dans le presse-papiers et ouverture de l’original (Ctrl /
+  Cmd / Maj + clic ouvrent toujours la visionneuse de X)
 - Zoom de la visionneuse : molette, glisser, double clic, `+` / `-` / `0`,
   pincement sur écran tactile
 
