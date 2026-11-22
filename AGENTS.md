@@ -18,6 +18,7 @@ reference for architecture and conventions.
 - Docs: `README.md` (plus localized `README.<lang>.md` for every UI locale),
   `CHANGELOG.md` (Keep a Changelog + SemVer), `docs/ARCHITECTURE.md`,
   `docs/DEVELOPMENT.md`
+- Task board: `TODO.md` (planned, in-progress and done work)
 - License: MIT
 
 ## Architecture in one paragraph
@@ -29,6 +30,61 @@ navigate })`; its `fields` (declarative schema) define defaults, normalization
 and the settings UI, `tabs` are rendered by the shared spec renderer. Full
 details and the "add a feature / provider / rule" recipes:
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Tasks and TODO.md
+
+`TODO.md` in the repository root is the single task board: planned work,
+current work and recently finished work. It follows the
+[todo.md spec](https://github.com/todomd/todo.md) — sections are board
+columns, `- [ ]` is an open task, `- [x]` is done, and the completed column
+is named with `✓`. Keep bug reports and feature discussion in GitHub Issues;
+mirror anything you are about to act on into `TODO.md`.
+
+**Working a task:**
+
+1. **Pick and claim.** Take the top task from **Todo**, move it to
+   **In Progress** (one task per person in progress) and add the owner handle
+   and start date if they are missing.
+2. **Read first.** Follow the links and read the relevant code, docs and tests.
+   Restate the expected outcome in one sentence before changing anything; if
+   you cannot, the task is underspecified — clarify it in `TODO.md` first.
+3. **Plan before execution.** The task text is the starting plan; expand it
+   into concrete steps, files to touch and verification to run before editing.
+   For anything larger than a trivial one-file change (new feature, provider,
+   clean-up rule, schema or UI change), get the plan agreed and keep it in the
+   task or the PR description. Agents with a plan mode must use it.
+4. **Implement in small, verified steps.** Stay within the task; split unrelated
+   fixes into their own task and commit (see "Commits").
+5. **Verify.** Run `npm run ci`, then the manual checks in
+   [CONTRIBUTING.md](CONTRIBUTING.md#testing-checklist): harness at
+   <http://localhost:5179/>, real `x.com`, all three themes and every locale.
+6. **Close.** Move the task to **Done ✓** with the completion date
+   (`yyyy-mm-dd`); add user-visible changes to `## [Unreleased]` in
+   `CHANGELOG.md`, update the READMEs and rebuild the root artifacts. Never
+   delete a finished task — the Done column is the recent history.
+
+**Writing tasks:** one outcome per task, imperative, with `~estimate`, a
+`#scope` tag (the Conventional Commit scope, e.g. `#translate`, `#media`),
+`@owner` and a date when known.
+
+Write a task in as much detail as a short plan: context is lost between
+sessions, so the next agent must be able to start from the task alone. A good
+task covers:
+
+- **Why** — the problem or user need, with a link to an issue, screenshot or
+  spec when one exists.
+- **Outcome** — what works when the task is done, including edge cases that
+  must keep working (themes, locales, userscript managers).
+- **Where** — the modules, selectors and docs expected to change, and the
+  tests that cover them.
+- **Steps** — the intended approach as ordered, two-space-indented
+  checkboxes.
+- **Done when** — the acceptance checks: `npm run ci`, the harness, real
+  `x.com`, the relevant themes and locales.
+
+If the approach is not clear yet, record the open questions instead of
+guessing. Detail is not a work log: keep it about the plan and the result, not
+about what you tried. `TODO.md` is a backlog, not a changelog.
 
 ## Conventions
 
