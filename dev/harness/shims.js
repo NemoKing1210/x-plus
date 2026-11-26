@@ -1,4 +1,9 @@
 // ── GM_* shims ─────────────────────────────────────────────────────────
+  // `?force=legacy|modern` pins the compat profile for fallback checks; the
+  // production script only reads it in this harness (see core/compat/index.js).
+  const forced = new URLSearchParams(location.search).get('force');
+  if (forced === 'legacy' || forced === 'modern') window.__XP_FORCE_DOM__ = forced;
+  window.__XP_DEBUG__ = true;
   window.__store = JSON.parse(localStorage.getItem('__gm') || '{}');
   window.GM_getValue = (k, d) => (k in window.__store ? JSON.parse(JSON.stringify(window.__store[k])) : d);
   window.GM_setValue = (k, v) => { window.__store[k] = JSON.parse(JSON.stringify(v)); localStorage.setItem('__gm', JSON.stringify(window.__store)); };

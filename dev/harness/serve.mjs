@@ -29,9 +29,19 @@ const PHOTO_TWEET = {
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
 
-  if (url.pathname === '/' || url.pathname === '/index.html') {
+  if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '/legacy') {
     res.setHeader('content-type', 'text/html; charset=utf-8');
     res.end(readFileSync(join(here, 'index.html')));
+    return;
+  }
+  if (url.pathname === '/modern' || url.pathname === '/modern.html') {
+    res.setHeader('content-type', 'text/html; charset=utf-8');
+    res.end(readFileSync(join(here, 'modern.html')));
+    return;
+  }
+  if (url.pathname === '/report.js') {
+    res.setHeader('content-type', 'application/javascript; charset=utf-8');
+    res.end(readFileSync(join(here, 'report.js')));
     return;
   }
   // Fake pbs.twimg.com photo: an SVG showing the requested rendition.

@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en" data-app-version="2026.11.26-1a2b3c4">
+<head>
+<meta charset="utf-8" />
+<title>X Plus harness — modern DOM</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #000; color: #e7e9ea; font: 15px/20px -apple-system, "Segoe UI", sans-serif; }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; }
+  button { font: inherit; }
+
+  .fixture-switch { position: sticky; top: 0; z-index: 5; display: flex; gap: 12px; padding: 6px 12px; background: #16181c; border-bottom: 1px solid #2f3336; font-size: 13px; }
+  .fixture-switch a[aria-current] { color: #1d9bf0; font-weight: 700; }
+
+  .layout { display: flex; justify-content: center; gap: 24px; align-items: flex-start; }
+  nav[aria-label="Primary"] { position: sticky; top: 36px; display: flex; flex-direction: column; gap: 4px; width: 240px; padding: 8px; box-sizing: border-box; }
+  nav[aria-label="Primary"] a, nav[aria-label="Primary"] button { display: flex; align-items: center; gap: 16px; padding: 10px 12px; border: 0; border-radius: 999px; background: none; color: inherit; cursor: pointer; width: 100%; text-align: left; }
+  nav[aria-label="Primary"] a:hover, nav[aria-label="Primary"] button:hover { background: rgba(231,233,234,.1); }
+  nav[aria-label="Primary"] a[aria-current] { font-weight: 700; }
+  nav[aria-label="Primary"] svg { width: 26px; height: 26px; fill: currentColor; }
+  nav[aria-label="Primary"] img { width: 26px; height: 26px; border-radius: 50%; }
+
+  main { width: 600px; border-left: 1px solid #2f3336; border-right: 1px solid #2f3336; padding-bottom: 60vh; }
+  header[data-page-header] { position: sticky; top: 36px; background: rgba(0,0,0,.85); backdrop-filter: blur(12px); border-bottom: 1px solid #2f3336; padding: 4px 16px; }
+  header[data-page-header] h1 { font-size: 20px; margin: 8px 0; }
+  [role="tablist"] { display: flex; }
+  [role="tablist"] [role="tab"] { flex: 1; text-align: center; padding: 14px 0; color: #71767b; }
+  [role="tablist"] [role="tab"][aria-selected="true"] { color: inherit; font-weight: 700; box-shadow: inset 0 -4px 0 #1d9bf0; }
+
+  .composer { display: flex; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #2f3336; }
+  .composer textarea { flex: 1; background: none; border: 0; color: inherit; font: inherit; resize: none; min-height: 52px; outline: none; }
+  .composer-actions { display: flex; align-items: center; gap: 12px; }
+  .composer [role="progressbar"] { width: 22px; height: 22px; border: 2px solid #1d9bf0; border-radius: 50%; }
+  .composer button { background: #1d9bf0; color: #fff; border: 0; border-radius: 999px; padding: 8px 18px; font-weight: 700; }
+
+  .timeline { list-style: none; margin: 0; padding: 0; }
+  .timeline > li { border-bottom: 1px solid #2f3336; }
+  .timeline > li > [role="link"] { display: block; cursor: pointer; }
+  article { padding: 12px 16px; }
+  .head { display: flex; align-items: flex-start; gap: 12px; }
+  .avatar-col { width: 40px; flex: none; display: flex; flex-direction: column; align-items: center; align-self: stretch; }
+  .avatar-col > [data-post-avatar] img, .avatar-col > img { width: 40px; height: 40px; border-radius: 50%; background: #333; }
+  .thread-line { width: 2px; flex: 1; min-height: 12px; margin: 4px 0 -12px; background: #333639; }
+  .body { flex: 1; min-width: 0; }
+  header.author { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  header.author .name { font-weight: 700; }
+  header.author .handle, header.author .time { color: #71767b; }
+  header.author .row { margin-left: auto; display: flex; align-items: center; }
+  header.author .row button { background: none; border: 0; color: #71767b; cursor: pointer; padding: 4px; }
+  header.author .row svg, header.author .verified svg { width: 18px; height: 18px; fill: currentColor; }
+  header.author .verified { color: #1d9bf0; display: inline-flex; }
+  header.author .ad { color: #71767b; font-size: 13px; }
+  .context { color: #71767b; font-size: 13px; margin-bottom: 2px; }
+  .text { margin-top: 2px; white-space: pre-wrap; }
+  .media { margin-top: 12px; border-radius: 16px; overflow: hidden; background: #111; }
+  .media video { display: block; width: 100%; aspect-ratio: 16/9; background: #000; }
+  .media.grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; background: none; }
+  .media.grid img { width: 100%; height: 140px; object-fit: cover; }
+  [data-slot="embedded-tweet-frame"] { display: block; margin-top: 12px; border: 1px solid #2f3336; border-radius: 16px; padding: 12px; }
+  [data-slot="embedded-tweet-frame"] article { padding: 0; }
+  [role="group"] { display: flex; justify-content: space-between; max-width: 425px; margin-top: 12px; color: #71767b; }
+  [role="group"] button { background: none; border: 0; color: inherit; padding: 6px; cursor: pointer; }
+
+  aside[role="complementary"] { width: 350px; padding-top: 12px; display: flex; flex-direction: column; gap: 16px; }
+  aside[role="complementary"] form { display: flex; }
+  aside[role="complementary"] input[type="search"] { width: 100%; padding: 10px 16px; border-radius: 999px; border: 1px solid #2f3336; background: #202327; color: inherit; }
+  aside[role="complementary"] section, aside[role="complementary"] [data-who-to-follow] { border: 1px solid #2f3336; border-radius: 16px; padding: 12px; }
+  aside[role="complementary"] h2 { font-size: 20px; margin: 0 0 8px; }
+  aside[role="complementary"] nav { display: flex; flex-wrap: wrap; gap: 8px; color: #71767b; font-size: 13px; }
+
+  #compat { position: fixed; right: 8px; bottom: 8px; width: 360px; max-height: 40vh; overflow: auto; background: #16181c; border: 1px solid #2f3336; border-radius: 12px; padding: 8px 12px; font-size: 12px; }
+  #compat h2 { font-size: 13px; margin: 0 0 6px; }
+  #compat button { background: #1d9bf0; color: #fff; border: 0; border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+  #compat pre { margin: 8px 0 0; white-space: pre-wrap; word-break: break-word; }
+</style>
+</head>
+<body>
+<div class="fixture-switch">
+  <a href="/">Legacy fixture</a>
+  <a href="/modern" aria-current="page">Modern fixture</a>
+</div>
+
+<div class="layout">
+<nav aria-label="Primary" data-top-chrome>
+  <a href="/home" aria-label="X"><svg data-icon="icon-logo-x" viewBox="0 0 24 24"><path d="M18.9 1.2h3.7l-8.1 9.3L24 22.8h-7.5l-5.9-7.7-6.7 7.7H.2l8.7-9.9L0 1.2h7.7l5.3 7 5.9-7z"/></svg></a>
+  <a href="/home" aria-current="page"><svg data-icon="icon-home" viewBox="0 0 24 24"><path d="M12 1.7L.6 8.8l1 1.7L3 9.7V19.5C3 20.9 4.1 22 5.5 22h13c1.4 0 2.5-1.1 2.5-2.5V9.7l1.3.8 1-1.7L12 1.7z"/></svg><span>Home</span></a>
+  <a href="/explore"><svg data-icon="icon-search" viewBox="0 0 24 24"><path d="M10.3 3.8a6.5 6.5 0 100 13 6.5 6.5 0 000-13z"/></svg><span>Explore</span></a>
+  <a href="/notifications"><svg data-icon="icon-bell" viewBox="0 0 24 24"><path d="M12 2a6 6 0 00-6 6v4l-2 4h16l-2-4V8a6 6 0 00-6-6z"/></svg><span>Notifications</span></a>
+  <a href="/i/grok"><svg data-icon="icon-grok" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg><span>Grok</span></a>
+  <a href="/someone" aria-label="Profile"><img src="/pbs.twimg.com/profile_images/me.jpg?name=small" alt="@someone"></a>
+  <button aria-label="More"><svg data-icon="icon-more-dots-hor-circle" viewBox="0 0 24 24"><path d="M3 12a2 2 0 104 0 2 2 0 00-4 0zm7 0a2 2 0 104 0 2 2 0 00-4 0zm7 0a2 2 0 104 0 2 2 0 00-4 0z"/></svg><span>More</span></button>
+  <a href="/compose/post" aria-label="Post"><svg data-icon="icon-compose" viewBox="0 0 24 24"><path d="M4 4h10v2H6v12h12v-8h2v10H4z"/></svg><span>Post</span></a>
+  <button aria-label="Account menu"><img src="/pbs.twimg.com/profile_images/me.jpg?name=small" alt=""><span>Account</span></button>
+  <a href="/settings" aria-label="Settings"><svg data-icon="icon-settings" viewBox="0 0 24 24"><path d="M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg><span>Settings</span></a>
+</nav>
+
+<main>
+  <header data-page-header>
+    <h1>Home</h1>
+    <div role="tablist" aria-label="Home timelines">
+      <a role="tab" aria-selected="true" href="/home">For you</a>
+      <a role="tab" aria-selected="false" href="/home/following">Following</a>
+    </div>
+  </header>
+
+  <div class="composer">
+    <textarea aria-label="Post text" placeholder="What is happening?!" rows="2"></textarea>
+    <div class="composer-actions">
+      <span role="progressbar" aria-label="0 of 280 characters"></span>
+      <button type="button">Post</button>
+    </div>
+  </div>
+
+  <ul class="timeline">
+    <!-- 1: plain text post -->
+    <li data-index="0">
+      <div role="link" data-href="/jack/status/20" tabindex="0">
+        <article>
+          <div class="head">
+            <div class="avatar-col self-stretch"><div data-post-avatar><img src="/pbs.twimg.com/profile_images/jack.jpg?name=small" alt="@jack"></div></div>
+            <div class="body">
+              <header class="author">
+                <div class="name" dir="auto"><a href="/jack">Jack</a> <a href="/jack"><span class="handle">@jack</span></a></div>
+                <a class="time" href="/jack/status/20"><time datetime="2006-03-21T20:50:14.000Z">Mar 21, 2006</time></a>
+                <div class="row">
+                  <button aria-label="Grok actions"><svg data-icon="icon-logo-grok" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg></button>
+                  <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
+                </div>
+              </header>
+              <div class="text whitespace-pre-wrap" dir="auto">just setting up my twttr and this is a longer English sentence that should be translated into another language.</div>
+              <div role="group">
+                <button data-engagement-action="reply" aria-label="Reply">↩</button>
+                <button data-engagement-action="retweet" aria-label="Repost">⟲</button>
+                <button data-engagement-action="like" aria-label="Like">♥</button>
+                <button data-engagement-action="share" aria-label="Share">⇪</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </li>
+
+    <!-- 2: quote post (nested article inside an embedded tweet frame) -->
+    <li data-index="1">
+      <div role="link" data-href="/durov/status/2" tabindex="0">
+        <article>
+          <div class="head">
+            <div class="avatar-col self-stretch"><div data-post-avatar><img src="/pbs.twimg.com/profile_images/durov.jpg?name=small" alt="@durov"></div></div>
+            <div class="body">
+              <header class="author">
+                <div class="name" dir="auto"><a href="/durov">Pavel</a> <a href="/durov"><span class="handle">@durov</span></a></div>
+                <a class="time" href="/durov/status/2"><time datetime="2024-01-01T10:00:00.000Z">Jan 1</time></a>
+                <div class="row">
+                  <button aria-label="Grok actions"><svg data-icon="icon-logo-grok" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg></button>
+                  <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
+                </div>
+              </header>
+              <div class="text whitespace-pre-wrap" dir="auto" lang="ru">Привет, мир! Это тестовый пост на русском языке, который можно перевести.</div>
+              <div role="link" data-href="/nasa/status/123456" data-slot="embedded-tweet-frame" tabindex="0">
+                <article>
+                  <div class="head">
+                    <div class="avatar-col self-stretch"><div data-post-avatar><img src="/pbs.twimg.com/profile_images/nasa.jpg?name=small" alt="@nasa"></div></div>
+                    <div class="body">
+                      <header class="author">
+                        <div class="name" dir="auto"><a href="/nasa">NASA</a> <a href="/nasa"><span class="handle">@nasa</span></a></div>
+                        <a class="time" href="/nasa/status/123456"><time datetime="2024-05-05T10:00:00.000Z">May 5</time></a>
+                      </header>
+                      <div class="text whitespace-pre-wrap" dir="auto" lang="en">Quoted English post about space exploration and the moon.</div>
+                      <div role="group">
+                        <button data-engagement-action="reply" aria-label="Reply">↩</button>
+                        <button data-engagement-action="like" aria-label="Like">♥</button>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+              <div role="group">
+                <button data-engagement-action="reply" aria-label="Reply">↩</button>
+                <button data-engagement-action="retweet" aria-label="Repost">⟲</button>
+                <button data-engagement-action="like" aria-label="Like">♥</button>
+                <button data-engagement-action="share" aria-label="Share">⇪</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </li>
+
+    <!-- 3: video post -->
+    <li data-index="2">
+      <div role="link" data-href="/elonmusk/status/1585341984679469056" tabindex="0">
+        <article>
+          <div class="head">
+            <div class="avatar-col self-stretch"><div data-post-avatar><img src="/pbs.twimg.com/profile_images/elon.jpg?name=small" alt="@elonmusk"></div></div>
+            <div class="body">
+              <header class="author">
+                <div class="name" dir="auto"><a href="/elonmusk">Elon Musk</a> <a href="/elonmusk"><span class="handle">@elonmusk</span></a></div>
+                <a class="time" href="/elonmusk/status/1585341984679469056"><time datetime="2022-10-26T18:45:58.000Z">Oct 26, 2022</time></a>
+                <div class="row">
+                  <button aria-label="Grok actions"><svg data-icon="icon-logo-grok" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg></button>
+                  <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
+                </div>
+              </header>
+              <div class="text whitespace-pre-wrap" dir="auto" lang="en">Entering Twitter HQ – let that sink in!</div>
+              <div class="media" data-engagement-action="media">
+                <video controls preload="metadata"></video>
+              </div>
+              <div role="group">
+                <button data-engagement-action="reply" aria-label="Reply">↩</button>
+                <button data-engagement-action="retweet" aria-label="Repost">⟲</button>
+                <button data-engagement-action="like" aria-label="Like">♥</button>
+                <button data-engagement-action="share" aria-label="Share">⇪</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </li>
+
+    <!-- 4: photo grid -->
+    <li data-index="3">
+      <div role="link" data-href="/nasa/status/123456" tabindex="0">
+        <article>
+          <div class="head">
+            <div class="avatar-col self-stretch"><div data-post-avatar><img src="/pbs.twimg.com/profile_images/nasa.jpg?name=small" alt="@nasa"></div></div>
+            <div class="body">
+              <header class="author">
+                <div class="name" dir="auto"><a href="/nasa">NASA</a> <a href="/nasa"><span class="handle">@nasa</span></a> <span class="verified"><svg data-icon="icon-verified" viewBox="0 0 24 24"><path d="M12 2l2.4 2.4 3.3-.6.6 3.3L21 9.5l-1.6 3 1.6 3-2.7 2.4-.6 3.3-3.3-.6L12 23l-2.4-2.4-3.3.6-.6-3.3L3 15.5l1.6-3L3 9.5l2.7-2.4.6-3.3 3.3.6z"/></svg></span></div>
+                <a class="time" href="/nasa/status/123456"><time datetime="2024-05-05T10:00:00.000Z">May 5</time></a>
+                <div class="row">
+                  <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
+                </div>
+              </header>
+              <div class="text whitespace-pre-wrap" dir="auto" lang="en">Three photos for the gallery.</div>
+              <div class="media grid" data-engagement-action="media">
+                <a href="/nasa/status/123456/photo/1"><img alt="Image" src="/pbs.twimg.com/media/AAA111?format=jpg&amp;name=small"></a>
+                <a href="/nasa/status/123456/photo/2"><img alt="Image" src="/pbs.twimg.com/media/BBB222?format=jpg&amp;name=small"></a>
+                <a href="/nasa/status/123456/photo/3"><img alt="Image" src="/pbs.twimg.com/media/CCC333?format=jpg&amp;name=small"></a>
+              </div>
+              <div role="group">
+                <button data-engagement-action="reply" aria-label="Reply">↩</button>
+                <button data-engagement-action="retweet" aria-label="Repost">⟲</button>
+                <button data-engagement-action="like" aria-label="Like">♥</button>
+                <button data-engagement-action="share" aria-label="Share">⇪</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </li>
+
+    <!-- 5: promoted post with a short "Ad" leaf span -->
+    <li data-index="4">
+      <div role="link" data-href="/brand/status/9" tabindex="0">
+        <article>
+          <div class="head">
+            <div class="avatar-col self-stretch"><div data-post-avatar><img src="/pbs.twimg.com/profile_images/brand.jpg?name=small" alt="@brand"></div></div>
+            <div class="body">
+              <header class="author">
+                <div class="name" dir="auto"><a href="/brand">Brand</a> <a href="/brand"><span class="handle">@brand</span></a></div>
+                <span class="ad">Ad</span>
+                <div class="row">
+                  <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
+                </div>
+              </header>
+              <div class="text whitespace-pre-wrap" dir="auto" lang="en">Buy our amazing product today!</div>
+              <div role="group">
+                <button data-engagement-action="reply" aria-label="Reply">↩</button>
+                <button data-engagement-action="like" aria-label="Like">♥</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </li>
+
+    <!-- 6 + 7: a post and its reply, joined by a thin avatar-column span -->
+    <li data-index="5">
+      <div role="link" data-href="/asker/status/50" tabindex="0">
+        <article>
+          <div class="head">
+            <div class="avatar-col self-stretch">
+              <div data-post-avatar><img src="/pbs.twimg.com/profile_images/asker.jpg?name=small" alt="@asker"></div>
+              <span class="thread-line"></span>
+            </div>
+            <div class="body">
+              <header class="author">
+                <div class="name" dir="auto"><a href="/asker">Asker</a> <a href="/asker"><span class="handle">@asker</span></a></div>
+                <a class="time" href="/asker/status/50"><time datetime="2026-10-19T15:00:00.000Z">9h</time></a>
+                <div class="row">
+                  <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
+                </div>
+              </header>
+              <div class="text whitespace-pre-wrap" dir="auto" lang="en">Any good AI-powered speech-to-text apps? The one I use has been hit or miss lately.</div>
+              <div role="group">
+                <button data-engagement-action="reply" aria-label="Reply">↩</button>
+                <button data-engagement-action="like" aria-label="Like">♥</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </li>
+    <li data-index="6">
+      <div role="link" data-href="/replier/status/51" tabindex="0">
+        <article>
+          <div class="head">
+            <div class="avatar-col self-stretch">
+              <span class="thread-line"></span>
+              <div data-post-avatar><img src="/pbs.twimg.com/profile_images/replier.jpg?name=small" alt="@replier"></div>
+            </div>
+            <div class="body">
+              <header class="author">
+                <div class="name" dir="auto"><a href="/replier">Replier</a> <a href="/replier"><span class="handle">@replier</span></a></div>
+                <a class="time" href="/replier/status/51"><time datetime="2026-10-19T16:00:00.000Z">8h</time></a>
+                <div class="row">
+                  <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
+                </div>
+              </header>
+              <div class="context" data-testid="socialContext">Replying to <a href="/asker">@asker</a></div>
+              <div class="text whitespace-pre-wrap" dir="auto" lang="en">Try this one, it works offline and the accuracy is great.</div>
+              <div role="group">
+                <button data-engagement-action="reply" aria-label="Reply">↩</button>
+                <button data-engagement-action="like" aria-label="Like">♥</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </li>
+  </ul>
+</main>
+
+<aside role="complementary" aria-label="Sidebar">
+  <form role="search"><input type="search" aria-label="Search" placeholder="Search"></form>
+  <section aria-labelledby="premium">
+    <h2 id="premium">Subscribe to Premium</h2>
+    <a href="/i/premium_sign_up">Subscribe</a>
+  </section>
+  <section aria-labelledby="trends">
+    <h2 id="trends">Trends</h2>
+    <div data-trend>#Moon</div>
+  </section>
+  <div data-who-to-follow>
+    <img src="/pbs.twimg.com/profile_images/nasa.jpg?name=small" alt="@nasa">
+    <a href="/nasa">NASA <span>@nasa</span></a>
+    <button type="button">Follow</button>
+  </div>
+  <div data-who-to-follow>
+    <img src="/pbs.twimg.com/profile_images/esa.jpg?name=small" alt="@esa">
+    <a href="/esa">ESA <span>@esa</span></a>
+    <button type="button">Follow</button>
+  </div>
+  <nav aria-label="Footer"><a href="/tos">Terms of Service</a><a href="/privacy">Privacy</a></nav>
+</aside>
+</div>
+
+<div role="menu" data-slot="xds-menu-content" id="modern-menu" style="display:none;position:fixed;left:700px;top:120px;background:#000;border:1px solid #333;border-radius:12px;width:260px">
+  <div role="menuitem" data-slot="xds-menu-item" style="padding:12px">Mute @jack</div>
+  <div role="menuitem" data-slot="xds-menu-item" style="padding:12px">Block @jack</div>
+</div>
+
+<section id="compat" aria-label="Compat report">
+  <h2>Compat report</h2>
+  <button type="button">Refresh report</button>
+  <pre id="xp-compat-report">loading…</pre>
+</section>
+
+<script src="/shims.js"></script>
+<script>
+  // Open the post menu like X does: a caret click shows the portaled xds menu.
+  document.addEventListener('click', (event) => {
+    const caret = event.target.closest('button[aria-haspopup="menu"]');
+    const menu = document.getElementById('modern-menu');
+    if (caret) {
+      caret.setAttribute('aria-expanded', 'true');
+      menu.style.display = 'block';
+    } else if (!event.target.closest('#modern-menu')) {
+      document.querySelectorAll('[aria-haspopup="menu"]').forEach((node) => node.setAttribute('aria-expanded', 'false'));
+      menu.style.display = 'none';
+    }
+  });
+</script>
+<script src="/x-plus.user.js"></script>
+<script src="/report.js"></script>
+</body>
+</html>
