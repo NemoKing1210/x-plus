@@ -23,6 +23,11 @@ you are about to work on here.
 - [ ] Test the built script in every supported manager and X theme ~1d #test @NemoKing1210  
   - [ ] Tampermonkey, Violentmonkey and ScriptCat install and run  
   - [ ] Light, dim and lights-out themes render the injected UI correctly  
+- [ ] Cover every photo of a modern photo grid in the media overlay ~2h #media  
+  - [ ] `getMediaHosts` reports one host per media block, so a three-photo grid gets one overlay and `photoIndex` always picks photo 1  
+  - [ ] Place one button per photo image (or resolve the clicked image) so each photo downloads its own file and `n` token  
+  - [ ] The gallery already enumerates images per host (`photoAt`); reuse that lookup in `media/ui.js`  
+  - [ ] Verify on the `/modern` harness grid: photos 1, 2 and 3 download with the right names  
 
 ### In Progress
 
