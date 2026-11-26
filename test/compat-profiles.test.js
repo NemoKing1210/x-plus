@@ -147,3 +147,50 @@ test('modern getTextRoots uses the whitespace-pre-wrap text root', () => {
   modern.api.getTextRoots(root);
   assert.ok(root.calls.some((selector) => selector.includes('whitespace-pre-wrap')));
 });
+
+test('modern getActionGroup returns the group with a reply action', () => {
+  const article = {
+    nodeType: 1,
+    contains: () => true,
+    querySelector: () => null,
+    querySelectorAll: (selector) => (selector === '[role="group"]' ? [group] : []),
+  };
+  const group = {
+    closest: (selector) => (selector === 'article' ? article : null),
+    querySelector: (selector) => (selector === '[data-engagement-action="reply"]' ? {} : null),
+  };
+  assert.equal(modern.api.getActionGroup(article), group);
+});
+
+test('modern getMediaHosts keeps one video host per media block', () => {
+  const video = { closest: (selector) => (selector === 'article' ? article : null), matches: (selector) => selector === 'video' };
+  const host = {
+    matches: () => false,
+    querySelector: (selector) => (selector === 'video' ? video : null),
+    closest: (selector) => (selector === 'article' ? article : null),
+    contains: (node) => node === video,
+  };
+  const article = {
+    querySelectorAll: (selector) => {
+      if (selector === '[data-engagement-action="media"]') return [host];
+      if (selector === 'video') return [video];
+      return [];
+    },
+  };
+  assert.deepEqual(modern.api.getMediaHosts(article), [{ el: host, kind: 'video', owner: 'main' }]);
+});
+
+test('modern getQuoteCard finds the embedded tweet frame', () => {
+  const frame = {};
+  const article = { contains: (node) => node === frame };
+  const node = { closest: (selector) => (selector === '[data-slot="embedded-tweet-frame"]' ? frame : null) };
+  assert.equal(modern.api.getQuoteCard(node, article), frame);
+});
+
+test('modern getQuoteCard derives the outer article around a quote frame', () => {
+  const frame = {};
+  const outer = { contains: (node) => node === frame };
+  frame.parentElement = { closest: (selector) => (selector === 'article' ? outer : null) };
+  const node = { closest: (selector) => (selector === '[data-slot="embedded-tweet-frame"]' ? frame : null) };
+  assert.equal(modern.api.getQuoteCard(node), frame);
+});

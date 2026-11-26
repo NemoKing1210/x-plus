@@ -369,6 +369,16 @@
 
 <script src="/shims.js"></script>
 <script>
+  // Debug aid: keep the Error objects behind X Plus's console.error calls.
+  window.__errs = [];
+  const origError = console.error;
+  console.error = (...args) => {
+    const detail = args.find((arg) => arg && arg.error);
+    window.__errs.push(detail ? String(detail.error?.stack || detail.error) : args.map((arg) => String(arg)).join(' '));
+    origError(...args);
+  };
+</script>
+<script>
   // Open the post menu like X does: a caret click shows the portaled xds menu.
   document.addEventListener('click', (event) => {
     const caret = event.target.closest('button[aria-haspopup="menu"]');

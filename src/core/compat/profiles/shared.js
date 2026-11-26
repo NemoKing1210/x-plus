@@ -24,6 +24,29 @@ export function overlayRoots(root) {
   return [...root.querySelectorAll(OVERLAY_SELECTOR)];
 }
 
+/** Labels X uses for promoted posts, lower-case (the ones we know of). */
+export const AD_LABELS = new Set([
+  'ad',
+  'promoted',
+  'реклама',
+  'anzeige',
+  'anuncio',
+  'annonce',
+  'publicité',
+  'publicidade',
+  'pubblicità',
+  'promowane',
+  'reklama',
+  'reklam',
+  '広告',
+  '广告',
+  '廣告',
+  '광고',
+]);
+
+/** Path prefix of the "Ad" rectangle glyph X draws next to promoted posts. */
+export const AD_ICON_PATH_PREFIX = 'M19.498 3h-15c-1.381';
+
 /** Font weight of a navigation row's label: 700 means the row is the active route. */
 export function navLabelWeight(node) {
   const label = node?.querySelector?.('div[dir]');

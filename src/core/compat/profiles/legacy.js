@@ -7,6 +7,8 @@
  */
 
 import {
+  AD_ICON_PATH_PREFIX,
+  AD_LABELS,
   NATIVE_AUTO_TRANSLATE_LABEL_RE,
   navLabelWeight,
   normalizeHandleText,
@@ -69,29 +71,6 @@ const AVATAR_SELECTOR = '[data-testid^="UserAvatar-Container"], [data-testid="Tw
 
 /** A header actions row (Grok + caret) is a few icons wide; the whole name row is not. */
 const COMPACT_ACTIONS_ROW_MAX_WIDTH = 120;
-
-/** Labels X uses for promoted posts, lower-case (the ones we know of). */
-const AD_LABELS = new Set([
-  'ad',
-  'promoted',
-  'реклама',
-  'anzeige',
-  'anuncio',
-  'annonce',
-  'publicité',
-  'publicidade',
-  'pubblicità',
-  'promowane',
-  'reklama',
-  'reklam',
-  '広告',
-  '广告',
-  '廣告',
-  '광고',
-]);
-
-/** Path prefix of the "Ad" rectangle glyph X draws next to promoted posts. */
-const AD_ICON_PATH_PREFIX = 'M19.498 3h-15c-1.381';
 
 /** Left-navigation rows found by a stable test id. */
 const NAV_ITEM_SELECTORS = {
