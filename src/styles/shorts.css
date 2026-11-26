@@ -139,22 +139,9 @@ html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'],
   }
 }
 
-/* Auto-scroll: play / pause under the arrows, set off by a hairline divider */
+/* Auto-scroll: play / pause under the arrows */
 .xp-shorts-nav__btn--auto {
-  position: relative;
   color: var(--xp-fg-muted);
-}
-
-.xp-shorts-nav__btn--auto::before {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: 50%;
-  width: 18px;
-  height: 1px;
-  background: color-mix(in srgb, var(--xp-fg-muted) 45%, transparent);
-  transform: translateX(-50%);
-  pointer-events: none;
 }
 
 .xp-shorts-nav__btn--auto .xp-icon {
