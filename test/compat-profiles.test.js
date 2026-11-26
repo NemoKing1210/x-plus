@@ -450,3 +450,67 @@ test('modern getGrokButton finds the button carrying the Grok icon', () => {
   const article = { querySelectorAll: (selector) => (selector === 'button' ? [button] : []) };
   assert.equal(modern.api.getGrokButton(article), button);
 });
+
+test('modern getNavItem finds the logo above the nav on the home column', () => {
+  // The home column keeps the logo in a spacer that is a sibling of the <nav>.
+  const navHome = { querySelector: () => null };
+  const nav = { querySelector: () => navHome, querySelectorAll: () => [navHome] };
+  const logo = { querySelector: (selector) => (selector === 'svg[data-icon="icon-logo-x"]' ? {} : null) };
+  const root = {
+    querySelectorAll: (selector) =>
+      selector === 'nav' ? [nav] : selector === 'a[href="/home"]' ? [logo, navHome] : [],
+  };
+  assert.equal(modern.api.getNavItem(root, 'logo'), logo);
+});
+
+test('modern getAuthorHeader reaches the actions row of a headerless post', () => {
+  const POST_TEXT = '[dir="auto"].whitespace-pre-wrap';
+  const caret = { querySelector: () => null, parentElement: null };
+  const row = { querySelectorAll: (selector) => (selector === 'button' ? [caret] : []) };
+  caret.parentElement = row;
+
+  const actionsRow = { querySelector: (selector) => (selector === 'button[aria-haspopup="menu"]' ? caret : null) };
+  const nameRow = { querySelector: () => null };
+  const textNode = {};
+  const body = { querySelector: (selector) => (selector === POST_TEXT ? textNode : null) };
+
+  const nameLink = {
+    textContent: 'Jack',
+    querySelector: () => null,
+    closest: (selector) => (selector === 'article' ? article : null),
+  };
+  const handleLink = {
+    textContent: '@jack',
+    querySelector: () => null,
+    closest: (selector) => (selector === 'article' ? article : null),
+  };
+  const avatarLink = { querySelector: (selector) => (selector === 'img' ? {} : null) };
+  const article = {
+    querySelectorAll: (selector) => (selector === 'a[href]' ? [avatarLink, handleLink, nameLink] : []),
+    closest: (selector) => (selector === 'article' ? article : null),
+  };
+
+  nameLink.parentElement = nameRow;
+  nameRow.parentElement = actionsRow;
+  actionsRow.parentElement = body;
+  body.parentElement = article;
+
+  assert.equal(modern.api.getAuthorHeader(article), actionsRow);
+  assert.deepEqual(modern.api.getHeaderActionsSlot(article), { row, before: caret });
+});
+
+test('modern getTimeLink uses the post permalink when the time carries no <time>', () => {
+  const quote = {};
+  const article = {
+    querySelectorAll: (selector) => (selector === 'a[href*="/status/"]' ? [photo, quoted, own] : []),
+  };
+  const photo = { getAttribute: () => '/jack/status/20/photo/1', closest: () => article };
+  const quoted = { getAttribute: () => '/nasa/status/123', closest: () => quote };
+  const own = { getAttribute: () => '/jack/status/20', closest: () => article };
+  assert.equal(modern.api.getTimeLink(article), own);
+});
+
+test('css marks the post surface X rounds and colours', () => {
+  assert.equal(legacy.css.postSurface, '[data-testid="cellInnerDiv"] article[data-testid="tweet"]');
+  assert.equal(modern.css.postSurface, 'li[data-index] > div:has(article)');
+});

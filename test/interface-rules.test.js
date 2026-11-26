@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { groupApplies, ruleApplies } from '../src/features/interface/rule-applies.js';
+import { cssFor } from '../src/core/compat/index.js';
 import { RULES, ruleId } from '../src/features/interface/rules.js';
 
 test('a legacy-only rule is skipped on modern', () => {
@@ -75,4 +76,97 @@ test('every rule can hide something on at least one generation', () => {
 test('rules.js builds its selectors from profile fragments', () => {
   const source = readFileSync(new URL('../src/features/interface/rules.js', import.meta.url), 'utf8');
   assert.ok(!/data-testid|xds-|header\[role="banner"\]/.test(source));
+});
+
+test('the logo rule climbs past a spacer without an <h1> on the modern home column', () => {
+  const link = { closest: () => null, querySelector: () => ({}) };
+  const spacer = { querySelectorAll: (selector) => (selector === 'a[href], button' ? [link] : []) };
+  const column = { querySelectorAll: () => new Array(16) };
+  spacer.parentElement = column;
+  column.parentElement = null;
+  link.parentElement = spacer;
+  const root = { querySelectorAll: (selector) => (selector === 'a[href="/home"]' ? [link] : []) };
+  const rule = RULES.find((candidate) => ruleId(candidate) === 'nav.logo');
+  assert.equal(rule.find(root)[0], spacer);
+});
+
+test('the discover-more block starts at a heading cell that also holds a post', () => {
+  const focal = { nodeType: 1 };
+  const recommended = { nodeType: 1 };
+  const later = { nodeType: 1 };
+  const heading = { nodeType: 1, closest: () => null };
+  const cell = (post, headings = []) => ({
+    nodeType: 1,
+    post,
+    headings,
+    querySelector: (selector) => (selector === 'article' ? post : null),
+    querySelectorAll: (selector) => (selector === 'h1, h2' ? headings : []),
+    contains: () => false,
+  });
+  const focalCell = cell(focal);
+  const headingCell = cell(recommended, [heading]);
+  const laterCell = cell(later);
+  const cells = [focalCell, headingCell, laterCell];
+  const primary = {
+    nodeType: 1,
+    isConnected: true,
+    querySelector: () => null,
+    querySelectorAll: (selector) => (selector === 'li[data-index]' ? cells : []),
+  };
+  const root = {
+    nodeType: 1,
+    isConnected: true,
+    querySelector: (selector) => (selector === 'main' ? primary : null),
+    contains: () => true,
+  };
+
+  const saved = { document: globalThis.document, location: globalThis.location };
+  globalThis.document = root;
+  globalThis.location = { pathname: '/jack/status/20' };
+  try {
+    const rule = RULES.find((candidate) => ruleId(candidate) === 'posts.moreFromX');
+    assert.deepEqual(rule.find(root), [headingCell, laterCell]);
+  } finally {
+    if (saved.document === undefined) delete globalThis.document;
+    else globalThis.document = saved.document;
+    if (saved.location === undefined) delete globalThis.location;
+    else globalThis.location = saved.location;
+  }
+});
+
+test('feed suggestions are found without a heading role, merged with the accounts', () => {
+  const heading = { nodeType: 1, closest: () => null };
+  const userCell = { nodeType: 1 };
+  const suggestions = {
+    nodeType: 1,
+    querySelector: (selector) => {
+      if (selector === 'article') return null;
+      if (selector === cssFor('userCell')) return userCell;
+      return null;
+    },
+    querySelectorAll: (selector) => (selector === 'h1, h2' ? [heading] : []),
+    contains: () => true,
+  };
+  const primary = {
+    nodeType: 1,
+    isConnected: true,
+    querySelector: () => null,
+    querySelectorAll: (selector) => (selector === 'li[data-index]' ? [suggestions] : []),
+  };
+  const root = {
+    nodeType: 1,
+    isConnected: true,
+    querySelector: (selector) => (selector === 'main' ? primary : null),
+    contains: () => true,
+  };
+
+  const savedDocument = globalThis.document;
+  globalThis.document = root;
+  try {
+    const rule = RULES.find((candidate) => ruleId(candidate) === 'posts.whoToFollow');
+    assert.deepEqual(rule.find(root), [suggestions]);
+  } finally {
+    if (savedDocument === undefined) delete globalThis.document;
+    else globalThis.document = savedDocument;
+  }
 });

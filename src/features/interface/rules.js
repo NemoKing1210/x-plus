@@ -102,16 +102,25 @@ const navItemMapped = (kind, map) => (root) => {
 };
 
 /**
- * The logo and, on the legacy build, the spacer wrapper around its `<h1>`.
- * The wrapper is only safe while it holds the logo alone: on the modern build
- * the `<h1>` sits directly in the nav column, whose parent holds every row.
+ * The logo and, where X wraps it, the spacer around it.
+ * A wrapper is only safe while it holds the logo alone: on the modern build the
+ * `<h1>` and the bare spacer both sit directly in the nav column, whose parent
+ * holds every row. The spacer has no `<h1>` on the home column, so climb the
+ * parents while each still holds the logo alone.
  */
 function logoTarget(link) {
   const heading = link.closest('h1');
-  if (!heading) return link;
-  const wrapper = heading.parentElement;
-  if (wrapper && wrapper.querySelectorAll('a[href], button').length <= 1) return wrapper;
-  return heading;
+  if (heading) {
+    const wrapper = heading.parentElement;
+    if (wrapper && wrapper.querySelectorAll('a[href], button').length <= 1) return wrapper;
+    return heading;
+  }
+  let target = link;
+  for (let node = link.parentElement, depth = 0; node && depth < 2; node = node.parentElement, depth += 1) {
+    if ((node.querySelectorAll?.('a[href], button').length ?? 0) > 1) break;
+    target = node;
+  }
+  return target;
 }
 
 /* ------------------------------------------------------------------ */
@@ -252,9 +261,17 @@ function handleLabels(article) {
 }
 
 /**
- * "Discover more" on a post's page: X appends a heading cell (an `h2` and no
- * post) after the replies, followed by recommended posts. The heading is
- * localized, so it is found by structure; it and every cell after it are hidden.
+ * The cell's own section heading, not one inside a post: the new build drops
+ * `role="heading"` and may put the heading and the first recommended post into
+ * the same cell.
+ */
+const headingOf = (cell) =>
+  [...cell.querySelectorAll('h1, h2')].find((heading) => !heading.closest?.('article')) || null;
+
+/**
+ * "Discover more" on a post's page: X appends a heading cell after the replies,
+ * followed by recommended posts. The heading is localized, so it is found by
+ * structure; it and every cell after it are hidden.
  */
 function moreFromX(root) {
   if (!location.pathname.includes('/status/')) return [];
@@ -262,13 +279,8 @@ function moreFromX(root) {
   if (!primary) return [];
   const cells = dom.getPostCells(primary);
   const first = cells.findIndex((cell) => cell.querySelector('article'));
-  const header = cells.findIndex(
-    (cell, index) =>
-      index > first &&
-      first >= 0 &&
-      !cell.querySelector('article') &&
-      cell.querySelector('h2[role="heading"]'),
-  );
+  if (first < 0) return [];
+  const header = cells.findIndex((cell, index) => index > first && headingOf(cell));
   return header < 0 ? [] : cells.slice(header).filter((cell) => root === document || root.contains(cell) || cell.contains(root));
 }
 
@@ -284,16 +296,15 @@ function feedSuggestions(root) {
   const primary = dom.getPrimaryColumn(root);
   if (!primary) return [];
   const found = new Set();
-  // Cheap: timeline headings are few, unlike the (virtualized) cells themselves.
-  for (const heading of primary.querySelectorAll(`${CELL} h2[role="heading"]`)) {
-    const cell = heading.closest(CELL);
-    if (!cell || cell.parentElement?.closest(CELL) || cell.querySelector('article')) continue;
+  for (const cell of dom.getPostCells(primary)) {
+    if (!headingOf(cell)) continue;
+    if (cell.querySelector('article')) continue;
     if (cell.querySelector(USER_CELL)) {
       found.add(cell);
       continue;
     }
     const group = [cell];
-    for (let next = cell.nextElementSibling; next?.matches(CELL); next = next.nextElementSibling) {
+    for (let next = cell.nextElementSibling; next?.matches?.(CELL); next = next.nextElementSibling) {
       if (next.querySelector('article')) break;
       if (next.querySelector(USER_CELL)) {
         group.push(next);

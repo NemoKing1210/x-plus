@@ -828,6 +828,8 @@ export default {
   css: {
     article: 'article[data-testid="tweet"]',
     cell: '[data-testid="cellInnerDiv"]',
+    // The legacy article inside a timeline cell *is* the rounded block around the post.
+    postSurface: '[data-testid="cellInnerDiv"] article[data-testid="tweet"]',
     tweetText: '[data-testid="tweetText"]',
     actionReply: '[data-testid="reply"]',
     actionGroup: '[role="group"]:has(> div > [data-testid="reply"])',

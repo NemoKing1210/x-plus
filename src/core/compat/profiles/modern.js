@@ -154,20 +154,36 @@ const api = {
   },
 
   /**
-   * The post's author row: the `<header>` that carries the name, handle and time.
-   * Not the wrapper around the avatar — that one also holds the text and the
-   * action bar on the modern markup, and rules scoped to the author would leak
-   * into the post itself.
+   * The post's author row: the name, handle and time line, plus the actions row
+   * that sits beside it. Built from the display-name link, because the modern
+   * markup has no `<header>` — climbing stops before the post text.
    */
   getAuthorHeader(article) {
     if (!article) return null;
+    const name = [...article.querySelectorAll('a[href]')].find(
+      (link) =>
+        link.closest?.('article') === article &&
+        !link.querySelector('img') &&
+        !link.closest?.(POST_TEXT) &&
+        (link.textContent || '').trim().length > 0 &&
+        !/^@/.test((link.textContent || '').trim()),
+    );
+    if (name) {
+      let header = name;
+      for (let node = name.parentElement; node && node !== article; node = node.parentElement) {
+        if (node.querySelector?.(POST_TEXT)) break;
+        header = node;
+      }
+      return header === article ? null : header;
+    }
+
     const avatar = api.getAuthorAvatar(article);
     if (!avatar) return null;
-    const header = article.querySelector?.('header');
-    if (header?.closest?.('article') === article && header.querySelector('div[dir="auto"]')) return header;
+    const own = article.querySelector('header');
+    if (own?.closest?.('article') === article && own.querySelector('div[dir="auto"]')) return own;
 
-    // Promoted posts and embedded cards without a header: the smallest ancestor of
-    // the avatar that carries the name and stops before the post text.
+    // Promoted posts and embedded cards without a name link: the smallest ancestor
+    // of the avatar that carries the name and stops before the post text.
     let fallback = null;
     for (let node = avatar.parentElement; node && node !== article; node = node.parentElement) {
       if (node.querySelector?.('div[dir="auto"]') && !node.querySelector?.(POST_TEXT)) {
@@ -219,9 +235,15 @@ const api = {
   },
 
   getTimeLink(article) {
-    const header = api.getAuthorHeader(article);
-    if (!header) return null;
-    return header.querySelector('a[href*="/status/"]') || null;
+    if (!article) return null;
+    // The new build drops the <time> element: the permalink is the post's own
+    // `/status/<id>` link. Photo and analytics links carry suffixes and are skipped.
+    return (
+      [...article.querySelectorAll('a[href*="/status/"]')].find((link) => {
+        if (link.closest?.('article') !== article) return false;
+        return /\/status\/\d+\/?$/.test(link.getAttribute('href') || '');
+      }) || null
+    );
   },
 
   getHeaderActionsSlot(postEl) {
@@ -406,11 +428,12 @@ const api = {
   getNavItem(root, kind) {
     const nav = api.getNav(root) || root;
     if (kind === 'logo') {
-      return (
-        [...nav.querySelectorAll('a[href="/home"]')].find((link) =>
+      const findLogo = (scope) =>
+        [...scope.querySelectorAll('a[href="/home"]')].find((link) =>
           link.querySelector('svg[data-icon="icon-logo-x"]'),
-        ) || null
-      );
+        ) || null;
+      // The logo sits above the <nav> element on the home column, inside it on post pages.
+      return findLogo(root) || findLogo(nav);
     }
     if (kind === 'profile') {
       return (
@@ -670,6 +693,8 @@ export default {
   css: {
     article: 'article',
     cell: 'li[data-index]',
+    // The rounded, hoverable block around the article; X's own separators and padding sit here.
+    postSurface: 'li[data-index] > div:has(article)',
     tweetText: '[dir="auto"].whitespace-pre-wrap',
     actionReply: '[data-engagement-action="reply"]',
     actionGroup: '[role="group"]:has(> [data-engagement-action="reply"])',

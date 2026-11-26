@@ -14,7 +14,12 @@
   .fixture-switch a[aria-current] { color: #1d9bf0; font-weight: 700; }
 
   .layout { display: flex; justify-content: center; gap: 24px; align-items: flex-start; }
-  nav[aria-label="Primary"] { position: sticky; top: 36px; display: flex; flex-direction: column; gap: 4px; width: 240px; padding: 8px; box-sizing: border-box; }
+  .nav-column { position: sticky; top: 36px; width: 240px; display: flex; flex-direction: column; }
+  .logo-spacer { display: flex; height: 56px; align-items: center; }
+  .logo-spacer a { display: flex; width: 50px; height: 50px; align-items: center; justify-content: center; border-radius: 999px; }
+  .logo-spacer a:hover { background: rgba(231,233,234,.1); }
+  .logo-spacer svg { width: 30px; height: 30px; fill: currentColor; }
+  nav[aria-label="Primary"] { display: flex; flex-direction: column; gap: 4px; padding: 8px; box-sizing: border-box; }
   nav[aria-label="Primary"] a, nav[aria-label="Primary"] button { display: flex; align-items: center; gap: 16px; padding: 10px 12px; border: 0; border-radius: 999px; background: none; color: inherit; cursor: pointer; width: 100%; text-align: left; }
   nav[aria-label="Primary"] a:hover, nav[aria-label="Primary"] button:hover { background: rgba(231,233,234,.1); }
   nav[aria-label="Primary"] a[aria-current] { font-weight: 700; }
@@ -43,14 +48,14 @@
   .avatar-col > [data-post-avatar] img, .avatar-col > img { width: 40px; height: 40px; border-radius: 50%; background: #333; }
   .thread-line { width: 2px; flex: 1; min-height: 12px; margin: 4px 0 -12px; background: #333639; }
   .body { flex: 1; min-width: 0; }
-  header.author { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  header.author .name { font-weight: 700; }
-  header.author .handle, header.author .time { color: #71767b; }
-  header.author .row { margin-left: auto; display: flex; align-items: center; }
-  header.author .row button { background: none; border: 0; color: #71767b; cursor: pointer; padding: 4px; }
-  header.author .row svg, header.author .verified svg { width: 18px; height: 18px; fill: currentColor; }
-  header.author .verified { color: #1d9bf0; display: inline-flex; }
-  header.author .ad { color: #71767b; font-size: 13px; }
+  .author { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .author .name { font-weight: 700; }
+  .author .handle, .author .time { color: #71767b; }
+  .author .row { margin-left: auto; display: flex; align-items: center; }
+  .author .row button { background: none; border: 0; color: #71767b; cursor: pointer; padding: 4px; }
+  .author .row svg, .author .verified svg { width: 18px; height: 18px; fill: currentColor; }
+  .author .verified { color: #1d9bf0; display: inline-flex; }
+  .author .ad { color: #71767b; font-size: 13px; }
   .context { color: #71767b; font-size: 13px; margin-bottom: 2px; }
   .text { margin-top: 2px; white-space: pre-wrap; }
   .media { margin-top: 12px; border-radius: 16px; overflow: hidden; background: #111; }
@@ -85,8 +90,11 @@
 </div>
 
 <div class="layout">
-<nav aria-label="Primary" data-top-chrome>
+<div class="nav-column">
+<div class="logo-spacer">
   <a href="/home" aria-label="X"><svg data-icon="icon-logo-x" viewBox="0 0 24 24"><path d="M18.9 1.2h3.7l-8.1 9.3L24 22.8h-7.5l-5.9-7.7-6.7 7.7H.2l8.7-9.9L0 1.2h7.7l5.3 7 5.9-7z"/></svg></a>
+</div>
+<nav aria-label="Primary" data-top-chrome>
   <a href="/home" aria-current="page"><svg data-icon="icon-home" viewBox="0 0 24 24"><path d="M12 1.7L.6 8.8l1 1.7L3 9.7V19.5C3 20.9 4.1 22 5.5 22h13c1.4 0 2.5-1.1 2.5-2.5V9.7l1.3.8 1-1.7L12 1.7z"/></svg><span>Home</span></a>
   <a href="/explore"><svg data-icon="icon-search" viewBox="0 0 24 24"><path d="M10.3 3.8a6.5 6.5 0 100 13 6.5 6.5 0 000-13z"/></svg><span>Explore</span></a>
   <a href="/notifications"><svg data-icon="icon-bell" viewBox="0 0 24 24"><path d="M12 2a6 6 0 00-6 6v4l-2 4h16l-2-4V8a6 6 0 00-6-6z"/></svg><span>Notifications</span></a>
@@ -97,6 +105,7 @@
   <button aria-label="Account menu"><img src="/pbs.twimg.com/profile_images/me.jpg?name=small" alt=""><span>Account</span></button>
   <a href="/settings" aria-label="Settings"><svg data-icon="icon-settings" viewBox="0 0 24 24"><path d="M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg><span>Settings</span></a>
 </nav>
+</div>
 
 <main>
   <header data-page-header>
@@ -128,14 +137,14 @@
           <div class="head">
             <div class="avatar-col self-stretch"><div data-post-avatar><img src="/pbs.twimg.com/profile_images/jack.jpg?name=small" alt="@jack"></div></div>
             <div class="body">
-              <header class="author">
+              <div class="author">
                 <div class="name" dir="auto"><a href="/jack">Jack</a></div> <a href="/jack"><span class="handle">@jack</span></a>
-                <a class="time" href="/jack/status/20"><time datetime="2006-03-21T20:50:14.000Z">Mar 21, 2006</time></a>
+                <a class="time" href="/jack/status/20">Mar 21, 2006</a>
                 <div class="row">
                   <button aria-label="Grok actions"><svg data-icon="icon-logo-grok" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg></button>
                   <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
                 </div>
-              </header>
+              </div>
               <div class="text whitespace-pre-wrap" dir="auto">just setting up my twttr and this is a longer English sentence that should be translated into another language.</div>
               <div role="group">
                 <button data-engagement-action="reply" aria-label="Reply">↩</button>
@@ -156,24 +165,24 @@
           <div class="head">
             <div class="avatar-col self-stretch"><div data-post-avatar><img src="/pbs.twimg.com/profile_images/durov.jpg?name=small" alt="@durov"></div></div>
             <div class="body">
-              <header class="author">
+              <div class="author">
                 <div class="name" dir="auto"><a href="/durov">Pavel</a></div> <a href="/durov"><span class="handle">@durov</span></a>
-                <a class="time" href="/durov/status/2"><time datetime="2024-01-01T10:00:00.000Z">Jan 1</time></a>
+                <a class="time" href="/durov/status/2">Jan 1</a>
                 <div class="row">
                   <button aria-label="Grok actions"><svg data-icon="icon-logo-grok" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg></button>
                   <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
                 </div>
-              </header>
+              </div>
               <div class="text whitespace-pre-wrap" dir="auto" lang="ru">Привет, мир! Это тестовый пост на русском языке, который можно перевести.</div>
               <div role="link" data-href="/nasa/status/123456" data-slot="embedded-tweet-frame" tabindex="0">
                 <article>
                   <div class="head">
                     <div class="avatar-col self-stretch"><div data-post-avatar><img src="/pbs.twimg.com/profile_images/nasa.jpg?name=small" alt="@nasa"></div></div>
                     <div class="body">
-                      <header class="author">
+                      <div class="author">
                         <div class="name" dir="auto"><a href="/nasa">NASA</a></div> <a href="/nasa"><span class="handle">@nasa</span></a>
-                        <a class="time" href="/nasa/status/123456"><time datetime="2024-05-05T10:00:00.000Z">May 5</time></a>
-                      </header>
+                        <a class="time" href="/nasa/status/123456">May 5</a>
+                      </div>
                       <div class="text whitespace-pre-wrap" dir="auto" lang="en">Quoted English post about space exploration and the moon.</div>
                       <div class="media" data-engagement-action="media">
                         <a href="/nasa/status/123456/photo/9"><img alt="Image" src="/pbs.twimg.com/media/QQQ999?format=jpg&amp;name=small"></a>
@@ -205,14 +214,14 @@
           <div class="head">
             <div class="avatar-col self-stretch"><div data-post-avatar><img src="/pbs.twimg.com/profile_images/elon.jpg?name=small" alt="@elonmusk"></div></div>
             <div class="body">
-              <header class="author">
+              <div class="author">
                 <div class="name" dir="auto"><a href="/elonmusk">Elon Musk</a></div> <a href="/elonmusk"><span class="handle">@elonmusk</span></a>
-                <a class="time" href="/elonmusk/status/1585341984679469056"><time datetime="2022-10-26T18:45:58.000Z">Oct 26, 2022</time></a>
+                <a class="time" href="/elonmusk/status/1585341984679469056">Oct 26, 2022</a>
                 <div class="row">
                   <button aria-label="Grok actions"><svg data-icon="icon-logo-grok" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg></button>
                   <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
                 </div>
-              </header>
+              </div>
               <div class="text whitespace-pre-wrap" dir="auto" lang="en">Entering Twitter HQ – let that sink in!</div>
               <div class="media" data-engagement-action="media">
                 <video controls preload="metadata"></video>
@@ -236,13 +245,13 @@
           <div class="head">
             <div class="avatar-col self-stretch"><div data-post-avatar><img src="/pbs.twimg.com/profile_images/nasa.jpg?name=small" alt="@nasa"></div></div>
             <div class="body">
-              <header class="author">
+              <div class="author">
                 <div class="name" dir="auto"><a href="/nasa">NASA</a> <span class="verified"><svg data-icon="icon-verified" viewBox="0 0 24 24"><path d="M12 2l2.4 2.4 3.3-.6.6 3.3L21 9.5l-1.6 3 1.6 3-2.7 2.4-.6 3.3-3.3-.6L12 23l-2.4-2.4-3.3.6-.6-3.3L3 15.5l1.6-3L3 9.5l2.7-2.4.6-3.3 3.3.6z"/></svg></span></div> <a href="/nasa"><span class="handle">@nasa</span></a>
-                <a class="time" href="/nasa/status/123456"><time datetime="2024-05-05T10:00:00.000Z">May 5</time></a>
+                <a class="time" href="/nasa/status/123456">May 5</a>
                 <div class="row">
                   <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
                 </div>
-              </header>
+              </div>
               <div class="text whitespace-pre-wrap" dir="auto" lang="en">Three photos for the gallery.</div>
               <div class="media grid" data-engagement-action="media">
                 <a href="/nasa/status/123456/photo/1"><img alt="Image" src="/pbs.twimg.com/media/AAA111?format=jpg&amp;name=small"></a>
@@ -268,13 +277,13 @@
           <div class="head">
             <div class="avatar-col self-stretch"><div data-post-avatar><img src="/pbs.twimg.com/profile_images/brand.jpg?name=small" alt="@brand"></div></div>
             <div class="body">
-              <header class="author">
+              <div class="author">
                 <div class="name" dir="auto"><a href="/brand">Brand</a></div> <a href="/brand"><span class="handle">@brand</span></a>
                 <span class="ad">Ad</span>
                 <div class="row">
                   <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
                 </div>
-              </header>
+              </div>
               <div class="text whitespace-pre-wrap" dir="auto" lang="en">Buy our amazing product today!</div>
               <div role="group">
                 <button data-engagement-action="reply" aria-label="Reply">↩</button>
@@ -296,13 +305,13 @@
               <span class="thread-line"></span>
             </div>
             <div class="body">
-              <header class="author">
+              <div class="author">
                 <div class="name" dir="auto"><a href="/asker">Asker</a></div> <a href="/asker"><span class="handle">@asker</span></a>
-                <a class="time" href="/asker/status/50"><time datetime="2026-10-19T15:00:00.000Z">9h</time></a>
+                <a class="time" href="/asker/status/50">9h</a>
                 <div class="row">
                   <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
                 </div>
-              </header>
+              </div>
               <div class="text whitespace-pre-wrap" dir="auto" lang="en">Any good AI-powered speech-to-text apps? The one I use has been hit or miss lately.</div>
               <div role="group">
                 <button data-engagement-action="reply" aria-label="Reply">↩</button>
@@ -322,13 +331,13 @@
               <div data-post-avatar><img src="/pbs.twimg.com/profile_images/replier.jpg?name=small" alt="@replier"></div>
             </div>
             <div class="body">
-              <header class="author">
+              <div class="author">
                 <div class="name" dir="auto"><a href="/replier">Replier</a></div> <a href="/replier"><span class="handle">@replier</span></a>
-                <a class="time" href="/replier/status/51"><time datetime="2026-10-19T16:00:00.000Z">8h</time></a>
+                <a class="time" href="/replier/status/51">8h</a>
                 <div class="row">
                   <button aria-haspopup="menu" aria-expanded="false" aria-label="More">…</button>
                 </div>
-              </header>
+              </div>
               <div class="context" data-testid="socialContext">Replying to <a href="/asker">@asker</a></div>
               <div class="text whitespace-pre-wrap" dir="auto" lang="en">Try this one, it works offline and the accuracy is great.</div>
               <div role="group">

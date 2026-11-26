@@ -14,7 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - On the new X design, the floating Grok and chat panels, the “What is happening?” composer and the vertically centred left menu are hidden / placed by their switches again
-- Hiding the logo no longer hides the whole left menu on post pages of the new design
+- Hiding the logo no longer hides the whole left menu on post pages of the new design, and the logo above the home menu is hidden again
+- Translation, screenshot and media buttons sit in the post header on the new design, where posts have no `<header>` element
+- Media downloads and screenshot names on the new design resolve the post from its permalink, which no longer carries a `<time>` element
+- Post cards, dividers, padding and spacing apply to the block X rounds and colours on the new design, not the narrower article inside it
+- “Discover more” under a post’s replies and the “Who to follow” module in the feed are hidden again when the section heading has no `role` and shares a cell with the first recommended post
 
 ## [0.16.0] - 2026-11-22
 

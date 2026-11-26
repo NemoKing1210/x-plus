@@ -143,24 +143,24 @@ left hides its whole section. Check the page you are on with
 | `posts.showPosts` | cell with a `[data-keep-composer-open]` button | same finder; the marker is not confirmed yet |
 | `posts.newPostsPill` | wrapper of `[data-testid="pillLabel"]` | **legacy only** — no marker found yet |
 | `posts.composer` | inline composer (`tweetTextarea_0`) | the card around the composer form |
-| `posts.moreFromX` | heading cell after the replies | same structure |
+| `posts.moreFromX` | heading cell after the replies | the first cell after the focal post that carries a section heading — the heading shares its cell with the first recommended post and has no `role="heading"` |
 | `posts.promoted` | promoted badge markers | `dom.isPromotedArticle` |
 | `posts.viewCounts` | analytics link in the action bar | same (`role="group"` + `/analytics`) |
 | `posts.avatars`, `posts.images`, `posts.videos` | avatar / `tweetPhoto` / player | `data-post-avatar`, media holders |
 | `posts.linkCards`, `posts.articles` | card attachments | card attachments |
 | `posts.translateNotice` | native translate bar | native translate bar |
-| `posts.handles`, `posts.quotedPosts` | header handle, quote card | header handle, quote card |
+| `posts.handles`, `posts.quotedPosts` | header handle, quote card | the handle in the author row, quote card |
 | `posts.actionBar` | `[role="group"]` with a reply button | `[role="group"]` with `data-engagement-action` |
 | `posts.verifiedBadges` | `icon-verified` | verified icon |
-| `posts.grokButton` | Grok glyph in the header | Grok glyph in the header |
-| `posts.whoToFollow` (in the feed) | heading cell + `UserCell` cells | heading cell + `[data-who-to-follow]` cells |
+| `posts.grokButton` | Grok glyph in the header | Grok glyph in the author actions row |
+| `posts.whoToFollow` (in the feed) | heading cell + `UserCell` cells | cell heading (no `role`) + `[data-who-to-follow]` accounts, in one cell or in following cells |
 | `sidebar.search` | `form[role="search"]` | `form[role="search"]` |
 | `sidebar.premium` | premium link in a sidebar block | premium link in a sidebar section |
 | `sidebar.trends` | `[data-testid="trend"]` | `[data-trend]`, or a sidebar link to a search query |
 | `sidebar.whoToFollow` | `UserCell` cells | `[data-who-to-follow]` modules |
 | `sidebar.footer` | footer `nav` with a `/tos` link | footer `nav` with a `/tos` link |
 | `nav.*` (logo … account) | links and buttons of the left menu | `dom.getNavItem` on the modern nav |
-| `nav.logo` | the spacer wrapper around the logo `<h1>` | the logo's `<h1>`; its parent is the whole nav column |
+| `nav.logo` | the spacer wrapper around the logo `<h1>` | the logo's `<h1>`, or the bare spacer above the nav on the home column; never the nav column |
 | `nav.xplus` | our entry inside the left column | our entry inside the modern nav |
 | `chrome.grokDrawer` | wrapper of `[data-testid="GrokDrawer"]` | dock window carrying the Grok icon |
 | `chrome.chatDrawer` | wrapper of `[data-testid="chat-drawer-root"]` | dock window carrying the chat icon |
@@ -168,10 +168,21 @@ left hides its whole section. Check the page you are on with
 Layout options follow the same split: `menuLeft`, `menuCenter`, `contentWidth`,
 `centerContent` and the column show/hide rules use the layout fragments
 (`leftNav`, `leftNavList` / `navCenter`, `primaryColumn`, `sidebarColumn`), and
-a modern fragment must never also match legacy markup.
+a modern fragment must never also match legacy markup. Post appearance uses
+`postSurface`: the article inside a timeline cell on the legacy build, the
+cell's own `div` on the modern one, which is the block X rounds and colours
+(the article inside it is narrower).
 
 "Legacy only" is temporary: once the modern marker is known, add it as a
 `css` fragment to the modern profile and drop `generations` from the rule.
+
+**Modern post shape.** A post is `article.flex.flex-col` with no `<header>`: the
+author row (`div.@container/post-actions`) holds the name link, the handle, the
+caret and the permalink; `dom.getAuthorHeader` rebuilds it by climbing from the
+display-name link and stopping before the post text. The permalink carries no
+`<time>` element (`dom.getTimeLink` matches `/status/<id>` on the article's own
+link), and the hover container around the article is the surface that cards
+style.
 
 
 ## Localized READMEs

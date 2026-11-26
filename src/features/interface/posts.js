@@ -31,6 +31,10 @@ const column = cssFor('primaryColumn');
 const cell = `${column} ${cssFor('cell')}`;
 const article = `${cell} ${cssFor('article')}`;
 const avatar = cssFor('avatar');
+// X's rounded, hoverable block around the post: the article on the legacy build, the
+// cell's inner <div> on the modern one. Cards belong here, not on the article inside it.
+const surfaceFragment = cssFor('postSurface');
+const surface = surfaceFragment ? `${column} ${surfaceFragment}` : '';
 
 const CARD_SURFACE = {
   outline: 'border:1px solid var(--xp-border)!important;box-shadow:none!important',
@@ -65,12 +69,16 @@ export function postsCss(cfg, peek = false) {
       `${scope} ${cell}{padding-left:8px!important;padding-right:8px!important}`,
       // Drop X's own separator line: the card border replaces it.
       `${scope} ${cell} > div,${scope} ${cell} > div > div{border-bottom-width:0!important}`,
-      `${scope} ${article}{${CARD_SURFACE[cfg.cardStyle] || CARD_SURFACE.outline};border-radius:${cfg.cardRadius}px!important;overflow:hidden}`,
     );
-    if (cfg.cardStyle === 'filled' && cfg.cardOpacity < 100) {
+    if (surface) {
       css.push(
-        `${scope} ${article}{background-color:color-mix(in srgb,var(--xp-elevated) ${cfg.cardOpacity}%,transparent)!important}`,
+        `${scope} ${surface}{${CARD_SURFACE[cfg.cardStyle] || CARD_SURFACE.outline};border-radius:${cfg.cardRadius}px!important;overflow:hidden}`,
       );
+      if (cfg.cardStyle === 'filled' && cfg.cardOpacity < 100) {
+        css.push(
+          `${scope} ${surface}{background-color:color-mix(in srgb,var(--xp-elevated) ${cfg.cardOpacity}%,transparent)!important}`,
+        );
+      }
     }
   } else if (cfg.hideDividers) {
     css.push(
