@@ -1,4 +1,4 @@
-import { SEL } from '../../core/constants.js';
+import { dom } from '../../core/compat/index.js';
 import { getFeatureSettings } from '../../core/settings.js';
 import { t } from '../../i18n/index.js';
 import { icon } from '../../ui/icons.js';
@@ -89,9 +89,9 @@ function ensure(handlers) {
 }
 
 function place() {
-  const column = document.querySelector(SEL.primaryColumn)?.getBoundingClientRect();
+  const column = dom.getPrimaryColumn(document)?.getBoundingClientRect();
   if (!column?.width) return;
-  const side = document.querySelector(SEL.sidebar)?.getBoundingClientRect();
+  const side = dom.getSidebarColumn(document)?.getBoundingClientRect();
   const edge = side?.width ? side.left : window.innerWidth;
   const free = edge - column.right;
   const left = free >= SIZE + GAP ? column.right + (free - SIZE) / 2 : column.right - SIZE - MARGIN;

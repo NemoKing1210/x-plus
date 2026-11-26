@@ -1,3 +1,4 @@
+import { dom } from '../../core/compat/index.js';
 import { SEL, UI_ATTR } from '../../core/constants.js';
 import { Codes, logWarn } from '../../core/debug.js';
 import { getLocale, resolveTargetLang } from '../../i18n/index.js';
@@ -28,8 +29,6 @@ import { findArticleHeaderSlot, mountHeaderButton } from './placement.js';
  * original, or in place of it.
  */
 
-const BODY_SELECTOR = '[data-testid="twitterArticleRichTextView"], .x-article-body';
-const TITLE_SELECTOR = '[data-testid="twitter-article-title"], h1';
 const BLOCK_SELECTOR =
   'p, h1, h2, h3, h4, li, blockquote, figcaption, [data-block="true"]';
 
@@ -154,25 +153,10 @@ function renderTranslation(extracted, translated) {
 /* DOM lookup                                                          */
 /* ------------------------------------------------------------------ */
 
-/** The article's title element (outside the body, inside a nearby ancestor). */
-function findTitle(root) {
-  let scope = root;
-  for (let depth = 0; depth < 6; depth += 1) {
-    scope = scope.parentElement;
-    if (!scope) return null;
-    for (const candidate of scope.querySelectorAll(TITLE_SELECTOR)) {
-      if (!root.contains(candidate) && !candidate.closest('article, [data-xp-ui]')) {
-        return candidate;
-      }
-    }
-  }
-  return null;
-}
-
 /** Translatable leaf blocks of the article, title first. */
 function collectBlocks(root) {
   const blocks = [];
-  const title = findTitle(root);
+  const title = dom.getArticleTitle(root);
   if (title) blocks.push(title);
 
   root.querySelectorAll(BLOCK_SELECTOR).forEach((block) => {
@@ -563,7 +547,8 @@ export function scanArticles() {
     return;
   }
 
-  const roots = new Set(document.querySelectorAll(BODY_SELECTOR));
+  const body = dom.getArticleBody(document);
+  const roots = body ? new Set([body]) : new Set();
   for (const root of [...states.keys()]) if (!roots.has(root) || !root.isConnected) removeState(root);
 
   for (const root of roots) {

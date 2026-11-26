@@ -6,7 +6,13 @@
  * modules. Features call the capabilities through `core/compat/index.js`.
  */
 
-import { navLabelWeight, normalizeHandleText, UI_ATTR } from './shared.js';
+import {
+  NATIVE_AUTO_TRANSLATE_LABEL_RE,
+  navLabelWeight,
+  normalizeHandleText,
+  overlayRoots,
+  UI_ATTR,
+} from './shared.js';
 
 export const SEL = Object.freeze({
   article: 'article[data-testid="tweet"]',
@@ -48,6 +54,18 @@ const POLL = '[data-testid="card.poll"], [data-testid="poll"]';
 const ARTICLE_COVER = '[data-testid="article-cover-image"]';
 const VERIFIED_BADGE = '[data-testid="icon-verified"]';
 const SOCIAL_CONTEXT = '[data-testid="socialContext"]';
+
+/** X Article bodies: draft-js (signed in) and the Tailwind reader (signed out). */
+const ARTICLE_BODY = '[data-testid="twitterArticleRichTextView"], .x-article-body';
+const ARTICLE_TITLE = '[data-testid="twitter-article-title"], h1';
+
+/** Full-screen photo view. */
+const VIEWER_LAYER = '[data-testid="swipe-to-dismiss"], [role="dialog"][aria-modal="true"]';
+/** Our own gallery is a dialog too (data-xp-ui) and handles its own zoom. */
+const VIEWER_IMG = `:is(${VIEWER_LAYER}):not([${UI_ATTR}]) img[src*="pbs.twimg.com/media/"]`;
+
+/** Avatar of a post's author; the thread line runs above / below it. */
+const AVATAR_SELECTOR = '[data-testid^="UserAvatar-Container"], [data-testid="Tweet-User-Avatar"]';
 
 /** A header actions row (Grok + caret) is a few icons wide; the whole name row is not. */
 const COMPACT_ACTIONS_ROW_MAX_WIDTH = 120;
@@ -188,6 +206,46 @@ function inlineComposers(root) {
     found.add(outer && !outer.querySelector(`${SEL.cell}, article`) ? outer : block);
   });
   return [...found];
+}
+
+/** Our own translate chrome: never a signal of X's native translation. */
+function isOurTranslateChrome(el) {
+  return Boolean(
+    el?.closest?.('[data-xp-toolbar], [data-xp-btn], [data-xp-result], .xp-header-action, .xp-btn'),
+  );
+}
+
+/** X's "Source language: … Show original" bar, identified by shape and label. */
+function isNativeTranslateChrome(root) {
+  if (!root || root.nodeType !== 1 || isOurTranslateChrome(root)) return false;
+  // Never treat another tweet body / nested quote as this post's bar.
+  if (root.matches?.(SEL.tweetText)) return false;
+  if (root.querySelector?.(`:scope > ${SEL.tweetText}`)) return false;
+  if (root.matches?.(SEL.quoteTweet)) return false;
+
+  for (const path of root.querySelectorAll('svg path[d]')) {
+    if (isOurTranslateChrome(path)) continue;
+    if ((path.getAttribute('d') || '').includes(NATIVE_AUTO_TRANSLATE_ICON_PATH)) return true;
+  }
+
+  for (const btn of root.querySelectorAll('button[aria-label]')) {
+    if (isOurTranslateChrome(btn)) continue;
+    const label = (btn.getAttribute('aria-label') || '').trim();
+    if (NATIVE_AUTO_TRANSLATE_LABEL_RE.test(label)) return true;
+  }
+  return false;
+}
+
+/** First previous / next element sibling of `node` that `visit` accepts. */
+function nearbySibling(node, visit) {
+  for (const prop of ['previousElementSibling', 'nextElementSibling']) {
+    let sibling = node[prop];
+    while (sibling) {
+      if (visit(sibling) === true) return sibling;
+      sibling = sibling[prop];
+    }
+  }
+  return null;
 }
 
 /** True when `el` sits inside a quote card that belongs to `article`. */
@@ -349,9 +407,7 @@ const api = {
 
   getAuthorAvatar(article) {
     if (!article) return null;
-    const candidates = article.querySelectorAll(
-      '[data-testid^="UserAvatar-Container"], [data-testid="Tweet-User-Avatar"]',
-    );
+    const candidates = article.querySelectorAll(AVATAR_SELECTOR);
     for (const el of candidates) {
       if (outsideQuote(el, article)) return el;
     }
@@ -621,6 +677,124 @@ const api = {
     return feedTabsBlock(list);
   },
 
+  getArticleBody(root) {
+    return root.querySelector(ARTICLE_BODY);
+  },
+
+  /** The article's title element (outside the body, inside a nearby ancestor). */
+  getArticleTitle(body) {
+    if (!body) return null;
+    let scope = body;
+    for (let depth = 0; depth < 6; depth += 1) {
+      scope = scope.parentElement;
+      if (!scope) return null;
+      for (const candidate of scope.querySelectorAll(ARTICLE_TITLE)) {
+        if (!body.contains(candidate) && !candidate.closest(`article, [${UI_ATTR}]`)) return candidate;
+      }
+    }
+    return null;
+  },
+
+  getViewerLayer(root) {
+    return root.querySelector(VIEWER_LAYER);
+  },
+
+  getViewerImages(root) {
+    return [...root.querySelectorAll(VIEWER_IMG)];
+  },
+
+  /**
+   * The photo stage: the nearest ancestor with the dimming inline
+   * `background-color` (X's class names are unstable); falls back to the
+   * innermost ancestor that fills the viewport.
+   */
+  getViewerStage(img) {
+    if (!img) return null;
+    const layer = img.closest?.(VIEWER_LAYER) || null;
+    // X dims the page with an inline `background-color` on the stage element.
+    for (let node = img.parentElement; node && node !== document.body; node = node.parentElement) {
+      if (node.style?.backgroundColor) return node;
+    }
+    for (let node = img.parentElement; node && node !== layer; node = node.parentElement) {
+      const rect = node.getBoundingClientRect();
+      if (rect.width >= window.innerWidth * 0.95 && rect.height >= window.innerHeight * 0.95) return node;
+    }
+    return layer;
+  },
+
+  getPrimaryColumn(root) {
+    return root.querySelector(SEL.primaryColumn);
+  },
+
+  getSidebarColumn(root) {
+    return root.querySelector(SEL.sidebar);
+  },
+
+  getLeftNav(root) {
+    return root.querySelector('header[role="banner"]');
+  },
+
+  getOverlayRoots(root) {
+    return overlayRoots(root);
+  },
+
+  /**
+   * The avatar column of the post itself: the avatar's ancestor just below the
+   * place where the post's text column joins it. Quoted posts keep theirs.
+   */
+  getAvatarColumn(article) {
+    if (!article) return null;
+    const avatar = api.getAuthorAvatar(article);
+    if (!avatar) return null;
+    let column = avatar;
+    while (column.parentElement && column.parentElement !== article && !column.parentElement.querySelector(SEL.userName)) {
+      column = column.parentElement;
+    }
+    return column;
+  },
+
+  /**
+   * Bars that may be a thread line: the empty `div`s of the avatar column.
+   * Geometry filtering (thin, on the avatar axis) stays with the caller.
+   */
+  getThreadLineCandidates(article) {
+    const column = api.getAvatarColumn(article);
+    if (!column) return [];
+    return [...column.querySelectorAll('div')];
+  },
+
+  /**
+   * X's own machine-translation bar for `article` (the post itself or a quote
+   * card): the sibling of its text that carries the translate glyph or the
+   * localized "Show original" label.
+   */
+  getNativeTranslateBar(article) {
+    if (!article) return null;
+    const text = article.matches?.(SEL.tweetText) ? article : article.querySelector?.(SEL.tweetText);
+    if (!text) return null;
+    const inQuote = api.getPostArticle(article) !== article;
+
+    let node = text;
+    for (let depth = 0; depth < 6 && node && article.contains?.(node); depth += 1) {
+      const hit = nearbySibling(node, (sibling) => {
+        if (sibling === text || sibling.contains?.(text)) return false;
+        if (sibling.matches?.(SEL.tweetText)) return false;
+        if (!inQuote && sibling.matches?.(SEL.quoteTweet)) return false;
+        // Stay in the text column — skip header chrome (Grok uses the same glyph).
+        if (sibling.querySelector?.(`${SEL.userName}, ${SEL.caret}`)) return false;
+        return isNativeTranslateChrome(sibling);
+      });
+      if (hit) return hit;
+      if (node === article) break;
+      node = node.parentElement;
+    }
+    return null;
+  },
+
+  hasNativeAutoTranslate(article) {
+    return Boolean(api.getNativeTranslateBar(article));
+  },
+
   isPromotedArticle(article) {
     if (!article) return false;
     if (article.querySelector(`svg path[d^="${AD_ICON_PATH_PREFIX}"]`)) return true;
@@ -651,5 +825,16 @@ export default {
   },
 
   api,
-  css: {},
+  css: {
+    article: 'article[data-testid="tweet"]',
+    cell: '[data-testid="cellInnerDiv"]',
+    tweetText: '[data-testid="tweetText"]',
+    actionReply: '[data-testid="reply"]',
+    primaryColumn: '[data-testid="primaryColumn"]',
+    sidebarColumn: '[data-testid="sidebarColumn"]',
+    leftNav: 'header[role="banner"]',
+    avatar: '[data-testid^="UserAvatar-Container"]',
+    userCell: '[data-testid="UserCell"]',
+    verified: '[data-testid="icon-verified"]',
+  },
 };

@@ -1,4 +1,5 @@
-import { SEL, SHORTS_PAUSED_KEY } from '../../core/constants.js';
+import { dom } from '../../core/compat/index.js';
+import { SHORTS_PAUSED_KEY } from '../../core/constants.js';
 import { getFeatureSettings } from '../../core/settings.js';
 import { getValue, setValue } from '../../core/storage.js';
 import { t } from '../../i18n/index.js';
@@ -116,7 +117,7 @@ function holdingVideo(cells, now) {
 
   let best = null;
   for (const video of holdCached.videos) {
-    if (!video.isConnected || video.loop || video.error || video.closest(SEL.quoteTweet)) continue;
+    if (!video.isConnected || video.loop || video.error || dom.getQuoteCard(video)) continue;
     const finite = Number.isFinite(video.duration) && video.duration > 0;
     const duration = finite ? video.duration : null;
     if (!best || (duration ?? 0) > (best.duration ?? 0)) best = { video, duration };
@@ -249,7 +250,7 @@ function renderChip(rect, state, cfg) {
 function barGeometry(cell, now) {
   if (barCell !== cell || !barRect || now - barMeasuredAt > BAR_MEASURE_MS) {
     barCell = cell;
-    barRect = cell.querySelector(SEL.article)?.getBoundingClientRect() ?? null;
+    barRect = dom.getArticles(cell)[0]?.getBoundingClientRect() ?? null;
     barMeasuredAt = now;
   }
   return barRect;

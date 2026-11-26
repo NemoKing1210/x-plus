@@ -1,5 +1,6 @@
 import { emit } from '../../core/bus.js';
-import { SEL, SHORTS_CELL_ATTR, SHORTS_FOCUS_ATTR, SHORTS_SETTLED_ATTR } from '../../core/constants.js';
+import { dom } from '../../core/compat/index.js';
+import { SHORTS_CELL_ATTR, SHORTS_FOCUS_ATTR, SHORTS_SETTLED_ATTR } from '../../core/constants.js';
 import { isVerbose, logInfo } from '../../core/debug.js';
 import { getFeatureSettings, updateFeatureSettings } from '../../core/settings.js';
 import { isAutoPaused, runAutoplay, setAutoPaused, stopAutoplay } from './autoplay.js';
@@ -29,17 +30,10 @@ const SETTLE_MS = 450;
 
 /** Pages where posts are a conversation, not a feed. */
 const NOT_A_FEED = /(?:^|\/)status\/|^\/(?:messages|settings|compose|i\/(?:grok|flow))(?:\/|$)/;
-/** Anything modal on top of the page: wheel and keys belong to it. */
-const OVERLAY_SELECTOR =
-  '[role="dialog"], [role="alertdialog"], [role="menu"], [aria-modal="true"], .xp-gallery, .xp-popup, .xp-settings-backdrop, .xp-confirm-overlay';
 /** Keys in these keep their meaning. */
 const INTERACTIVE_SELECTOR =
   'input, textarea, select, video, audio, [contenteditable=""], [contenteditable="true"], [role="textbox"], [role="slider"]';
-/** Left alone by the wheel: they scroll with the page on their own. */
-const CHROME_SELECTOR = `${SEL.sidebar}, header[role="banner"]`;
 
-/** Avatar of a post's author; the thread line runs above / below it. */
-const AVATAR_SELECTOR = '[data-testid="Tweet-User-Avatar"]';
 /** The thread line is a thin vertical bar at most this wide (px)... */
 const LINE_MAX_WIDTH = 6;
 /** ...within this distance (px) of the avatar's vertical axis. */
@@ -120,13 +114,18 @@ function overlayOpen() {
   if (now - overlayAt < OVERLAY_TTL) return overlayOpenNow;
   overlayAt = now;
   overlayOpenNow = false;
-  for (const node of document.querySelectorAll(OVERLAY_SELECTOR)) {
+  for (const node of dom.getOverlayRoots(document)) {
     if (node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden') {
       overlayOpenNow = true;
       break;
     }
   }
   return overlayOpenNow;
+}
+
+/** The sidebar / left navigation: the wheel over them scrolls natively. */
+function inChrome(node) {
+  return [dom.getSidebarColumn(document), dom.getLeftNav(document)].some((bar) => bar?.contains(node));
 }
 
 /* ------------------------------------------------------------------ */
@@ -149,8 +148,8 @@ function threadLines(cell, rect) {
   const margin = window.innerHeight * LINES_RANGE;
   if (rect.bottom < -margin || rect.top > window.innerHeight + margin) return lines;
   linesCache.set(cell, lines);
-  const article = cell.querySelector(SEL.article);
-  const avatar = [...(article?.querySelectorAll(AVATAR_SELECTOR) ?? [])].find((node) => !node.closest(SEL.quoteTweet));
+  const article = dom.getArticles(cell)[0];
+  const avatar = article ? dom.getAuthorAvatar(article) : null;
   const a = avatar?.getBoundingClientRect();
   if (!a?.width) return lines;
   const axis = a.left + a.width / 2;
@@ -158,12 +157,10 @@ function threadLines(cell, rect) {
   // The avatar column: the avatar's ancestor just below the place where the
   // post's text column joins it. It holds the avatar and nothing but the
   // thread lines, so any thin empty bar in it is one.
-  let column = avatar;
-  while (column.parentElement && column.parentElement !== article && !column.parentElement.querySelector(SEL.userName)) {
-    column = column.parentElement;
-  }
+  const column = dom.getAvatarColumn(article);
+  if (!column) return lines;
   const seen = verbose() ? [] : null;
-  for (const node of column.querySelectorAll('div')) {
+  for (const node of dom.getThreadLineCandidates(article)) {
     if (node.childElementCount || avatar.contains(node) || node.contains(avatar)) continue;
     const r = node.getBoundingClientRect();
     if (r.width <= 0 || r.width > LINE_MAX_WIDTH || r.height < 2) continue;
@@ -193,17 +190,17 @@ function linked(upper, lower) {
 
 /** Posts of the timeline, top to bottom; threads merged into one unit. @returns {Unit[]} */
 function collect() {
-  const column = document.querySelector(SEL.primaryColumn);
+  const column = dom.getPrimaryColumn(document);
   if (!column) return [];
   // Every cell that takes room, so two posts with something else between them
   // ("show more replies", a suggestion) are not mistaken for neighbours.
   const boxes = [];
-  for (const cell of column.querySelectorAll(SEL.cell)) {
+  for (const cell of dom.getPostCells(column)) {
     // Hidden posts (clean-up rules, collapsed or not yet laid out) have no box
     // to centre on; as a target they would send the scroll anywhere.
     const rect = cell.getBoundingClientRect();
     if (!rect.height) continue;
-    boxes.push({ cell, rect, post: Boolean(cell.querySelector(SEL.article)) });
+    boxes.push({ cell, rect, post: dom.getArticles(cell).length > 0 });
   }
   boxes.sort((a, b) => a.rect.top - b.rect.top);
   const singles = [];
@@ -550,8 +547,7 @@ function onWheel(event) {
   if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
   const direction = Math.sign(event.deltaY);
   if (!direction || !(event.target instanceof Element)) return;
-  if (event.target.closest(CHROME_SELECTOR) || overlayOpen()) return;
-
+  if (inChrome(event.target) || overlayOpen()) return;
   const now = performance.now();
   const strength = Math.abs(event.deltaY);
   // A new gesture starts after a pause or with a stronger push; the tail of a

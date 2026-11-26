@@ -100,3 +100,36 @@ test('legacy getComposer uses the inline textarea', () => {
   legacy.api.getComposer(root);
   assert.ok(root.calls.includes('[data-testid="tweetTextarea_0"]'));
 });
+
+test('legacy getViewerLayer uses the viewer test ids', () => {
+  const root = recordingRoot();
+  legacy.api.getViewerLayer(root);
+  assert.ok(root.calls.some((selector) => selector.includes('swipe-to-dismiss')));
+});
+
+test('legacy getArticleBody uses the article body test id', () => {
+  const root = recordingRoot();
+  legacy.api.getArticleBody(root);
+  assert.ok(root.calls.some((selector) => selector.includes('twitterArticleRichTextView')));
+});
+
+test('legacy getPrimaryColumn uses primaryColumn', () => {
+  const root = recordingRoot();
+  legacy.api.getPrimaryColumn(root);
+  assert.ok(root.calls.includes('[data-testid="primaryColumn"]'));
+});
+
+test('legacy getOverlayRoots finds dialogs', () => {
+  const root = recordingRoot();
+  legacy.api.getOverlayRoots(root);
+  assert.ok(root.calls.some((selector) => selector.includes('[role="dialog"]')));
+});
+
+test('legacy hasNativeAutoTranslate is false without a bar', () => {
+  assert.equal(legacy.api.hasNativeAutoTranslate(recordingRoot()), false);
+});
+
+test('legacy css exposes the article and cell fragments', () => {
+  assert.equal(legacy.css.article, 'article[data-testid="tweet"]');
+  assert.equal(legacy.css.cell, '[data-testid="cellInnerDiv"]');
+});

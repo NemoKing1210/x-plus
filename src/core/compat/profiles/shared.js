@@ -35,3 +35,7 @@ export function navLabelWeight(node) {
   if (raw === 'normal') return 400;
   return null;
 }
+
+/** Aria-labels for X's Show original / about-auto-translate (locale fallback). */
+export const NATIVE_AUTO_TRANSLATE_LABEL_RE =
+  /^(show original|показать оригинал|mostrar (el )?original|afficher l['’]original|original anzeigen|mostra (l['’])?originale|オリジナルを表示|显示原文|顯示原文|mostrar original|about automatic translation|об автоматическом переводе|acerca de la traducci[oó]n autom[aá]tica|à propos de la traduction automatique|informationen zur automatischen [üu]bersetzung|informazioni sulla traduzione automatica|自動翻訳について|关于自动翻译|關於自動翻譯|sobre a tradu[cç][aã]o autom[aá]tica)$/i;

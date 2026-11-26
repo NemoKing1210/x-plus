@@ -1,3 +1,4 @@
+import { dom } from '../../core/compat/index.js';
 import { el, silencePointerEvents } from '../../utils/dom.js';
 import { cfg, tm } from './config.js';
 
@@ -14,10 +15,6 @@ import { cfg, tm } from './config.js';
  * (arrows, close, swipe) keeps working at 100 % and is paused only while the
  * photo is zoomed in and being dragged.
  */
-
-const LAYER = '[data-testid="swipe-to-dismiss"], [role="dialog"][aria-modal="true"]';
-// Our own gallery is a dialog too (data-xp-ui) and handles its own zoom.
-const VIEWER_IMG = `:is(${LAYER}):not([data-xp-ui]) img[src*="pbs.twimg.com/media/"]`;
 
 const GRID_ATTR = 'data-xp-grid';
 const MIN_SCALE = 0.2;
@@ -57,7 +54,7 @@ const enabled = () => cfg().photoZoom;
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 function viewerImages() {
-  return [...document.querySelectorAll(VIEWER_IMG)];
+  return dom.getViewerImages(document);
 }
 
 /** The visible photo under the pointer (the carousel keeps neighbours off-screen). */
@@ -77,7 +74,7 @@ function adopt(img) {
   state.layer?.removeAttribute(GRID_ATTR);
   state.img = img;
   state.node = transformTarget(img);
-  state.layer = gridHost(img);
+  state.layer = dom.getViewerStage(img);
   syncGrid();
   state.src = img.src;
   state.scale = 1;
@@ -178,24 +175,6 @@ function loadSharper(img) {
     state.src = img.src;
   };
   probe.src = next;
-}
-
-/**
- * The photo stage: the nearest ancestor with the dimming inline
- * `background-color` (X's class names are unstable); falls back to the
- * innermost ancestor that fills the viewport.
- */
-function gridHost(img) {
-  const layer = img.closest(LAYER);
-  // X dims the page with an inline `background-color` on the stage element.
-  for (let node = img.parentElement; node && node !== document.body; node = node.parentElement) {
-    if (node.style.backgroundColor) return node;
-  }
-  for (let node = img.parentElement; node && node !== layer; node = node.parentElement) {
-    const rect = node.getBoundingClientRect();
-    if (rect.width >= window.innerWidth * 0.95 && rect.height >= window.innerHeight * 0.95) return node;
-  }
-  return layer;
 }
 
 /** Grid behind the photo so any picture stands out. */
@@ -375,7 +354,7 @@ function onKeyDown(event) {
 }
 
 function onDragStart(event) {
-  if (enabled() && event.target instanceof Element && event.target.matches(VIEWER_IMG)) {
+  if (enabled() && event.target instanceof Element && viewerImages().includes(event.target)) {
     event.preventDefault();
   }
 }

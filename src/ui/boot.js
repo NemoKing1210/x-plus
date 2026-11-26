@@ -1,4 +1,4 @@
-import { SEL } from '../core/constants.js';
+import { dom } from '../core/compat/index.js';
 
 /**
  * Boot transition. The page is frosted for a moment while the features apply
@@ -82,7 +82,8 @@ function cascadePosts() {
   // Shorts mode animates these same articles (scale / blur / opacity): skip it.
   if (root.hasAttribute(SHORTS_ATTR)) return;
 
-  const posts = [...document.querySelectorAll(`${SEL.primaryColumn} ${SEL.article}`)]
+  const posts = dom
+    .getArticles(dom.getPrimaryColumn(document) || document)
     .filter(isOnScreen)
     .slice(0, MAX_CASCADE);
   if (!posts.length) return;
@@ -113,7 +114,7 @@ function scheduleRelease() {
     // The watchdog took the veil down meanwhile.
     if (!root.hasAttribute(BOOT_ATTR)) return;
     const elapsed = performance.now() - startedAt;
-    const hasFeed = Boolean(document.querySelector(`${SEL.primaryColumn} ${SEL.article}`));
+    const hasFeed = dom.getArticles(dom.getPrimaryColumn(document) || document).length > 0;
     if (!hasFeed && elapsed < CONTENT_WAIT_MS) {
       setTimeout(tick, 50);
       return;
