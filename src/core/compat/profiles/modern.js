@@ -165,6 +165,18 @@ const api = {
     return fallback;
   },
 
+  /** Every author block of the post, quoted posts included. */
+  getAuthorHeaders(article) {
+    if (!article) return [];
+    const headers = [];
+    const push = (header) => {
+      if (header && !headers.includes(header)) headers.push(header);
+    };
+    push(api.getAuthorHeader(article));
+    for (const nested of article.querySelectorAll('article')) push(api.getAuthorHeader(nested));
+    return headers;
+  },
+
   getAuthorName(article) {
     const header = api.getAuthorHeader(article);
     if (!header) return '';
@@ -216,6 +228,21 @@ const api = {
     // Insert before the Grok wrapper when X wraps it, before the button itself otherwise.
     const before = grok ? (grok.parentElement && grok.parentElement !== row ? grok.parentElement : grok) : caret;
     return { row, before };
+  },
+
+  /**
+   * The post's Grok control, or the single-child wrapper around it so no gap
+   * stays behind (the caret next to it keeps its own slot).
+   */
+  getGrokButton(article) {
+    if (!article) return null;
+    for (const button of article.querySelectorAll('button')) {
+      if (button.closest?.('article') !== article) continue;
+      if (!button.querySelector('svg[data-icon="icon-logo-grok"]')) continue;
+      const parent = button.parentElement;
+      return parent && parent !== article && parent.children.length === 1 ? parent : button;
+    }
+    return null;
   },
 
   getActionGroup(article) {
@@ -620,6 +647,7 @@ export default {
     cell: 'li[data-index]',
     tweetText: '[dir="auto"].whitespace-pre-wrap',
     actionReply: '[data-engagement-action="reply"]',
+    actionGroup: '[role="group"]:has(> [data-engagement-action="reply"])',
     primaryColumn: 'main',
     sidebarColumn: 'aside',
     leftNav: 'nav[aria-label]',

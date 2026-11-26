@@ -245,3 +245,54 @@ test('modern getAuthorHeader keeps the name row when the post has no status link
   avatar.parentElement = header;
   assert.equal(modern.api.getAuthorHeader(article), header);
 });
+
+test('legacy getAuthorHeaders returns every User-Name block, quotes included', () => {
+  const names = [{}, {}];
+  const article = { querySelectorAll: (selector) => (selector === '[data-testid="User-Name"]' ? names : []) };
+  assert.deepEqual(legacy.api.getAuthorHeaders(article), names);
+});
+
+test('modern getAuthorHeaders adds the header of a quoted article', () => {
+  const nameNode = {};
+  const quoteHeader = { querySelector: (selector) => (selector === 'div[dir="auto"]' ? nameNode : null) };
+  const nested = {
+    querySelector: () => null,
+    querySelectorAll: () => [],
+  };
+  const avatar = { closest: (selector) => (selector === 'article' ? nested : null) };
+  nested.querySelectorAll = (selector) => (selector === '[data-post-avatar]' ? [avatar] : []);
+  quoteHeader.parentElement = nested;
+  avatar.parentElement = quoteHeader;
+  const article = {
+    querySelector: () => null,
+    querySelectorAll: (selector) => (selector === 'article' ? [nested] : []),
+  };
+  assert.deepEqual(modern.api.getAuthorHeaders(article), [quoteHeader]);
+});
+
+test('legacy getGrokButton hides the wrapper of a lone Grok button', () => {
+  const button = { getAttribute: () => 'Grok actions', closest: () => null };
+  const wrapper = { children: [button] };
+  button.parentElement = wrapper;
+  const article = { contains: () => true, querySelectorAll: (selector) => (selector === 'button[aria-label]' ? [button] : []) };
+  assert.equal(legacy.api.getGrokButton(article), wrapper);
+});
+
+test('legacy getGrokButton keeps the button when its row holds more', () => {
+  const button = { getAttribute: () => 'Grok actions', closest: () => null };
+  const row = { children: [button, {}] };
+  button.parentElement = row;
+  const article = { contains: () => true, querySelectorAll: (selector) => (selector === 'button[aria-label]' ? [button] : []) };
+  assert.equal(legacy.api.getGrokButton(article), button);
+});
+
+test('modern getGrokButton finds the button carrying the Grok icon', () => {
+  const button = {
+    querySelector: (selector) => (selector === 'svg[data-icon="icon-logo-grok"]' ? {} : null),
+    closest: (selector) => (selector === 'article' ? article : null),
+  };
+  const row = { children: [button, {}] };
+  button.parentElement = row;
+  const article = { querySelectorAll: (selector) => (selector === 'button' ? [button] : []) };
+  assert.equal(modern.api.getGrokButton(article), button);
+});

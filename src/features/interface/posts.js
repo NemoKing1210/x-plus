@@ -52,11 +52,12 @@ export function postsCss(cfg, peek = false) {
   const css = [];
 
   if (cfg.hideFeedBorder) {
-    css.push(
-      `${scope} ${column}{border-left-width:0!important;border-right-width:0!important}`,
-      // X's empty 1px strip above the feed (atomic classes), which reads as a top border.
-      `${scope} div.r-109y4c4.r-gu4em3:empty{display:none!important}`,
-    );
+    css.push(`${scope} ${column}{border-left-width:0!important;border-right-width:0!important}`);
+    // X's empty 1px strip above the feed, which reads as a top border. Only the legacy
+    // profile knows it; without a fragment nothing is emitted (an empty factory would turn
+    // the selector into `:empty` and hide every empty element).
+    const strip = cssFor('feedEdgeStrip');
+    if (strip) css.push(`${scope} ${strip}:empty{display:none!important}`);
   }
 
   if (cfg.cards) {

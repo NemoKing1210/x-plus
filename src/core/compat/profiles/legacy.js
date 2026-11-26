@@ -348,6 +348,11 @@ const api = {
     return null;
   },
 
+  /** Every author block of the post, quoted posts included. */
+  getAuthorHeaders(article) {
+    return article ? [...article.querySelectorAll(SEL.userName)] : [];
+  },
+
   getAuthorName(article) {
     const header = api.getAuthorHeader(article);
     if (!header) return '';
@@ -462,6 +467,22 @@ const api = {
       node = parent;
     }
     return compact || first;
+  },
+
+  /**
+   * The post's Grok control, or the single-child wrapper around it so no gap
+   * stays behind (the caret next to it keeps its own wrapper).
+   */
+  getGrokButton(article) {
+    if (!article) return null;
+    for (const button of article.querySelectorAll('button[aria-label]')) {
+      const label = (button.getAttribute('aria-label') || '').trim().toLowerCase();
+      if (!label.includes('grok')) continue;
+      if (!outsideQuote(button, article)) continue;
+      const parent = button.parentElement;
+      return parent && parent !== article && parent.children.length === 1 ? parent : button;
+    }
+    return null;
   },
 
   getActionGroup(article) {
@@ -809,11 +830,14 @@ export default {
     cell: '[data-testid="cellInnerDiv"]',
     tweetText: '[data-testid="tweetText"]',
     actionReply: '[data-testid="reply"]',
+    actionGroup: '[role="group"]:has(> div > [data-testid="reply"])',
     primaryColumn: '[data-testid="primaryColumn"]',
     sidebarColumn: '[data-testid="sidebarColumn"]',
     leftNav: 'header[role="banner"]',
     avatar: '[data-testid^="UserAvatar-Container"]',
     userCell: '[data-testid="UserCell"]',
     verified: '[data-testid="icon-verified"]',
+    // Empty atomic-class strip X draws above the feed, which reads as a top border.
+    feedEdgeStrip: 'div.r-109y4c4.r-gu4em3',
   },
 };

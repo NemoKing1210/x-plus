@@ -34,11 +34,13 @@ export const KINDS = Object.freeze({
   // element-single: the owner profile is authoritative.
   getPostText: 'element-single',
   getAuthorHeader: 'element-single',
+  getAuthorHeaders: 'element-list',
   getAuthorName: 'element-single',
   getAuthorHandle: 'element-single',
   getAuthorAvatar: 'element-single',
   getTimeLink: 'element-single',
   getHeaderActionsSlot: 'element-single',
+  getGrokButton: 'element-single',
   getActionGroup: 'element-single',
   getQuoteCard: 'element-single',
   getPostMenuTrigger: 'element-single',

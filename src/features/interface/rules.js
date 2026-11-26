@@ -1,5 +1,5 @@
-import { dom } from '../../core/compat/index.js';
-import { NATIVE_AUTO_TRANSLATE_ICON_PATH, SEL } from '../../core/constants.js';
+import { cssFor, dom } from '../../core/compat/index.js';
+import { SEL } from '../../core/constants.js';
 
 /**
  * Declarative clean-up rules. A rule hides something on X and is toggled by
@@ -39,7 +39,7 @@ import { NATIVE_AUTO_TRANSLATE_ICON_PATH, SEL } from '../../core/constants.js';
 /* ------------------------------------------------------------------ */
 
 /** Promoted posts, detected by the DOM profile. */
-export const isPromotedArticle = (article) => dom.isPromotedArticle(article);
+const isPromotedArticle = (article) => dom.isPromotedArticle(article);
 
 /** Sidebar cards around the first block that contains a `selector` match. */
 const blocksContaining = (selector) => (root) => {
@@ -93,7 +93,7 @@ function showPostsRows(root) {
   });
 }
 
-const articleCell = (article) => article.closest(SEL.cell) || article;
+const articleCell = (article) => dom.getPostCell(article) || article;
 
 /** Result of `compute()` for this pass, shared between rules (see `Rule.inArticle`). */
 const memoized = (memo, key, compute) => {
@@ -102,53 +102,33 @@ const memoized = (memo, key, compute) => {
 };
 
 /**
- * The card of a post quoted inside `article` that holds `node`, or null. Resolved by
- * the DOM profile: a nested `data-testid="quoteTweet"` or a `role="link"` block
- * (the article's own avatar uses the same `Tweet-User-Avatar` test id, so that id
- * cannot tell them apart).
- */
-export function quoteCardOf(node, article) {
-  return dom.getQuoteCard(node, article);
-}
-
-/**
- * Posts quoted inside a post. X draws the card as a `role="link"` block that holds a
- * small avatar (`Tweet-User-Avatar`); it sits in a wrapper with the "Quote" caption, which
- * goes too so no gap stays behind. Older markup used `data-testid="quoteTweet"`.
+ * Posts quoted inside a post, as the element to hide: the card itself, or the
+ * wrapper that also holds the "Quote" caption so no gap stays behind.
  */
 function quotedPosts(article) {
-  const cards = [...article.querySelectorAll(SEL.quoteTweet)];
-  for (const avatar of article.querySelectorAll(SEL.quoteAvatar)) {
-    const card = quoteCardOf(avatar, article);
-    if (card) cards.push(card);
-  }
-  return cards.map((card) => {
-    const wrapper = card.parentElement;
-    return wrapper && wrapper !== article && wrapper.children.length <= 2 ? wrapper : card;
-  });
+  return dom
+    .getAttachments(article)
+    .filter((item) => item.kind === 'quote')
+    .map((item) => {
+      const wrapper = item.el.parentElement;
+      return wrapper && wrapper !== article && wrapper.children.length <= 2 ? wrapper : item.el;
+    });
 }
 
 /** Avatar column of the post itself (quoted posts keep theirs). */
 function avatarColumns(article) {
-  const found = [];
-  for (const avatar of article.querySelectorAll('[data-testid^="UserAvatar-Container"]')) {
-    if (quoteCardOf(avatar, article)) continue;
-    // The whole column (not just the picture), so no empty gutter stays on the left.
-    let node = avatar;
-    while (node.parentElement && !node.parentElement.querySelector(SEL.userName)) {
-      node = node.parentElement;
-      if (node === article) break;
-    }
-    found.push(node === article ? avatar : node);
-  }
-  return found;
+  const avatar = dom.getAuthorAvatar(article);
+  if (!avatar) return [];
+  // The whole column (not just the picture), so no empty gutter stays on the left.
+  const column = dom.getAvatarColumn(article);
+  return [column && column !== article ? column : avatar];
 }
 
-/** Markers of a video / GIF inside a media block (a poster image is also a `tweetPhoto`). */
-const VIDEO_MARKERS = `${SEL.videoPlayer}, [data-testid="previewInterstitial"], [data-testid="playButton"], video`;
-
-/** What makes an ancestor too big to be "just the media": it also holds the text, name or actions. */
-const POST_PARTS = `${SEL.tweetText}, ${SEL.userName}, [role="group"]`;
+/**
+ * What makes an ancestor too big to be "just the media": it also holds the text
+ * or the actions of a post (a quote's own text stops the climb inside the quote).
+ */
+const POST_PARTS = `${cssFor('tweetText')}, [role="group"]`;
 
 /**
  * Media blocks of a post (photos, videos, GIFs; also inside quotes). Each block is the largest
@@ -158,14 +138,15 @@ const POST_PARTS = `${SEL.tweetText}, ${SEL.userName}, [role="group"]`;
  */
 function mediaBlocks(article) {
   const blocks = new Map();
-  for (const media of article.querySelectorAll(`:is(${SEL.photo}, ${SEL.videoPlayer})`)) {
-    let node = media;
+  for (const host of dom.getMediaHosts(article)) {
+    let node = host.el;
     while (node.parentElement && node.parentElement !== article && !node.parentElement.querySelector(POST_PARTS)) {
       node = node.parentElement;
     }
-    blocks.set(node, blocks.get(node) || media.matches(VIDEO_MARKERS) || Boolean(media.querySelector(VIDEO_MARKERS)));
+    const video = host.kind === 'video' || Boolean(node.querySelector('video')) || node.matches?.('video');
+    blocks.set(node, Boolean(blocks.get(node)) || video);
   }
-  return [...blocks].map(([node, video]) => ({ node, video: video || Boolean(node.querySelector(VIDEO_MARKERS)) }));
+  return [...blocks].map(([node, video]) => ({ node, video }));
 }
 
 const mediaOf = (article, memo, video) =>
@@ -175,11 +156,16 @@ const mediaOf = (article, memo, video) =>
 
 /** The link preview card; its wrapper goes too (it also holds the "From example.com" caption). */
 function linkCards(article) {
-  return [...article.querySelectorAll('[data-testid="card.wrapper"]')].map((card) => {
-    const wrapper = card.parentElement;
-    const single = wrapper && wrapper !== article && wrapper.children.length <= 2 && !wrapper.querySelector(POST_PARTS);
-    return single ? wrapper : card;
-  });
+  return dom
+    .getAttachments(article)
+    .filter((item) => item.kind === 'link')
+    .map((item) => {
+      const card = item.el;
+      const wrapper = card.parentElement;
+      const single =
+        wrapper && wrapper !== article && wrapper.children.length <= 2 && !wrapper.querySelector(POST_PARTS);
+      return single ? wrapper : card;
+    });
 }
 
 /**
@@ -187,13 +173,17 @@ function linkCards(article) {
  * cover's parent, and a single-child link wrapper around it goes too.
  */
 function articleCards(article) {
-  return [...article.querySelectorAll('[data-testid="article-cover-image"]')].map((cover) => {
-    const node = cover.parentElement || cover;
-    if (node === article || node.querySelector(POST_PARTS)) return cover;
-    const outer = node.parentElement;
-    if (outer && outer !== article && outer.children.length === 1 && !outer.querySelector(POST_PARTS)) return outer;
-    return node;
-  });
+  return dom
+    .getAttachments(article)
+    .filter((item) => item.kind === 'article')
+    .map((item) => {
+      const cover = item.el;
+      const node = cover.parentElement || cover;
+      if (node === article || node.querySelector(POST_PARTS)) return cover;
+      const outer = node.parentElement;
+      if (outer && outer !== article && outer.children.length === 1 && !outer.querySelector(POST_PARTS)) return outer;
+      return node;
+    });
 }
 
 /**
@@ -202,7 +192,7 @@ function articleCards(article) {
  */
 function handleLabels(article) {
   const found = [];
-  for (const header of article.querySelectorAll(SEL.userName)) {
+  for (const header of dom.getAuthorHeaders(article)) {
     for (const span of header.querySelectorAll('span')) {
       if (span.firstElementChild) continue;
       const text = span.textContent.trim();
@@ -288,6 +278,23 @@ function stickyAncestor(list) {
 
 export const findStickyFeedHeaders = (root) => dom.getFeedTabs(root).map(stickyAncestor).filter(Boolean);
 
+/** X's own translation notice above the text, of the post and of each of its quotes. */
+function nativeTranslateBars(article) {
+  const bars = [dom.getNativeTranslateBar(article)];
+  for (const item of dom.getAttachments(article)) {
+    if (item.kind === 'quote') bars.push(dom.getNativeTranslateBar(item.el));
+  }
+  return bars.filter(Boolean);
+}
+
+/** The reply / repost / like row, as `:is(legacy, modern)` selectors. */
+const ACTION_GROUP = cssFor('actionGroup');
+const ACTION_BAR_CSS = [
+  `${cssFor('article')} ${ACTION_GROUP}`,
+  `${cssFor('article')} div:has(> ${ACTION_GROUP}:only-child)`,
+  `${cssFor('article')} div:has(> div:only-child > ${ACTION_GROUP}:only-child)`,
+];
+
 /** @type {Rule[]} */
 export const RULES = [
   /* Posts */
@@ -314,8 +321,11 @@ export const RULES = [
     key: 'viewCounts',
     part: 'post',
     hint: true,
-    // The analytics link is a child of the action bar's slot; hide that slot.
-    css: `${SEL.article} [role="group"] > div:has(> a[href$="/analytics"])`,
+    // The analytics link is a child of the action bar's slot; hide that slot (or the link itself).
+    css: [
+      `${cssFor('article')} [role="group"] > div:has(> a[href$="/analytics"])`,
+      `${cssFor('article')} [role="group"] > a[href$="/analytics"]`,
+    ],
   },
   {
     group: 'posts',
@@ -333,10 +343,9 @@ export const RULES = [
     key: 'translateNotice',
     part: 'post',
     hint: true,
-    // X's "Source language: … Show original" line: the div that holds the translate glyph and a
-    // button. The same glyph sits inside the Grok header button (no button sibling there), and
-    // our own translate chrome is excluded.
-    css: `${SEL.article} div:not([data-xp-ui], [data-xp-ui] *):has(> svg path[d^="${NATIVE_AUTO_TRANSLATE_ICON_PATH}"]):has(> button)`,
+    // X's "Source language: … Show original" line above the text, in the post and in its quotes;
+    // the profile recognises the bar (glyph or localized label) and never our own chrome.
+    inArticle: nativeTranslateBars,
   },
   { group: 'posts', key: 'handles', part: 'post', hint: true, inArticle: handleLabels },
   { group: 'posts', key: 'quotedPosts', part: 'post', hint: true, inArticle: quotedPosts },
@@ -346,25 +355,22 @@ export const RULES = [
     part: 'post',
     hint: true,
     // The reply / repost / like row, plus up to two single-child wrappers so no gap stays behind.
-    css: [
-      `${SEL.article} [role="group"]:has(> div > ${SEL.actionReply})`,
-      `${SEL.article} div:has(> [role="group"]:only-child > div > ${SEL.actionReply})`,
-      `${SEL.article} div:has(> div:only-child > [role="group"]:only-child > div > ${SEL.actionReply})`,
-    ],
+    css: ACTION_BAR_CSS,
   },
   {
     group: 'posts',
     key: 'verifiedBadges',
     part: 'post',
     hint: true,
-    css: '[data-testid="icon-verified"]',
+    css: cssFor('verified'),
   },
   {
     group: 'posts',
     key: 'grokButton',
     part: 'post',
     hint: true,
-    css: `${SEL.article} div:has(> button[aria-label*="grok" i])`,
+    // The button, or the wrapper that holds nothing else (the caret next to it stays).
+    inArticle: (article) => [dom.getGrokButton(article)].filter(Boolean),
   },
   { group: 'posts', key: 'whoToFollow', hint: true, find: feedSuggestions },
 

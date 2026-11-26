@@ -1,8 +1,9 @@
 import { Codes, logWarn } from '../../core/debug.js';
-import { cssFor } from '../../core/compat/index.js';
-import { SEL, UI_ATTR } from '../../core/constants.js';
+import { cssFor, dom, getGeneration } from '../../core/compat/index.js';
+import { UI_ATTR } from '../../core/constants.js';
 import { getFeatureSettings } from '../../core/settings.js';
 import { POSTS_PEEK_ATTR, postsCss } from './posts.js';
+import { ruleApplies } from './rule-applies.js';
 import { RULES, findStickyFeedHeaders, ruleId } from './rules.js';
 
 /**
@@ -30,8 +31,11 @@ const BUDGET_MS = 8;
 /** Minimum gap between two page-level passes. */
 const PAGE_INTERVAL_MS = 120;
 
-const isRuleOn = (cfg, rule) =>
+const isSwitchedOn = (cfg, rule) =>
   rule.view ? cfg.postView?.[rule.view] === true : cfg.enabled && cfg[rule.group]?.[rule.key] === true;
+
+/** A rule is on when its switch is on AND its target exists on this DOM generation. */
+const isRuleOn = (cfg, rule) => isSwitchedOn(cfg, rule) && ruleApplies(rule, getGeneration());
 
 function ensureStyle() {
   let style = document.getElementById(STYLE_ID);
@@ -184,7 +188,7 @@ function visibleBox(node) {
 function ruleTargets(rule) {
   if (rule.css) return [...document.querySelectorAll([].concat(rule.css).join(','))];
   if (rule.inArticle) {
-    return [...document.querySelectorAll(SEL.article)].flatMap((article) => rule.inArticle(article, new Map()));
+    return dom.getArticles(document).flatMap((article) => rule.inArticle(article, new Map()));
   }
   return rule.find(document);
 }
@@ -204,7 +208,8 @@ export function peekPosts(postView) {
   endPeek();
   document.documentElement.setAttribute(POSTS_PEEK_ATTR, '');
   peekStyle().textContent = postsCss(postView, true);
-  return [...document.querySelectorAll(`${PRIMARY} ${SEL.article}`)].filter(isOnScreen).length;
+  const primary = dom.getPrimaryColumn(document);
+  return primary ? dom.getArticles(primary).filter(isOnScreen).length : 0;
 }
 
 /**
@@ -264,8 +269,6 @@ ${PEEK_HIGHLIGHT_CSS}`;
 /* ------------------------------------------------------------------ */
 /* Marking                                                             */
 /* ------------------------------------------------------------------ */
-
-const OWNER = `${SEL.article}, [${UI_ATTR}]`;
 
 let articleRules = [];
 let pageRules = [];
@@ -385,14 +388,15 @@ function onMutations(records) {
     if (record.removedNodes.length) page = true;
     for (const node of record.addedNodes) {
       if (node.nodeType !== 1) continue;
-      const owner = node.closest(OWNER);
+      // Inside our own UI: ignore. Inside a post: re-check that post.
+      if (node.closest?.(`[${UI_ATTR}]`)) continue;
+      const owner = dom.getPostArticle(node);
       if (owner) {
-        // Inside a post: re-check that post. Inside our own UI: ignore.
-        if (!owner.hasAttribute(UI_ATTR) && articleRules.length) dirty.add(owner);
+        if (articleRules.length) dirty.add(owner);
         continue;
       }
       page = true;
-      if (articleRules.length) for (const article of node.querySelectorAll(SEL.article)) dirty.add(article);
+      if (articleRules.length) for (const article of dom.getArticles(node)) dirty.add(article);
     }
   }
   // Same task as the mutation, before the browser paints: nothing flashes.
@@ -423,7 +427,7 @@ export function syncRules() {
   stickyNeeded = Boolean(cfg.enabled && cfg.feedTabsStatic);
   setObserving(articleRules.length > 0 || pageRules.length > 0 || stickyNeeded);
   if (articleRules.length) {
-    for (const article of document.querySelectorAll(SEL.article)) dirty.add(article);
+    for (const article of dom.getArticles(document)) dirty.add(article);
     if (!frame) flush();
   }
   runPage();
