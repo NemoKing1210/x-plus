@@ -14,6 +14,9 @@ A userscript for [X](https://x.com) that adds **in-place post translation**,
 configurable from one settings panel that follows X's light / dim / lights-out
 theme.
 
+It works with both the current X design and the previous one: the script
+detects which layout the page is running and adapts automatically.
+
 > Not affiliated with X Corp. / Twitter.
 
 ## Screenshots

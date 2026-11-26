@@ -14,6 +14,9 @@ Un userscript para [X](https://x.com) (x.com / twitter.com) que añade
 y una serie de **limpiezas de la interfaz**, todo configurable desde un único
 panel que sigue el tema claro, atenuado y oscuro de X.
 
+Funciona tanto con el diseño actual de X como con el anterior: el script
+detecta qué maquetación usa la página y se adapta solo.
+
 > No está afiliado a X Corp. / Twitter.
 
 ## Capturas

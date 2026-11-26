@@ -15,6 +15,9 @@ Medien (Videos, GIFs, Fotos) und eine Reihe von Oberflächen-Aufräumregeln — 
 in einem Einstellungsfenster, das dem hellen, gedimmten und dunklen Thema von X
 folgt.
 
+Funktioniert mit dem aktuellen und dem bisherigen Design von X: das Skript
+erkennt, welches Layout die Seite verwendet, und passt sich an.
+
 > Nicht mit X Corp. / Twitter verbunden.
 
 ## Screenshots

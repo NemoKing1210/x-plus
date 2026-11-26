@@ -14,9 +14,11 @@ you are about to work on here.
 
 ### Todo
 
-- [ ] Re-verify X selectors against the live site ~1d #fix @NemoKing1210  
-  - [ ] `SEL` in `src/core/constants.js` still matches the current `data-testid`s  
-  - [ ] Update the selector tables in `docs/DEVELOPMENT.md` and the harness DOM if anything moved  
+- [ ] Live pass with the rebuilt script installed ~2h #test @NemoKing1210  
+  - [ ] Install in Tampermonkey, Violentmonkey and ScriptCat: every feature boots, the settings entry appears  
+  - [ ] Home → post → replies → back: no duplicate buttons, no stale owners, no new `XP-3002`  
+  - [ ] Promoted post, native translate bar, Following/Explore tabs, narrow layout, light / dim / lights-out  
+  - [ ] Photo viewer, X Article, composer, post menu and Shorts on the live modern build  
 - [ ] Review UI strings in all eight locales ~1d #i18n @NemoKing1210  
   - [ ] `npm run check:i18n` reports no missing or unused keys  
   - [ ] Native speakers confirm the machine-translated strings  
@@ -29,16 +31,13 @@ you are about to work on here.
   - [ ] The gallery already enumerates images per host (`photoAt`); reuse that lookup in `media/ui.js`  
   - [ ] Verify on the `/modern` harness grid: photos 1, 2 and 3 download with the right names  
 
-### In Progress
-
-- [ ] Restore every feature on X's 2026 DOM with versioned compatibility profiles ~2d #compat @NemoKing1210 2026-11-26  
-  - [ ] `core/compat` resolver, generation detection, report, CSS unions and `XP-3001..XP-3004` diagnostics  
-  - [ ] Legacy and modern DOM profiles with every capability implemented  
-  - [ ] Feature modules migrated to `dom.*`; no X selectors left outside the profiles  
-  - [ ] Modern harness fixture, docs, changelog and a full verification pass  
-
 ### Done ✓
 
+- [x] Restore every feature on X's 2026 DOM with versioned compatibility profiles ~2d #compat @NemoKing1210 2026-11-26 ✓ 2026-11-26  
+  - [x] `core/compat` resolver, generation detection, report, CSS unions and `XP-3001..XP-3004` diagnostics  
+  - [x] Legacy and modern DOM profiles with every capability implemented  
+  - [x] Feature modules migrated to `dom.*`; no X selectors left outside the profiles  
+  - [x] Modern harness fixture, docs, changelog and a full verification pass  
 - [x] Cut the next release once `[Unreleased]` has user-visible changes ~1h #chore @NemoKing1210 2026-11-22  
   - [x] Bump `version` in `package.json` and move the `[Unreleased]` notes under it  
   - [x] Run `npm run ci` and `npm run readmes`; commit the rebuilt root artifacts  

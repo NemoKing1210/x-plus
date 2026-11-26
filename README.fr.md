@@ -15,6 +15,9 @@ Un userscript pour [X](https://x.com) (x.com / twitter.com) qui ajoute la
 **nettoyages de l’interface** — le tout configurable depuis un seul panneau qui
 suit le thème clair, atténué et sombre de X.
 
+Fonctionne avec le design actuel de X comme avec le précédent : le script
+détecte la mise en page utilisée et s'y adapte.
+
 > Non affilié à X Corp. / Twitter.
 
 ## Captures d’écran
