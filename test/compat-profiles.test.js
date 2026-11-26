@@ -194,3 +194,29 @@ test('modern getQuoteCard derives the outer article around a quote frame', () =>
   const node = { closest: (selector) => (selector === '[data-slot="embedded-tweet-frame"]' ? frame : null) };
   assert.equal(modern.api.getQuoteCard(node), frame);
 });
+
+test('modern getMenus uses xds-menu-content', () => {
+  const root = recordingRoot();
+  modern.api.getMenus(root);
+  assert.ok(root.calls.some((selector) => selector.includes('xds-menu-content')));
+});
+
+test('modern getNav finds the nav containing /home', () => {
+  const nav = { querySelector: (selector) => (selector === 'a[href="/home"]' ? {} : null) };
+  const root = { querySelectorAll: (selector) => (selector === 'nav' ? [nav] : []) };
+  assert.equal(modern.api.getNav(root), nav);
+});
+
+test('modern getFeedTabs, getUserCells and getComposer pin the current markers', () => {
+  const tabs = recordingRoot();
+  modern.api.getFeedTabs(tabs);
+  assert.ok(tabs.calls.some((selector) => selector.includes('tablist')));
+
+  const cells = recordingRoot();
+  modern.api.getUserCells(cells);
+  assert.ok(cells.calls.includes('[data-who-to-follow]'));
+
+  const composer = recordingRoot();
+  modern.api.getComposer(composer);
+  assert.ok(composer.calls.some((selector) => selector.includes('textarea[aria-label]')));
+});

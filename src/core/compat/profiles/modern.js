@@ -10,7 +10,7 @@
  * See docs/superpowers/specs/2026-11-26-dom-compatibility-design.md §7.2.
  */
 
-import { AD_ICON_PATH_PREFIX, AD_LABELS, normalizeHandleText } from './shared.js';
+import { AD_ICON_PATH_PREFIX, AD_LABELS, navLabelWeight, normalizeHandleText } from './shared.js';
 
 const QUOTE_FRAME = '[data-slot="embedded-tweet-frame"]';
 const POST_TEXT = '[dir="auto"].whitespace-pre-wrap';
@@ -19,6 +19,31 @@ const LINK_CARD = '[data-testid="card.wrapper"]';
 const POLL = '[data-testid="card.poll"], [role="radiogroup"]';
 const ARTICLE_COVER = '[data-testid="article-cover-image"], a[href*="/i/article/"] img';
 const VERIFIED = 'svg[data-icon*="verified"], [data-testid="icon-verified"]';
+const MENU = '[role="menu"][data-slot="xds-menu-content"]';
+const SIDEBAR_BLOCK = 'section, div[role="complementary"], aside, [role="region"], nav';
+
+/** Left-navigation hrefs of the modern nav (one path per row). */
+const NAV_HREFS = {
+  home: '/home',
+  explore: '/explore',
+  notifications: '/notifications',
+  chat: '/i/chat',
+  calls: '/i/calls',
+  grok: '/i/grok',
+  history: '/i/history',
+  creatorStudio: '/i/jf/creators',
+  premium: '/i/premium',
+  followerRequests: '/follower_requests',
+  post: '/compose/post',
+};
+
+/** Nearest `position: sticky` ancestor below `stop` (the feed tabs float there). */
+function stickyAncestor(list, stop) {
+  for (let node = list.parentElement; node && node !== stop; node = node.parentElement) {
+    if (node.hasAttribute?.('data-xp-sticky') || getComputedStyle(node).position === 'sticky') return node;
+  }
+  return null;
+}
 
 /**
  * Quote embeds have no Grok / caret row of their own: append the control to the
@@ -260,6 +285,162 @@ const api = {
       if (AD_LABELS.has(span.textContent.trim().toLowerCase()) && !span.closest(POST_TEXT)) return true;
     }
     return false;
+  },
+
+  getMenus(root) {
+    const menus = [...root.querySelectorAll(MENU)];
+    return menus.length ? menus : [...root.querySelectorAll('[role="menu"]')];
+  },
+
+  /** The ⋮ (menu) button of `article` itself, not of a post nested inside it. */
+  getPostMenuTrigger(article) {
+    if (!article) return null;
+    for (const trigger of article.querySelectorAll('button[aria-haspopup="menu"]')) {
+      if (trigger.closest?.('article') === article) return trigger;
+    }
+    return null;
+  },
+
+  isMenuOpen(trigger) {
+    if (!trigger?.getAttribute) return false;
+    return trigger.getAttribute('aria-expanded') === 'true' || trigger.getAttribute('aria-pressed') === 'true';
+  },
+
+  getMenuItemHost(menu) {
+    const first =
+      menu?.querySelector?.('[role="menuitem"][data-slot="xds-menu-item"]') || menu?.querySelector?.('[role="menuitem"]');
+    return first?.parentElement || null;
+  },
+
+  getNav(root) {
+    for (const nav of root.querySelectorAll('nav')) {
+      if (nav.querySelector?.('a[href="/home"]')) return nav;
+    }
+    return null;
+  },
+
+  getNavItem(root, kind) {
+    const nav = api.getNav(root) || root;
+    if (kind === 'logo') {
+      return (
+        [...nav.querySelectorAll('a[href="/home"]')].find((link) =>
+          link.querySelector('svg[data-icon="icon-logo-x"]'),
+        ) || null
+      );
+    }
+    if (kind === 'profile') {
+      return (
+        [...nav.querySelectorAll('a[href]')].find((link) => link.querySelector('img[src*="profile_images"]')) || null
+      );
+    }
+    if (kind === 'account') {
+      return (
+        [...nav.querySelectorAll('button')].find((button) => button.querySelector('img[src*="profile_images"]')) ||
+        null
+      );
+    }
+    if (kind === 'more') {
+      return (
+        [...nav.querySelectorAll('button')].find((button) =>
+          button.querySelector('svg[data-icon="icon-more-dots-hor-circle"]'),
+        ) || null
+      );
+    }
+    const href = NAV_HREFS[kind];
+    if (!href) return null;
+    const links = [...nav.querySelectorAll('a[href]')].filter(
+      (link) => (link.getAttribute('href') || '').split('?')[0] === href,
+    );
+    // `/home` is both the logo and the Home row: the row carries a text label.
+    if (kind === 'home') return links.find((link) => link.querySelector('span')) || links[0] || null;
+    return links[0] || null;
+  },
+
+  getNavTemplate(nav) {
+    if (!nav) return null;
+    const links = [...nav.querySelectorAll('a[href]')].filter(
+      (link) => !link.hasAttribute('data-xp-ui') && link.querySelector('svg') && link.querySelector('span'),
+    );
+    const template =
+      links.find((link) => {
+        if (link.getAttribute('aria-current') === 'page') return false;
+        const weight = navLabelWeight(link);
+        return weight == null || weight < 600;
+      }) ||
+      links[0] ||
+      null;
+    if (!template) return null;
+    const before = [...nav.querySelectorAll('a[href]')].find((link) =>
+      (link.getAttribute('href') || '').includes('/settings'),
+    );
+    return { template, before: before || null };
+  },
+
+  getSidebar(root) {
+    for (const aside of root.querySelectorAll('aside')) {
+      if (aside.querySelector('[data-who-to-follow], section, nav[aria-label]')) return aside;
+    }
+    return null;
+  },
+
+  getSidebarBlock(node) {
+    if (!node) return null;
+    const sidebar = node.closest?.('aside');
+    if (!sidebar) return null;
+    const block = node.closest(SIDEBAR_BLOCK);
+    return block && sidebar.contains(block) ? block : null;
+  },
+
+  getSidebarCard(node, limit = 3) {
+    if (!node) return null;
+    const sidebar = node.closest?.('aside') || null;
+    let card = node;
+    for (let i = 0; i < limit; i += 1) {
+      const parent = card.parentElement;
+      if (!parent || parent === sidebar || parent.children.length !== 1) break;
+      if (!sidebar?.contains(parent)) break;
+      if (parent.querySelector('form[role="search"]') && !card.querySelector('form[role="search"]')) break;
+      card = parent;
+    }
+    return card;
+  },
+
+  getUserCells(root) {
+    return [...root.querySelectorAll('[data-who-to-follow]')];
+  },
+
+  getComposer(root) {
+    return root.querySelector('main textarea[aria-label], main [role="textbox"]') || null;
+  },
+
+  getInlineComposer(root) {
+    const field = api.getComposer(root);
+    if (!field) return null;
+    let node = field;
+    for (let i = 0; i < 8 && node.parentElement; i += 1) {
+      node = node.parentElement;
+      if (node.closest?.('article, [role="dialog"]')) break;
+      if (node.querySelector?.('[role="progressbar"]')) return node;
+    }
+    return null;
+  },
+
+  getFeedTabs(root) {
+    return [...root.querySelectorAll('main [role="tablist"]')];
+  },
+
+  getFeedTabsBlock(list) {
+    if (!list) return null;
+    const sticky = stickyAncestor(list, list.closest('main'));
+    if (sticky) return sticky;
+    let block = list;
+    for (let i = 0; i < 4; i += 1) {
+      const parent = block.parentElement;
+      if (!parent || parent.children.length !== 1) break;
+      if (parent.querySelector('article') || parent.matches('li[data-index]')) break;
+      block = parent;
+    }
+    return block;
   },
 };
 
