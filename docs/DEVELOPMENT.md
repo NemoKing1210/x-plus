@@ -166,6 +166,7 @@ left hides its whole section. Check the page you are on with
 | `nav.xplus` | our entry inside the left column | our entry inside the modern nav |
 | `chrome.grokDrawer` | wrapper of `[data-testid="GrokDrawer"]` | dock window carrying the Grok icon (no extra wrapper) |
 | `chrome.chatDrawer` | wrapper of `[data-testid="chat-drawer-root"]` | dock window carrying the chat icon (no extra wrapper) |
+| `chrome.hoverCard` | floating container (`hoverCardParent` / `HoverCard`) | Base UI portal whose popup carries the profile's follower links, or its banner |
 
 Layout options follow the same split: `menuLeft`, `menuCenter`, `contentWidth`,
 `centerContent` and the column show/hide rules use the layout fragments

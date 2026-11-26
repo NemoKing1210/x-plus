@@ -217,6 +217,17 @@ test('modern css marks the Grok and chat dock windows', () => {
   assert.equal(modern.css.chatDrawer, '[data-slot="xds-dock-window"]:has(svg[data-icon="icon-chat"])');
 });
 
+test('css marks the profile hover card on both generations', () => {
+  // Legacy keeps the floating container; modern renders the card in a Base UI
+  // portal, recognised by the follower links (or the banner of a compact card).
+  assert.equal(legacy.css.hoverCard, '[data-testid="hoverCardParent"], [data-testid="HoverCard"]');
+  assert.match(modern.css.hoverCard, /\[data-base-ui-portal\]/);
+  assert.match(modern.css.hoverCard, /a\[href\$="\/following"\]/);
+  assert.match(modern.css.hoverCard, /profile_banners/);
+  // A menu or dialog lives in its own portal and carries neither marker.
+  assert.ok(!/\[role="menu"\]|\[role="dialog"\]/.test(modern.css.hoverCard));
+});
+
 test('modern css centres the left nav column', () => {
   assert.equal(
     modern.css.navCenter,

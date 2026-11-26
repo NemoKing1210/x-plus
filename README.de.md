@@ -179,7 +179,8 @@ Feed-Tabs, der Block *Wem folgen*, den X in die Timeline einfügt, die rechte
 Spalte (Suche, Premium-Angebot, Trends, *Wem folgen*, Footer-Links), Einträge im
 linken Menü (Logo, Entdecken, Benachrichtigungen, Chat, Anrufe, Grok, Verlauf,
 Creator Studio, Premium, Beitrag-Schaltfläche, Kontomenü …) und die schwebenden
-Grok- / Chat-Fenster. Fahre über eine Einstellung, um sie in der Vorschau zu
+Grok- / Chat-Fenster sowie die Mini-Profilkarte, die beim Überfahren eines Namens
+oder Avatars erscheint. Fahre über eine Einstellung, um sie in der Vorschau zu
 sehen: Abdunklung und Unschärfe blenden aus und das betroffene Element auf der
 Seite hinter dem Fenster wird umrandet (auch wenn es gerade ausgeblendet ist).
 

@@ -35,6 +35,12 @@ you are about to work on here.
 
 ### Done ✓
 
+- [x] Add a clean-up switch for the profile hover card ~0.5h #interface @NemoKing1210 2026-11-27
+  - [x] `chrome.hoverCard` hides the mini profile card X opens on hover on both DOM generations
+  - [x] Legacy target is the floating container (`hoverCardParent` / `HoverCard`); modern target is the Base UI portal recognised by the profile's follower links, or its banner in a card without them
+  - [x] Verified on the live modern page: the generated selector hides the open card and leaves an open post menu alone
+  - [x] Switch sits under Interface → Floating panels; label and hint in all eight locales; docs, READMEs and changelog updated
+  - [x] Unit tests pin the fragments; `npm run ci` green and root artifacts rebuilt
 - [x] Ship user-visible fixes as patch releases ~0.5h #chore @NemoKing1210 2026-11-27
   - [x] `AGENTS.md`, `CONTRIBUTING.md` and `docs/DEVELOPMENT.md`: a `fix` / `perf` change moves the patch version with the change, a feature waits in `[Unreleased]` for the next minor
   - [x] The Shorts smoothness fix is the first one shipped this way (`0.16.1`, README badges and root artifacts rebuilt)

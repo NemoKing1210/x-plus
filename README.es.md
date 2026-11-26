@@ -173,7 +173,9 @@ las pestañas del feed, el bloque *A quién seguir* que X inserta en la cronolog
 la columna derecha (búsqueda, oferta Premium, tendencias, *A quién seguir*,
 enlaces del pie), entradas del menú izquierdo (logotipo, Explorar,
 Notificaciones, Chat, Llamadas, Grok, Historial, Creator Studio, Premium, botón
-de publicación, menú de cuenta…) y los paneles flotantes de Grok / Chat. Pasa el
+de publicación, menú de cuenta…) y los paneles flotantes de Grok / Chat, y la
+mini tarjeta de perfil que aparece al pasar el cursor sobre un nombre o avatar.
+Pasa el
 ratón sobre un ajuste para previsualizarlo: la atenuación y el desenfoque se
 desvanecen y el elemento afectado de la página detrás del panel se delinea (se
 muestra aunque esté oculto).
