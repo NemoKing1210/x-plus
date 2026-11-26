@@ -26,7 +26,11 @@ you are about to work on here.
 
 ### In Progress
 
-_No active task._
+- [ ] Restore every feature on X's 2026 DOM with versioned compatibility profiles ~2d #compat @NemoKing1210 2026-11-26  
+  - [ ] `core/compat` resolver, generation detection, report, CSS unions and `XP-3001..XP-3004` diagnostics  
+  - [ ] Legacy and modern DOM profiles with every capability implemented  
+  - [ ] Feature modules migrated to `dom.*`; no X selectors left outside the profiles  
+  - [ ] Modern harness fixture, docs, changelog and a full verification pass  
 
 ### Done ✓
 
