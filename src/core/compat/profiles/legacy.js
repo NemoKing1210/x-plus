@@ -862,6 +862,9 @@ export default {
     // Floating panels in the bottom-right corner (Grok, chat) and their roots.
     grokDrawer: '[data-testid="GrokDrawer"]',
     chatDrawer: '[data-testid="chat-drawer-root"]',
+    // The mini profile card X opens when a name or avatar is hovered. The outer
+    // container is hidden too, so no empty floating layer stays behind.
+    hoverCard: '[data-testid="hoverCardParent"], [data-testid="HoverCard"]',
     // The wrapper X slides in around each drawer; hidden with it so no gap stays.
     grokDrawerWrapper: 'div:has(> div > [data-testid="GrokDrawer"])',
     chatDrawerWrapper: 'div:has(> div > [data-testid="chat-drawer-root"])',

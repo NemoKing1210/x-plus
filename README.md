@@ -127,7 +127,8 @@ Grok buttons, the post box and feed tabs, the *Who to follow* block X inserts
 into the timeline, the right column (search, Premium offer, trends,
 *Who to follow*, footer links), left-menu entries (logo, Explore,
 Notifications, Chat, Calls, Grok, History, Creator Studio, Premium, Post button,
-account menu …) and the floating Grok / Chat panels.
+account menu …) and the floating Grok / Chat panels and the mini profile card
+that opens when you hover a name or avatar.
 Hover a setting to preview it: the dimming and blur fade out
 and the affected element on the page behind it is outlined (shown
 if it is currently hidden).

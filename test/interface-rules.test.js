@@ -51,6 +51,15 @@ test('the floating Grok and chat panels are hidden on both generations', () => {
   }
 });
 
+test('the profile hover card is hidden on both generations', () => {
+  const rule = RULES.find((candidate) => ruleId(candidate) === 'chrome.hoverCard');
+  assert.ok(rule, 'chrome.hoverCard exists');
+  assert.equal(ruleApplies(rule, 'modern'), true);
+  assert.equal(ruleApplies(rule, 'legacy'), true);
+  assert.match(rule.css, /data-base-ui-portal/);
+  assert.match(rule.css, /hoverCardParent/);
+});
+
 test('the logo rule maps to a wrapper only while it holds the logo alone', () => {
   const logoRoot = (linkCount) => {
     const wrapper = { querySelectorAll: () => Array.from({ length: linkCount }) };

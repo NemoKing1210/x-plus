@@ -533,7 +533,8 @@ export const RULES = [
     }),
   },
 
-  /* Floating panels (bottom right) */
+  /* Floating panels and cards (bottom right, and the hover card anywhere) */
+  { group: 'chrome', key: 'hoverCard', hint: true, css: cssFor('hoverCard') },
   {
     group: 'chrome',
     key: 'grokDrawer',

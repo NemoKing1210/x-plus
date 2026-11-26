@@ -164,7 +164,8 @@ abas do feed, o bloco *Quem seguir* que o X insere na linha do tempo, a coluna
 direita (busca, oferta Premium, tendências, *Quem seguir*, links do rodapé),
 itens do menu esquerdo (logotipo, Explorar, Notificações, Chat, Chamadas, Grok,
 Histórico, Creator Studio, Premium, botão de postar, menu da conta…) e os
-painéis flutuantes do Grok / Chat. Passe o mouse sobre uma configuração para
+painéis flutuantes do Grok / Chat, e o mini cartão de perfil que aparece ao
+passar o cursor sobre um nome ou avatar. Passe o mouse sobre uma configuração para
 visualizá-la: o escurecimento e o desfoque desaparecem e o elemento afetado na
 página atrás do painel é contornado (mostrado mesmo se estiver oculto).
 

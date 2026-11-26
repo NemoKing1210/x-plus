@@ -793,6 +793,13 @@ export default {
     // its panel. Identified by icon, not the localized aria-label.
     grokDrawer: '[data-slot="xds-dock-window"]:has(svg[data-icon="icon-logo-grok"])',
     chatDrawer: '[data-slot="xds-dock-window"]:has(svg[data-icon="icon-chat"])',
+    // The mini profile card X opens when a name or avatar is hovered: a Base UI
+    // portal whose popup carries the profile's follower links (or, in a compact
+    // variant without them, its banner). Menus and dialogs live in their own
+    // portals and match neither marker.
+    hoverCard:
+      '[data-base-ui-portal]:has([data-base-ui-focusable] a[href$="/following"]), ' +
+      '[data-base-ui-portal]:has([data-base-ui-focusable] img[src*="profile_banners"])',
     // The modern nav is the column itself, not a list inside a wrapper.
     navCenter: 'nav[aria-label]:has(a[href="/home"]):not([data-testid]):not(header[role="banner"] *)',
     // One trend in the sidebar trends module: the new build marks nothing, but each

@@ -178,7 +178,8 @@ bloc *Qui suivre* que X insère dans la timeline, la colonne de droite (recherch
 offre Premium, tendances, *Qui suivre*, liens de pied de page), les entrées du
 menu de gauche (logo, Explorer, Notifications, Chat, Appels, Grok, Historique,
 Creator Studio, Premium, bouton de publication, menu du compte…) et les panneaux
-flottants Grok / Chat. Survolez un réglage pour le prévisualiser : l’assombrissement
+flottants Grok / Chat, ainsi que la mini-carte de profil qui apparaît au survol
+d’un nom ou d’un avatar. Survolez un réglage pour le prévisualiser : l’assombrissement
 et le flou s’estompent et l’élément concerné sur la page derrière le panneau est
 surligné (affiché même s’il est masqué).
 

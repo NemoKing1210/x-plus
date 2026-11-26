@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A “Profile hover card” clean-up switch hides the mini profile card X opens when a name or avatar is hovered
 - Works with the new X design, with backward compatibility for the previous one: every feature detects which build of the site is running and adapts, so translation, media, screenshots, Shorts, filtering, clean-up and the settings entry keep working through the roll-out
 
 ### Changed
