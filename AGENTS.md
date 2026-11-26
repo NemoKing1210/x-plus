@@ -24,8 +24,8 @@ reference for architecture and conventions.
 ## Architecture in one paragraph
 
 A small **core** (`src/core/`: schema, feature registry, settings, bus, scan,
-theme, storage, http) runs independent **features** (`src/features/*`). A
-feature calls `registerFeature({ id, fields, tabs, init, apply, scan,
+theme, storage, http, compat) runs independent **features** (`src/features/*`).
+A feature calls `registerFeature({ id, fields, tabs, init, apply, scan,
 navigate })`; its `fields` (declarative schema) define defaults, normalization
 and the settings UI, `tabs` are rendered by the shared spec renderer. Full
 details and the "add a feature / provider / rule" recipes:
@@ -97,9 +97,12 @@ about what you tried. `TODO.md` is a backlog, not a changelog.
   `saveSettings`.
 - Features react to settings through `apply(cfg, prev)` and to the page
   through `scan(root)`; keep both **idempotent** (they run often).
-- Every X-specific selector lives in `src/core/constants.js` (`SEL`) or at the
-  top of the module that needs it (see "Verifying X selectors" in
-  `docs/DEVELOPMENT.md`). X's DOM changes often: prefer `data-testid`.
+- Features never contain X selectors: ask `dom` from `src/core/compat` and
+  build CSS with `cssFor()`. X knowledge lives in the profiles
+  (`src/core/compat/profiles/`); see "DOM generations" in
+  `docs/DEVELOPMENT.md`. X ships a legacy and a modern build, so a rule whose
+  target exists in one of them only carries `generations: { modern: false }`
+  rather than a selector that silently matches nothing.
 - Do not expand `@connect` / `@grant` beyond what is needed; metadata lives in
   `vite.config.js`, not in built files. Never commit localhost
   `@updateURL` / `@downloadURL`.
@@ -157,6 +160,8 @@ block and language switcher at the top of every README are generated — edit
 - Hand-edit `x-plus.user.js` / `x-plus.meta.js`.
 - Add a frontend framework or TypeScript unless explicitly requested.
 - Bypass the schema (unvalidated settings) or create UI outside `el()`.
+- Put an X selector in a feature: add it to a profile (or add a capability)
+  and reach it through `dom` / `cssFor`.
 
 ## Local testing
 

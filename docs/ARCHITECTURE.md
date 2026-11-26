@@ -11,7 +11,8 @@ normalization, the settings UI, DOM observation, i18n — is shared.
 src/
 ├── main.js                  # Boot: load settings → init/apply features → start observers
 ├── core/
-│   ├── constants.js         # Identity, storage keys, X selectors (SEL), timings
+│   ├── constants.js         # Identity, storage keys, UI attributes, timings
+│   ├── compat/              # DOM compatibility: generation detection, profiles, capability resolver
 │   ├── schema.js            # Declarative settings schema: field.bool/enum/int/text/url/list/records
 │   ├── features.js          # Feature registry (registerFeature, hooks)
 │   ├── settings.js          # Load / save / import / export + normalization (single source of truth)
@@ -45,13 +46,18 @@ The script runs at `document-start`.
 
 ```
 loadSettings()                         # normalize stored blob against every feature's schema
+initCompat()                           # detect the DOM generation (legacy | modern), pick a profile
 setBootIntroEnabled(...)               # General → Startup intro (off by default)
 startBootVeil()                        # frosted veil before X's first paint (ui/boot.js)
 applyRuleStyles()                      # interface hide rules before X paints the feed
 
 whenReady → boot()
+  initCompat()                         # re-detect once the document exists
+  loadSettings()
   observePageTheme()                   # data-xp-theme follows X
   runBootIntro(applyFeatures)          # everything below applies under the veil
+    on('navigate') → refreshCompat(…, { navigation: true })   # new generation, owners reset
+    on('scan')     → refreshCompat() while the generation is unknown
     for feature in features (by order):
         init()                         # once
         apply(cfg, null)               # initial configuration
@@ -74,6 +80,64 @@ X's first paint, stays while the features inject their chrome, then lifts and
 lets the visible posts fade in with a short stagger. A watchdog drops it if boot
 never happens; with the setting off, reduced motion, or a script injected after
 the page has loaded, `applyFeatures` runs synchronously without the veil.
+
+## DOM compatibility
+
+X serves two builds of its web client: **legacy** (`data-testid` hooks,
+`r-*` atomic classes) and **modern** (`data-slot`, `xds-*`,
+`data-engagement-action`). Features never contain X selectors; they ask the
+compat layer (`src/core/compat/`) for structure and it answers from a
+**profile** that knows the build the page is running.
+
+**Detection.** Each profile carries a `detect(root)` probe (a few cheap
+`querySelector`s). `detectGeneration()` walks the profiles in priority order —
+modern first — and returns the first match or `unknown`. The result goes on
+`<html>` as `data-xp-dom` (plus `data-xp-dom-build` with X's own
+`data-app-version`). It is re-detected on boot, on SPA navigation (owner cache
+reset) and after a scan while the answer is still `unknown`. A page forced with
+`window.__XP_FORCE_DOM__` (or `?force=` on the harness) skips detection.
+
+**Profiles.** `profiles/legacy.js` and `profiles/modern.js` each export
+`{ id, detect, api, css }`: `api` implements the capability functions, `css`
+holds selector fragments (`article`, `cell`, `primaryColumn`, `trend`, …) for
+the CSS that cannot go through JS.
+
+**Capability kinds.** `kinds.js` names every capability and fixes how the
+resolver treats an answer. Features only call `dom.<name>(…)`.
+
+| Kind | Who answers | On an empty answer |
+|------|-------------|--------------------|
+| `page-list` | every profile | unioned, then deduplicated and nesting removed |
+| `page-single` | active profile first, then the others | first non-empty wins |
+| `element-single` | the profile that owns the element | owned `null` is final, no fall-through |
+| `element-list` | the profile that owns the element | owned `[]` is final |
+| `predicate` | the profile that owns the element | owned `false` is final |
+
+**Ownership.** The resolver remembers which profile discovered an element
+(`WeakMap`). For element kinds the owner is authoritative: its "nothing here"
+is a real answer, so a profile that sees the page differently can never guess
+over it. Element answers for connected owned elements are cached per element;
+the cache lives with the owners and is cleared on navigation. `undefined` means
+"not mine — ask the next profile", which is how a profile answers for markup it
+does not know.
+
+**CSS unions.** Static rules cannot call functions, so `cssFor(key)` builds
+`:is(legacyFragment, modernFragment)` from the profiles' `css` blocks. A
+fragment defined by only one profile still matches on both pages (harmless on
+the other), and a key no profile knows returns `''` — callers must treat that
+as "no rule" rather than emit an empty selector.
+
+**Generations in features.** A clean-up rule whose target exists in one build
+only carries `generations: { modern: false }`: the engine skips it, its switch
+is hidden, and a settings section with no applicable rule hides itself
+(`ruleApplies` / `groupApplies` in `features/interface/`).
+
+**Diagnostics.** `XP-3001` generation not recognised, `XP-3002` no profile
+answered a capability, `XP-3003` a profile function threw, `XP-3004` another
+profile answered instead of the active one. In verbose mode
+(`xp_debug = 1`) `window.__xpCompat` exposes `{ dom, report(), generation(),
+refresh() }`. The recipes for a new capability and a third profile, plus the
+per-rule table, live in [DEVELOPMENT.md](DEVELOPMENT.md#dom-generations).
 
 ## Settings
 
@@ -190,9 +254,9 @@ in `api.js`, add its host to `@connect` in `vite.config.js`.
 
 ### media
 
-`viewer.js` is independent of downloads: delegated capture-phase listeners (wheel, pointer, dblclick, keys) apply a CSS transform to the `<img>` of X's full-screen photo view (`SEL` in the file header) and swap in `name=orig` while zoomed.
+`viewer.js` is independent of downloads: delegated capture-phase listeners (wheel, pointer, dblclick, keys) apply a CSS transform to the `<img>` of X's full-screen photo view (`dom.getViewerImages` / `dom.getViewerStage`) and swap in `name=orig` while zoomed.
 
-`gallery.js` (setting `photoGallery`, off by default) intercepts a primary click on a post photo in the capture phase (`SEL.photo` inside an article; Ctrl / Cmd / Shift / Alt clicks and buttons on the photo are left alone), collects the photos of that post / quote from the DOM (`getMediaHosts`) and shows them in its own full-screen overlay (`styles/gallery.css`) — no route change, no extra requests besides the images (`name=large`, `orig` once zoomed). It owns its keys (`Esc`, `←` `→`, `+` `-` `0`) and closes on navigation.
+`gallery.js` (setting `photoGallery`, off by default) intercepts a primary click on a post photo in the capture phase (a media host of an article; Ctrl / Cmd / Shift / Alt clicks and buttons on the photo are left alone), collects the photos of that post / quote from the DOM (`getMediaHosts`) and shows them in its own full-screen overlay (`styles/gallery.css`) — no route change, no extra requests besides the images (`name=large`, `orig` once zoomed). It owns its keys (`Esc`, `←` `→`, `+` `-` `0`) and closes on navigation.
 
 ```
 click → getTweetId(article)
@@ -214,11 +278,11 @@ click → getTweetId(article)
 
 ### shorts
 
-`engine.js` (setting `enabled`, off by default; switchable from the settings tab and from `dock-switch.js`, the switch in the bottom-left dock `ui/dock.js` next to the shortcut reminder) turns the feed into a post-by-post view on feed pages (anything but `/…/status/…`, messages, settings, Grok). Capture-phase `wheel` / `keydown` listeners step to the neighbouring post cell (`SEL.cell` containing `SEL.article`) with an own `requestAnimationFrame` tween on `window.scrollTo` that re-reads the target every frame, so X's virtualization and infinite scroll are untouched. One step per wheel gesture (the decaying tail of a trackpad flick is ignored); a post taller than the screen scrolls natively until its edge is visible; wheel and keys are left alone over the sidebar, dialogs / menus / the gallery, text inputs and fullscreen video.
+`engine.js` (setting `enabled`, off by default; switchable from the settings tab and from `dock-switch.js`, the switch in the bottom-left dock `ui/dock.js` next to the shortcut reminder) turns the feed into a post-by-post view on feed pages (anything but `/…/status/…`, messages, settings, Grok). Capture-phase `wheel` / `keydown` listeners step to the neighbouring post cell (`dom.getPostCells` containing `dom.getArticles`) with an own `requestAnimationFrame` tween on `window.scrollTo` that re-reads the target every frame, so X's virtualization and infinite scroll are untouched. One step per wheel gesture (the decaying tail of a trackpad flick is ignored); a post taller than the screen scrolls natively until its edge is visible; wheel and keys are left alone over the sidebar, dialogs / menus / the gallery, text inputs and fullscreen video.
 
 A **unit** is one cell, or the cells of a thread merged by `collect()`: `threadLines()` looks (by shape, not by class) in the avatar column for a thin empty bar that ends at the avatar (line above) or starts from it (line below); two post cells with no other cell between them (a "show more replies" cell breaks the chain) belong to one unit when the upper one has a line below **or** the lower one a line above. `localStorage.setItem('xp_debug', '1')` logs what each cell's check found (`X Plus · shorts thread lines`). Everything below (active / prev / next / far marks, centring, stepping, the settle timer, the auto-scroll countdown) works on units; the cells of the active unit share one `transform-origin` (`--xp-shorts-oy`) so the joins stay put while it grows.
 
-The nearest unit to the screen middle gets `data-xp-shorts="active"`, the cells before / after it `prev` / `next` and the rest `far` (opacity per setting: `prevOpacity`, `nextOpacity`; `far` follows the fainter one); `styles/shorts.css` scales / blurs the `article` inside (never the cell: X positions cells with transforms). `nav.js` draws the previous / next buttons (setting `buttons`): a fixed, vertically centred pair at the right edge of `SEL.primaryColumn` — in the gap before the right column when it is wide enough, over the feed's edge otherwise — hidden while a dialog / menu is open; `engine.js` feeds it the enabled states on every `update()`.
+The nearest unit to the screen middle gets `data-xp-shorts="active"`, the cells before / after it `prev` / `next` and the rest `far` (opacity per setting: `prevOpacity`, `nextOpacity`; `far` follows the fainter one); `styles/shorts.css` scales / blurs the `article` inside (never the cell: X positions cells with transforms). `nav.js` draws the previous / next buttons (setting `buttons`): a fixed, vertically centred pair at the right edge of `dom.getPrimaryColumn` — in the gap before the right column when it is wide enough, over the feed's edge otherwise — hidden while a dialog / menu is open; `engine.js` feeds it the enabled states on every `update()`.
 
 `autoplay.js` (setting `autoplay`) is the auto-scroll: one `requestAnimationFrame` loop counts `autoDelay` seconds on the current post (restarted whenever the post changes; frames longer than 100 ms are clipped so a background tab does not skip ahead; paused while the pointer is on the controls or an overlay is open; a non-looping `<video>` longer than the delay extends it) and calls the engine's `step()` when the countdown ends. The engine hands in `cell / moving / blocked / step` so the modules do not import each other. Progress goes to `setRing()` (SVG ring on the "next" button, `nav.js`) and/or a fixed bar over the post's top edge, depending on `autoStyle` (`auto` = ring while the buttons are visible, bar otherwise). The pause is a runtime flag (`isAutoPaused`), not a setting, but it is persisted under its own storage key (`SHORTS_PAUSED_KEY`) so it survives leaving the feed for a post page and a reload; switching `autoplay` off and on clears it (a fresh start runs). The play / pause button under the arrows and the `autoKey` hotkey (a `KeyboardEvent.code`, picked with the `hotkey` settings control; handled in `engine.js`'s key handler, only while `autoplay` is on) flip it, and the button starts auto-scroll when the setting is off. With the bar visible, a small chip at its right end shows the pause state and the key and does the same on click.
 
@@ -254,6 +318,14 @@ Speed rules of thumb, fastest first:
 The feature has no `scan` hook on purpose: the shared debounced scan would be
 starved by X's constant DOM churn and walks the whole page.
 
+Rules take their selectors from the compat layer: `css` entries are built from
+`cssFor()` fragments, `inArticle` / `find` call `dom` capabilities. A rule whose
+target exists in one build of the site only (the new-posts pill, the floating
+drawers) carries `generations: { modern: false }`; the engine skips it, the
+settings switch hides itself, and so does a section with no applicable rule.
+The per-rule legacy / modern table is in
+[DEVELOPMENT.md](DEVELOPMENT.md#clean-up-rules-per-dom-generation).
+
 ### filter
 
 `config.js` is the condition catalog: `FIELDS` (author name, @handle, post
@@ -273,10 +345,11 @@ matches. A rule has one level: its conditions are combined with
 emoji-aware — X renders emoji, flags included, as `<img alt>` or
 `[role="img"][aria-label]`, so plain `textContent` would lose the very thing
 users filter by. The focal post of a `/status/` page is never read; promoted,
-verified and context flags are scoped to the outer post and its cell.
-Selectors live at the top of the file.
+verified and context flags are scoped to the outer post and its cell. Every
+structure is read through `dom` capabilities, never through a selector of its
+own.
 
-`engine.js` marks the whole timeline cell (`SEL.cell`) with
+`engine.js` marks the whole timeline cell (`dom.getPostCell`) with
 `data-xp-filtered`; a generated stylesheet hides
 `[data-xp-filtered]:not([data-xp-peek])`. It keeps one `MutationObserver` on
 the page, processes added posts synchronously before paint within an 8 ms
@@ -298,7 +371,7 @@ after normalization.
 
 ### screenshot
 
-`button.js` mounts one camera control per top-level post (`SEL.article`) into
+`button.js` mounts one camera control per top-level post (`dom.getArticles`) into
 the tweet header actions row, reusing `findHeaderActionsSlot` /
 `mountHeaderButton` from `translate/placement.js`. It is placed after the
 Translate wrapper when that feature is on and works independently of it; the
@@ -349,8 +422,10 @@ the error toast. The live post is never mutated.
 - Every element we create uses the `xp-` class prefix and the `data-xp-ui`
   attribute (via `el()`), so scans ignore it; enhanced post text carries
   `data-xp-post`. Storage keys use the `xp_` prefix.
-- Every X-specific selector lives in `core/constants.js` (`SEL`) or at the top
-  of the module that needs it — X's DOM changes often, keep fixes one-line.
+- Features never contain X selectors: they call `dom` from `core/compat` and
+  build CSS with `cssFor()`. X knowledge lives in the profiles
+  (`core/compat/profiles/`), one per build of the site — see "DOM
+  compatibility" above.
 - Colors come from `styles/tokens.css` (`var(--xp-*)`), which follows X's
   theme (light / dim / lights-out).
 - Errors carry stable `XP-####` codes (`core/debug.js`); verbose traces via

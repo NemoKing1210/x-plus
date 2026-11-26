@@ -65,25 +65,68 @@ when a change alters the injected UI, and keep the filenames referenced by
 `README.md` the same in every localized README. Reference them with absolute
 `raw.githubusercontent.com` URLs so they also render on Greasy Fork / ScriptCat.
 
-## Verifying X selectors
+## DOM generations
 
-When X changes its markup, features degrade silently (no button, no hiding).
-All selectors are centralised:
+X runs two builds of its web client: the **legacy** markup (`data-testid`
+hooks, `r-*` atomic classes) and the **modern** one (`data-slot`, `xds`,
+`data-engagement-action`). X Plus detects the build structurally — never by
+hostname or user agent — and answers every structural question through the
+compat layer in `src/core/compat/`.
+
+| Signal | Meaning |
+|--------|---------|
+| `document.documentElement.dataset.xpDom` | `legacy`, `modern` or `unknown` |
+| `dataset.xpDomBuild` | X's own `data-app-version`, when it ships one |
+| `?force=legacy` / `?force=modern` on the harness, `window.__XP_FORCE_DOM__` | force a profile for testing |
+| `window.__xpCompat` (verbose mode only) | `{ dom, report(), refresh(), generation() }` |
+
+Both fixtures run the built bundle: <http://localhost:5179/> (legacy) and
+<http://localhost:5179/modern>. A page whose build is not recognised yet is
+handled by the modern profile first (`XP-3001` warns), and the layer detects
+again after the next scan.
+
+### Where X knowledge lives
 
 | What | Where |
 |------|-------|
-| tweet, text, quote, caret, photo, player, sidebar … | `src/core/constants.js` → `SEL` |
-| quote header row classes, native translate icon | `src/core/constants.js` |
-| promoted-post markers, sidebar block detection, nav hrefs | `src/features/interface/rules.js` |
-| header action slot (Grok / caret) | `src/features/translate/placement.js` |
-| sidebar nav template | `src/features/settings/nav-button.js` |
+| capability implementations | `src/core/compat/profiles/legacy.js`, `modern.js` |
+| CSS fragments (`article`, `cell`, `trend`, …) | the `css` object of each profile |
+| capability names and answer kinds | `src/core/compat/kinds.js` |
+| detection probes | each profile's `detect(root)` |
+| feature code | nowhere: it calls `dom.*` and builds CSS with `cssFor()` |
 
-Documented exception: `nav-button.js` seeds `navHoverClass` with a legacy
-`r-*` hover pill class. It is only a starting value — the class name is learned
-from X's own menu rows at runtime — and the whole hover mirror is skipped on
-the modern page, which styles the row with CSS.
+A source-level test (`test/compat-imports.test.js`) fails when a file under
+`src/features/` or `src/ui/` imports a profile or carries a `data-testid`,
+`xds-`, `header[role="banner"]` or atomic `r-*` selector. The single
+documented exception is `nav-button.js`, which seeds `navHoverClass` with a
+legacy `r-*` hover pill class. It is only a starting value — the class name is
+learned from X's own menu rows at runtime — and the whole hover mirror is
+skipped on the modern page, which styles the row with CSS.
+
+### Adding a capability
+
+1. Add the name and its answer kind to `KINDS` (`src/core/compat/kinds.js`).
+2. Implement it in both profiles; return `undefined` where that build does not
+   have the thing, so the resolver falls through to the other profile.
+3. Pin the selectors it uses in `test/compat-profiles.test.js`.
+4. Call `dom.<name>()` from features and add the name to the brief of the task
+   that consumes it.
+
+### Adding a third profile
+
+1. Create `src/core/compat/profiles/<id>.js` exporting `{ id, detect, api, css }`.
+2. Register it in `PROFILES` (`src/core/compat/index.js`); the order is
+   priority, newest build first, because `detect` stops at the first match.
+3. Answer only what differs — an `undefined` answer means "not mine, ask the
+   next profile", while an owned element's empty answer stays final.
+4. Add only the CSS fragments it changes; `cssFor()` unions the ones it does
+   not define.
+5. Add the build to the rule table below, run the harness with
+   `?force=<id>` (and the dedicated fixture), then update the selector table
+   in the design spec.
 
 ## Clean-up rules per DOM generation
+
 
 Every switch of the Interface tab is one entry in
 `src/features/interface/rules.js`. A rule either works on both generations —
