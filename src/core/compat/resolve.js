@@ -6,8 +6,8 @@
  * it, so an owned element's negative answer (`null`, `false`, `[]`) is final
  * and never falls through to a profile that might guess differently.
  *
- * See docs/superpowers/specs/2026-11-26-dom-compatibility-design.md §6.2.1
- * and §6.4.
+ * See `DOM compatibility` in docs/ARCHITECTURE.md (capability kinds, ownership
+ * and fallback order).
  */
 
 import { kindOf } from './kinds.js';
@@ -46,6 +46,36 @@ export function dedupeElements(list) {
 }
 
 /**
+ * Remove exact duplicates from an element-list answer. List items may be
+ * elements or containers with an `el` field (`getMediaHosts` returns the
+ * latter), so identity is compared on the element, not on the wrapper.
+ *
+ * @param {Array<Element|{ el?: Element }>} list
+ * @returns {Array<Element|{ el?: Element }>}
+ */
+function dedupeItems(list) {
+  const seen = new Set();
+  const unique = [];
+  for (const item of list) {
+    const element = isElement(item) ? item : item?.el;
+    if (element) {
+      if (seen.has(element)) continue;
+      seen.add(element);
+    }
+    unique.push(item);
+  }
+  return unique;
+}
+
+function units(value) {
+  // `false` is a negative answer like `null`: an owned element may gain its
+  // target later, so it must not be cached as a definitive "no".
+  if (value == null || value === false) return 0;
+  if (Array.isArray(value) || typeof value.length === 'number') return value.length;
+  return 1;
+}
+
+/**
  * @param {{
  *   profiles: Array<{ id: string, api: Record<string, Function>, detect?: Function, css?: object }>,
  *   report: ReturnType<import('./report.js').createReport>,
@@ -69,10 +99,6 @@ export function createResolver({ profiles, report, logger = {} }) {
 
   function activeIdValue() {
     return activeId;
-  }
-
-  function ownerOf(element) {
-    return owners.get(element) || null;
   }
 
   function clearOwners() {
@@ -148,6 +174,17 @@ export function createResolver({ profiles, report, logger = {} }) {
       cache.set(input, perKey);
     }
     perKey.set(key, { value });
+    return value;
+  }
+
+  /**
+   * Cache a positive answer only. A negative answer (`null`, `[]`) is final for
+   * one call, but the page can still grow the element later — X mounts the
+   * native translate bar after a click and media after a lazy load — so keeping
+   * it would hide every later answer until the next navigation.
+   */
+  function cacheAnswer(input, key, value) {
+    if (input && units(value) > 0) writeCache(input, key, value);
     return value;
   }
 
@@ -232,9 +269,9 @@ export function createResolver({ profiles, report, logger = {} }) {
       const outcome = classify(value, ownedForThis);
 
       if (outcome === 'definitive') {
-        const result = kind === 'page-list' || kind === 'element-list' ? asArray(value) : value;
+        const result = kind === 'page-list' ? asArray(value) : value;
         registerOwners(result, profile.id);
-        return cacheKey ? writeCache(cacheKey, key, result) : result;
+        return cacheAnswer(cacheKey, key, result);
       }
 
       if (outcome === 'empty') {
@@ -244,7 +281,7 @@ export function createResolver({ profiles, report, logger = {} }) {
 
       report.hit(profile.id, key);
 
-      if (kind === 'page-list' || kind === 'element-list') {
+      if (kind === 'page-list') {
         for (const item of asArray(value)) {
           found.push(item);
           registerOwners(item, profile.id);
@@ -252,21 +289,31 @@ export function createResolver({ profiles, report, logger = {} }) {
         continue;
       }
 
+      if (kind === 'element-list') {
+        const items = asArray(value);
+        for (const item of items) registerOwners(item, profile.id);
+        if (!ownedForThis && profile.id !== activeId) {
+          if (report.fallback(profile.id, key)) logger.fallback?.(profile.id, key);
+        }
+        // An element-list is owned by one profile: the first answer wins and
+        // nothing is merged in from the other generation.
+        return cacheAnswer(cacheKey, key, dedupeItems(items));
+      }
+
       registerOwners(value, profile.id);
       if (!ownedForThis && profile.id !== activeId) {
         if (report.fallback(profile.id, key)) logger.fallback?.(profile.id, key);
       }
-      return cacheKey ? writeCache(cacheKey, key, value) : value;
+      return cacheAnswer(cacheKey, key, value);
     }
 
     if (found.length) {
       const result = dedupeElements(found);
-      if (result.length) return cacheKey ? writeCache(cacheKey, key, result) : result;
+      if (result.length) return result;
     }
 
     if (kind === 'page-single' || kind === 'element-single') {
       if (report.miss(key)) logger.miss?.(key);
-      if (cacheKey) writeCache(cacheKey, key, null);
       return null;
     }
 
@@ -277,7 +324,6 @@ export function createResolver({ profiles, report, logger = {} }) {
     setActive,
     activeId: activeIdValue,
     resolve,
-    ownerOf,
     clearOwners,
     snapshot,
   };

@@ -42,7 +42,7 @@ test('predicate false on an owned element never falls back', () => {
   assert.equal(resolver.resolve('isPromotedArticle', [article]), false);
 });
 
-test('element-list does not union across profiles', () => {
+test('element-list keeps the owner’s empty answer', () => {
   const article = node('article');
   const modern = profile('modern', { getArticles: () => [article], getMediaHosts: () => [] });
   const legacy = profile('legacy', { getMediaHosts: () => [{ el: node('media') }] });
@@ -50,6 +50,51 @@ test('element-list does not union across profiles', () => {
   resolver.setActive('modern');
   resolver.resolve('getArticles', [{}]);
   assert.deepEqual(resolver.resolve('getMediaHosts', [article]), []);
+});
+
+test('element-list returns the owner’s list and never unions it with another profile', () => {
+  const article = node('article');
+  const own = { el: node('media-own') };
+  const foreign = { el: node('media-foreign') };
+  const modern = profile('modern', { getArticles: () => [article], getMediaHosts: () => [own] });
+  const legacy = profile('legacy', { getMediaHosts: () => [foreign] });
+  const resolver = createResolver({ profiles: [modern, legacy], report: createReport() });
+  resolver.setActive('modern');
+  resolver.resolve('getArticles', [{}]);
+  assert.deepEqual(resolver.resolve('getMediaHosts', [article]), [own]);
+});
+
+test('a definitive negative answer is queried again on the next call', () => {
+  const article = node('article');
+  let text = null;
+  const modern = profile('modern', {
+    getArticles: () => [article],
+    getPostText: () => text,
+    getMediaHosts: () => (text ? [{ el: node('late-media') }] : []),
+  });
+  const resolver = createResolver({ profiles: [modern], report: createReport() });
+  resolver.setActive('modern');
+  resolver.resolve('getArticles', [{}]);
+
+  assert.equal(resolver.resolve('getPostText', [article]), null);
+  assert.deepEqual(resolver.resolve('getMediaHosts', [article]), []);
+
+  text = node('late-text');
+  assert.equal(resolver.resolve('getPostText', [article]).id, 'late-text');
+  assert.equal(resolver.resolve('getMediaHosts', [article]).length, 1);
+});
+
+test('a false answer on an owned element is not cached either', () => {
+  const article = node('article');
+  let badge = false;
+  const modern = profile('modern', { getArticles: () => [article], getVerifiedBadge: () => badge });
+  const resolver = createResolver({ profiles: [modern], report: createReport() });
+  resolver.setActive('modern');
+  resolver.resolve('getArticles', [{}]);
+
+  assert.equal(resolver.resolve('getVerifiedBadge', [article]), false);
+  badge = node('late-badge');
+  assert.equal(resolver.resolve('getVerifiedBadge', [article]).id, 'late-badge');
 });
 
 test('undefined falls back, but an exception in one profile does not block', () => {
@@ -186,4 +231,13 @@ test('a cached slot is resolved again when its anchor left the row', () => {
   const second = resolver.resolve('getHeaderActionsSlot', [article]);
   assert.notEqual(second, first);
   assert.equal(calls, 2);
+});
+
+test('the report snapshot does not depend on its receiver', () => {
+  const report = createReport();
+  report.generation = 'modern';
+  report.active = 'modern';
+  const { snapshot } = report;
+  assert.equal(snapshot().generation, 'modern');
+  assert.equal(snapshot().active, 'modern');
 });
