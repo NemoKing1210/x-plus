@@ -723,6 +723,8 @@ export default {
     cell: 'li[data-index]',
     // The rounded, hoverable block around the article; X's own separators and padding sit here.
     postSurface: 'li[data-index] > div:has(article)',
+    // The same block carries the card, so the gap moves it with margins (X re-measures).
+    postGapMargin: 'li[data-index] > div:has(article)',
     tweetText: '[dir="auto"].whitespace-pre-wrap',
     actionReply: '[data-engagement-action="reply"]',
     actionGroup: '[role="group"]:has(> [data-engagement-action="reply"])',

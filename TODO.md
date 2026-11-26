@@ -42,6 +42,7 @@ you are about to work on here.
   - [x] “Discover more” and “Who to follow” blocks are found without `role="heading"`, including the cell that also holds the first recommended post  
   - [x] The X Plus menu row keeps its icon and pill, and rows flattened by the earlier build are rebuilt  
   - [x] The account switcher below the nav and the profile row are matched again  
+  - [x] Post spacing moves the card on the modern build instead of padding inside it  
   - [x] Unit tests for each fix, the modern fixture mirrors the live post shape, docs and changelog updated, `npm run ci` green  
 - [x] Restore every feature on X's 2026 DOM with versioned compatibility profiles ~2d #compat @NemoKing1210 2026-11-26 ✓ 2026-11-26  
   - [x] `core/compat` resolver, generation detection, report, CSS unions and `XP-3001..XP-3004` diagnostics  

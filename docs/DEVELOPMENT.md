@@ -171,7 +171,9 @@ Layout options follow the same split: `menuLeft`, `menuCenter`, `contentWidth`,
 a modern fragment must never also match legacy markup. Post appearance uses
 `postSurface`: the article inside a timeline cell on the legacy build, the
 cell's own `div` on the modern one, which is the block X rounds and colours
-(the article inside it is narrower).
+(the article inside it is narrower). Because that block is also the card, post
+spacing pads the legacy wrapper but *moves* the modern surface with margins:
+padding on the surface would sit inside the card and read as none.
 
 "Legacy only" is temporary: once the modern marker is known, add it as a
 `css` fragment to the modern profile and drop `generations` from the rule.

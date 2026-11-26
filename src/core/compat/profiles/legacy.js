@@ -830,6 +830,8 @@ export default {
     cell: '[data-testid="cellInnerDiv"]',
     // The legacy article inside a timeline cell *is* the rounded block around the post.
     postSurface: '[data-testid="cellInnerDiv"] article[data-testid="tweet"]',
+    // The gap is padding around the article, inside the cell, so X keeps measuring cells.
+    postGapPad: '[data-testid="cellInnerDiv"] div:has(> article[data-testid="tweet"])',
     tweetText: '[data-testid="tweetText"]',
     actionReply: '[data-testid="reply"]',
     actionGroup: '[role="group"]:has(> div > [data-testid="reply"])',

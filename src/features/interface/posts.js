@@ -35,6 +35,12 @@ const avatar = cssFor('avatar');
 // cell's inner <div> on the modern one. Cards belong here, not on the article inside it.
 const surfaceFragment = cssFor('postSurface');
 const surface = surfaceFragment ? `${column} ${surfaceFragment}` : '';
+// The gap must stay outside the card: the legacy wrapper is padded, while the modern
+// surface *is* the card, so it moves outward with margins that X re-measures.
+const gapPad = cssFor('postGapPad');
+const gapMargin = cssFor('postGapMargin');
+const gapPadTarget = gapPad ? `${column} ${gapPad}` : '';
+const gapMarginTarget = gapMargin ? `${column} ${gapMargin}` : '';
 
 const CARD_SURFACE = {
   outline: 'border:1px solid var(--xp-border)!important;box-shadow:none!important',
@@ -88,7 +94,17 @@ export function postsCss(cfg, peek = false) {
 
   // Padding goes on the wrapper right around the post (inside the cell): X measures cell
   // heights, so the list stays consistent. The cell itself is a fixed-position slot.
-  if (cfg.gap > 0) css.push(`${scope} ${cell} div:has(> ${cssFor('article')}){padding-top:${cfg.gap / 2}px!important;padding-bottom:${cfg.gap / 2}px!important;box-sizing:content-box!important}`);
+  if (cfg.gap > 0) {
+    const half = cfg.gap / 2;
+    if (gapPadTarget) {
+      css.push(
+        `${scope} ${gapPadTarget}{padding-top:${half}px!important;padding-bottom:${half}px!important;box-sizing:content-box!important}`,
+      );
+    }
+    if (gapMarginTarget) {
+      css.push(`${scope} ${gapMarginTarget}{margin-top:${half}px!important;margin-bottom:${half}px!important}`);
+    }
+  }
   if (cfg.padding > 0) css.push(`${scope} ${article} > div{padding:${cfg.padding}px!important}`);
   if (cfg.textScale !== 100) {
     css.push(`${scope} ${article} ${cssFor('tweetText')}{zoom:${cfg.textScale / 100}}`);

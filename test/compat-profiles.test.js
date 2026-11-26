@@ -547,3 +547,10 @@ test('modern getNavItem finds the profile row that links to the account handle',
   const root = { querySelectorAll: (selector) => (selector === 'nav' ? [nav] : []) };
   assert.equal(modern.api.getNavItem(root, 'profile'), profile);
 });
+
+test('css marks where the gap sits on each generation', () => {
+  assert.equal(legacy.css.postGapPad, '[data-testid="cellInnerDiv"] div:has(> article[data-testid="tweet"])');
+  assert.equal(modern.css.postGapMargin, 'li[data-index] > div:has(article)');
+  assert.equal(legacy.css.postGapMargin, undefined);
+  assert.equal(modern.css.postGapPad, undefined);
+});
