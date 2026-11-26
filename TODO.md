@@ -35,6 +35,20 @@ you are about to work on here.
 
 ### Done ✓
 
+- [x] Fix the timeline shading from the un-stuck feed tabs ~1h #interface @NemoKing1210 2026-11-26  
+  - [x] With “Scroll the feed tabs with the page” on, the modern build shaded the whole timeline at the top of the page until the next scroll  
+  - [x] The marked element is X's page `<header>`; setting it to `position: static` dropped it as the containing block of its absolutely positioned frosted backdrop, which then sized against the viewport  
+  - [x] The tabs are un-stuck with `position: relative` instead: same flow, but the header keeps its position for its backdrop; verified on the live page (backdrop 1059px → 0)  
+  - [x] Unit test pins the relative rule; changelog and docs updated, `npm run ci` green  
+- [x] Fix the defects the DOM compatibility audit found ~3h #compat @NemoKing1210 2026-11-26  
+  - [x] CSS wrappers no longer nest `:has()`: the action-bar and drawer wrappers match the modern build again, and the content column is sized without growing the box around it, so the centred feed keeps its place  
+  - [x] Negative capability answers are no longer cached, so a native translate bar or media block mounted after the first scan is still found  
+  - [x] `element-list` answers stay with the owning profile instead of being unioned with the other generation  
+  - [x] The modern nav / column / sidebar fragments exclude the legacy markup, and the modern sidebar excludes dialogs  
+  - [x] Feed tabs are `/home`-only and the tab block, not the sticky header, is hidden; the “Show N posts” rule is marked legacy-only  
+  - [x] Shorts styles only the top-level article; the DOM API excludes the legacy wrapper `<main>`; documented profile fallbacks are implemented  
+  - [x] Filtering resolves the focal post once per pass; unused compat exports, the duplicated Shorts hotkeys and the dead spec references are removed  
+  - [x] Unit tests for every fix, docs and changelog updated, `npm run ci` green  
 - [x] Restyle the Shorts controls as one toolbar ~1h #shorts @NemoKing1210 2026-11-26  
   - [x] Previous / next / auto-scroll share one glass pill with equal 40px targets and the progress ring inside it  
   - [x] Tooltips show the hotkeys (K / J and the auto-scroll key), and a key or wheel step flashes the matching button in place  

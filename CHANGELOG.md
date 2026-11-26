@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The X Plus row in the left menu keeps its icon and hover pill on the new design instead of showing a bare label
 - The account switcher and the profile row in the left menu are hidden / found again on the new design, where the switcher sits below the nav and the profile row shows a glyph instead of your avatar
 - Post spacing is visible again on the new design: the cards move apart instead of padding the inside of the card
+- Content width and centred content apply on the new design again, and the centred layout no longer pulls the legacy menu out of its column
+- Hiding the reply / repost / like row leaves no empty row behind on either design
+- Shorts no longer scales and blurs a quoted post twice, so quotes keep their place inside the focused post
+- “Hide feed tabs” on the new design only affects the home timeline and leaves the profile header alone
+- A native translation notice or media block that X mounts after the post was first read is hidden / gets its download button on the next scan
+- The “Show N posts” switch is hidden on the new design instead of staying on and doing nothing
+- “Scroll the feed tabs with the page” no longer dims and blurs the whole timeline on the new design until the next scroll: the un-stuck page header keeps its position for X’s frosted backdrop
 
 ## [0.16.0] - 2026-11-22
 

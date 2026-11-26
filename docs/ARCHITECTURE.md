@@ -110,22 +110,30 @@ resolver treats an answer. Features only call `dom.<name>(…)`.
 | `page-list` | every profile | unioned, then deduplicated and nesting removed |
 | `page-single` | active profile first, then the others | first non-empty wins |
 | `element-single` | the profile that owns the element | owned `null` is final, no fall-through |
-| `element-list` | the profile that owns the element | owned `[]` is final |
+| `element-list` | the profile that owns the element | owned `[]` is final; otherwise the first non-empty answer, never unioned |
 | `predicate` | the profile that owns the element | owned `false` is final |
 
 **Ownership.** The resolver remembers which profile discovered an element
 (`WeakMap`). For element kinds the owner is authoritative: its "nothing here"
 is a real answer, so a profile that sees the page differently can never guess
-over it. Element answers for connected owned elements are cached per element;
-the cache lives with the owners and is cleared on navigation. `undefined` means
-"not mine — ask the next profile", which is how a profile answers for markup it
-does not know.
+over it. Positive element answers for connected owned elements are cached per
+element; the cache lives with the owners and is cleared on navigation. A
+negative answer (`null`, `[]`) is **not** cached: X mounts the native translate
+bar after a click and media after a lazy load, so the next call must see it.
+`undefined` means "not mine — ask the next profile", which is how a profile
+answers for markup it does not know.
 
 **CSS unions.** Static rules cannot call functions, so `cssFor(key)` builds
 `:is(legacyFragment, modernFragment)` from the profiles' `css` blocks. A
 fragment defined by only one profile still matches on both pages (harmless on
 the other), and a key no profile knows returns `''` — callers must treat that
-as "no rule" rather than emit an empty selector.
+as "no rule" rather than emit an empty selector. Fragments must never compose a
+`:has()`-carrying fragment inside another `:has()`: CSS forbids nesting and the
+browser drops that branch, so wrappers have their own fragments
+(`primaryColumnWrapper`, `grokDrawerWrapper`, …). A profile defines such a
+fragment only when its markup has the wrapper: the modern column is the `main`
+element itself, so it has no `primaryColumnWrapper` and the layout rules that
+grow it stay legacy-only.
 
 **Generations in features.** A clean-up rule whose target exists in one build
 only carries `generations: { modern: false }`: the engine skips it, its switch

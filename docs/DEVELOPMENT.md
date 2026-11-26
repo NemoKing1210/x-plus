@@ -81,7 +81,9 @@ compat layer in `src/core/compat/`.
 | `window.__xpCompat` (verbose mode only) | `{ dom, report(), refresh(), generation() }` |
 
 Both fixtures run the built bundle: <http://localhost:5179/> (legacy) and
-<http://localhost:5179/modern>. A page whose build is not recognised yet is
+<http://localhost:5179/modern>. The modern fixture is also served at `/home`
+(and `/home/*`) — the real home-timeline path — so the rules that only answer
+there, such as the feed tabs, can be exercised. A page whose build is not recognised yet is
 handled by the modern profile first (`XP-3001` warns), and the layer detects
 again after the next scan.
 
@@ -122,8 +124,8 @@ skipped on the modern page, which styles the row with CSS.
 4. Add only the CSS fragments it changes; `cssFor()` unions the ones it does
    not define.
 5. Add the build to the rule table below, run the harness with
-   `?force=<id>` (and the dedicated fixture), then update the selector table
-   in the design spec.
+   `?force=<id>` (and the dedicated fixture), then update
+   `docs/ARCHITECTURE.md` if the contract changed.
 
 ## Clean-up rules per DOM generation
 
@@ -139,8 +141,8 @@ left hides its whole section. Check the page you are on with
 
 | Rule | Legacy | Modern |
 |------|--------|--------|
-| `posts.feedTabs` | tabs list (`data-testid="ScrollSnap-List"`) | tabs list inside the page header |
-| `posts.showPosts` | cell with a `[data-keep-composer-open]` button | same finder; the marker is not confirmed yet |
+| `posts.feedTabs` | tabs list (`data-testid="ScrollSnap-List"`) | tabs list inside the page header, home timeline only (`/home`, `/home/*`, `/`), so profile tabs stay untouched |
+| `posts.showPosts` | cell with a `[data-keep-composer-open]` button | **legacy only** — no marker found yet |
 | `posts.newPostsPill` | wrapper of `[data-testid="pillLabel"]` | **legacy only** — no marker found yet |
 | `posts.composer` | inline composer (`tweetTextarea_0`) | the card around the composer form |
 | `posts.moreFromX` | heading cell after the replies | the first cell after the focal post that carries a section heading — the heading shares its cell with the first recommended post and has no `role="heading"` |
@@ -162,13 +164,25 @@ left hides its whole section. Check the page you are on with
 | `nav.*` (logo … account) | links and buttons of the left menu | `dom.getNavItem` on the modern nav; the account switcher lives below the nav in the same column and the profile row is matched by the account handle |
 | `nav.logo` | the spacer wrapper around the logo `<h1>` | the logo's `<h1>`, or the bare spacer above the nav on the home column; never the nav column |
 | `nav.xplus` | our entry inside the left column | our entry inside the modern nav |
-| `chrome.grokDrawer` | wrapper of `[data-testid="GrokDrawer"]` | dock window carrying the Grok icon |
-| `chrome.chatDrawer` | wrapper of `[data-testid="chat-drawer-root"]` | dock window carrying the chat icon |
+| `chrome.grokDrawer` | wrapper of `[data-testid="GrokDrawer"]` | dock window carrying the Grok icon (no extra wrapper) |
+| `chrome.chatDrawer` | wrapper of `[data-testid="chat-drawer-root"]` | dock window carrying the chat icon (no extra wrapper) |
 
 Layout options follow the same split: `menuLeft`, `menuCenter`, `contentWidth`,
 `centerContent` and the column show/hide rules use the layout fragments
 (`leftNav`, `leftNavList` / `navCenter`, `primaryColumn`, `sidebarColumn`), and
-a modern fragment must never also match legacy markup. Post appearance uses
+a modern fragment must never also match legacy markup. Rules that need to wrap
+a column in `:has()` use the dedicated wrapper fragments
+(`primaryColumnWrapper`, `primaryColumnWrapperDeep`, `grokDrawerWrapper`, …),
+because CSS forbids nesting `:has()` inside another `:has()` and silently drops
+that branch. Only the legacy profile defines the column wrappers: the modern
+column is the `main` element itself and its row centres it, so a wrapper rule
+would grow the box around the feed, take the row's free space and pull the
+content out of the centre. The “static feed tabs” rule un-sticks the marked
+element with `position: relative`, never `static`: on the modern build that
+element is X's page `<header>`, whose frosted backdrop is an absolutely
+positioned child sized `calc(100% + …)`, and a `static` header stops being its
+containing block — the backdrop then covers the whole viewport until a scroll.
+Post appearance uses
 `postSurface`: the article inside a timeline cell on the legacy build, the
 cell's own `div` on the modern one, which is the block X rounds and colours
 (the article inside it is narrower). Because that block is also the card, post
