@@ -1,12 +1,11 @@
-import { SEL } from '../../core/constants.js';
 import { ATTR, cfg } from './config.js';
+import { feedPhotoImages } from './photos.js';
 
 /**
  * Upgrade timeline photos to a larger rendition (`name=large|orig`) so images
  * look sharp on big screens. Only post photos (`pbs.twimg.com/media/…`) are
  * touched — avatars, banners and link cards keep X's own sizes.
  */
-const PHOTO_SELECTOR = `${SEL.photo} img[src*="pbs.twimg.com/media/"]`;
 
 export function upgradeFeedImages() {
   const config = cfg();
@@ -16,13 +15,13 @@ export function upgradeFeedImages() {
     return;
   }
 
-  document.querySelectorAll(PHOTO_SELECTOR).forEach((img) => {
-    if (img.getAttribute(ATTR.feedImage) === quality) return;
+  for (const img of feedPhotoImages()) {
+    if (img.getAttribute(ATTR.feedImage) === quality) continue;
     let url;
     try {
       url = new URL(img.currentSrc || img.src);
     } catch {
-      return;
+      continue;
     }
     // Remember the original rendition once, so switching back to "default"
     // (or turning the feature off) can undo the upgrade.
@@ -30,10 +29,10 @@ export function upgradeFeedImages() {
       img.setAttribute(ATTR.feedImageOrig, img.getAttribute('src') || '');
     }
     img.setAttribute(ATTR.feedImage, quality);
-    if (url.searchParams.get('name') === quality) return;
+    if (url.searchParams.get('name') === quality) continue;
     url.searchParams.set('name', quality);
     img.src = url.href;
-  });
+  }
 }
 
 /** Put back the rendition X itself requested (feature off / quality "default"). */

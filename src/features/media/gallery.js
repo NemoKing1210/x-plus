@@ -1,16 +1,16 @@
-import { SEL } from '../../core/constants.js';
 import { Codes, logError } from '../../core/debug.js';
 import { icon } from '../../ui/icons.js';
 import { lockPageScroll, unlockPageScroll } from '../../ui/scroll-lock.js';
 import { showToast } from '../../ui/toast.js';
 import { el } from '../../utils/dom.js';
 import { formatBytes, sanitizeFileName } from '../../utils/format.js';
-import { handleFromHref } from '../../utils/handle.js';
 import { cfg, tm } from './config.js';
+import { mediaHostAt, postContext } from './context.js';
 import { canCopyImages, copyImage } from './copy.js';
 import { downloadFile } from './download.js';
 import { buildFileName } from './filename.js';
-import { getMediaHosts, getTweetId } from './tweet.js';
+import { PHOTO_IMG, photoAt } from './photos.js';
+import { getMediaHosts } from './tweet.js';
 
 /**
  * Photo gallery. A click on a post photo opens our own full-screen viewer
@@ -29,7 +29,6 @@ import { getMediaHosts, getTweetId } from './tweet.js';
  * browser and X (open in a new tab, native viewer).
  */
 
-const IMG_SELECTOR = 'img[src*="pbs.twimg.com/media/"]';
 /** Below 1 the photo is smaller than the fitted size. */
 const MIN_SCALE = 0.1;
 const MAX_SCALE = 8;
@@ -80,24 +79,6 @@ function extensionOf(src) {
   }
 }
 
-/** What a download needs to know about the post the clicked photo belongs to. */
-function postContext(article, owner) {
-  if (owner === 'quote') {
-    const quote = article.querySelector(SEL.quoteTweet);
-    const handle = /@([A-Za-z0-9_]{1,15})/.exec(quote?.querySelector(SEL.userName)?.textContent || '');
-    return { id: '', user: handle ? handle[1].toLowerCase() : '', createdAt: '', text: quote?.querySelector(SEL.tweetText)?.textContent || '' };
-  }
-  const link = [...article.querySelectorAll('a[href*="/status/"] time')]
-    .map((time) => time.closest('a'))
-    .find((a) => a && !a.closest(SEL.quoteTweet));
-  return {
-    id: getTweetId(article) || '',
-    user: handleFromHref(link?.getAttribute('href')),
-    createdAt: link?.querySelector('time')?.getAttribute('datetime') || '',
-    text: article.querySelector(SEL.tweetText)?.textContent || '',
-  };
-}
-
 /** Sensitive-content photos stay behind X's own warning. */
 function isBlurred(img, host) {
   for (let node = img; node && node !== host.parentElement; node = node.parentElement) {
@@ -107,35 +88,38 @@ function isBlurred(img, host) {
 }
 
 /**
- * Photos of the post a click landed in, in display order.
+ * Photos of the post a click landed in, in display order. One media host can
+ * hold several photos (a modern photo grid), so every image counts.
  * @returns {{ slides: object[], index: number, post: object } | null}
  */
-function collect(host, article) {
+function collect(host, article, target) {
   const hosts = getMediaHosts(article).filter((h) => h.kind === 'photo');
   const clicked = hosts.find((h) => h.el === host);
   if (!clicked) return null;
+  const clickedPhoto = photoAt(host, target);
+  if (!clickedPhoto) return null;
 
   const slides = [];
   let index = -1;
   for (const candidate of hosts) {
     if (candidate.owner !== clicked.owner) continue;
-    const img = candidate.el.querySelector(IMG_SELECTOR);
-    if (!img) continue;
-    if (isBlurred(img, candidate.el)) {
-      if (candidate === clicked) return null;
-      continue;
+    for (const img of candidate.el.querySelectorAll(PHOTO_IMG)) {
+      if (isBlurred(img, candidate.el)) {
+        if (img === clickedPhoto) return null;
+        continue;
+      }
+      const thumb = img.currentSrc || img.src;
+      if (img === clickedPhoto) index = slides.length;
+      slides.push({
+        thumb: sized(thumb, 'small'),
+        view: sized(thumb, VIEW_SIZE),
+        full: sized(thumb, FULL_SIZE),
+        alt: img.alt || '',
+      });
     }
-    const thumb = img.currentSrc || img.src;
-    if (candidate === clicked) index = slides.length;
-    slides.push({
-      thumb: sized(thumb, 'small'),
-      view: sized(thumb, VIEW_SIZE),
-      full: sized(thumb, FULL_SIZE),
-      alt: img.alt || '',
-    });
   }
   if (index < 0) return null;
-  return { slides, index, post: postContext(article, clicked.owner) };
+  return { slides, index, post: postContext(article, host, clicked.owner) };
 }
 
 /* ------------------------------------------------------------------ */
@@ -755,15 +739,14 @@ function onClick(event) {
   const { target } = event;
   if (!(target instanceof Element) || target.closest('[data-xp-ui]')) return;
 
-  const host = target.closest(SEL.photo);
-  if (!host) return;
+  const found = mediaHostAt(target);
+  if (!found) return;
+  const { article, host } = found;
   // Buttons on the photo (sensitive-content reveal, alt text, …) keep their job.
   const control = target.closest('button, [role="button"]');
-  if (control && control !== host && host.contains(control)) return;
-  const article = host.closest(SEL.article);
-  if (!article) return;
+  if (control && control !== host.el && host.el.contains(control)) return;
 
-  const data = collect(host, article);
+  const data = collect(host.el, article, target);
   if (!data) return;
 
   event.preventDefault();
