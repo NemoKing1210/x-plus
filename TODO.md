@@ -38,6 +38,13 @@ you are about to work on here.
 - [x] Ship user-visible fixes as patch releases ~0.5h #chore @NemoKing1210 2026-11-27
   - [x] `AGENTS.md`, `CONTRIBUTING.md` and `docs/DEVELOPMENT.md`: a `fix` / `perf` change moves the patch version with the change, a feature waits in `[Unreleased]` for the next minor
   - [x] The Shorts smoothness fix is the first one shipped this way (`0.16.1`, README badges and root artifacts rebuilt)
+- [x] Make Shorts steps smooth when the feed scrolls ~2h #shorts @NemoKing1210 2026-11-27
+  - [x] Measured the step in the harness: animating `filter: blur()` cost ~8 dropped frames per 10 steps, against ~2 when the blur snaps
+  - [x] The post transition animates only transform and opacity; the blur switches with the state, and `will-change` no longer reserves a filtered layer
+  - [x] The tween eases with smoothstep (half the peak speed of ease-in-out cubic) and assigns `scrollTop` directly
+  - [x] A step reuses the units it collected, the nav pulse restarts on the next frame instead of forcing a layout in the input handler, videos resume after the tween lands, and the auto-scroll bar is not rewritten while hidden
+  - [x] Unit test pins the non-animated filter; architecture notes and changelog updated; `npm run ci` green
+  - [x] Released as 0.16.1 with the rebuilt root artifacts
 - [x] Fix the timeline shading from the un-stuck feed tabs ~1h #interface @NemoKing1210 2026-11-26  
   - [x] With “Scroll the feed tabs with the page” on, the modern build shaded the whole timeline at the top of the page until the next scroll  
   - [x] The marked element is X's page `<header>`; setting it to `position: static` dropped it as the containing block of its absolutely positioned frosted backdrop, which then sized against the viewport  

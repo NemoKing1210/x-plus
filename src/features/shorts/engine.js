@@ -308,14 +308,21 @@ function trackSettled(unit, enabled) {
   }, SETTLE_MS);
 }
 
-function update() {
+/**
+ * Mark the units and tell the other features. A step hands in the units it has
+ * already collected, so the first frame of the tween costs no second layout
+ * read; everyone else lets it collect.
+ * @param {Unit[] | null} units
+ */
+function update(units = null) {
   frame = 0;
   if (!active) return;
   lastUpdateAt = performance.now();
-  const units = collect();
-  const current = pickActive(units);
+  // `requestAnimationFrame` hands in a timestamp: only a real list is used.
+  const list = Array.isArray(units) ? units : collect();
+  const current = pickActive(list);
   const cfg = getFeatureSettings('shorts');
-  const at = units.indexOf(current);
+  const at = list.indexOf(current);
 
   // Place the controls before writing cell attributes: `place()` reads layout,
   // and interleaving reads after writes forces a synchronous reflow.
@@ -330,7 +337,7 @@ function update() {
   );
 
   const seen = new Set();
-  units.forEach((unit, index) => {
+  list.forEach((unit, index) => {
     const state = index === at ? 'active' : index === at - 1 ? 'prev' : index === at + 1 ? 'next' : 'far';
     // The current thread grows from its own middle, so the joins between its posts stay put.
     const origin = (unit.rect.top + unit.rect.bottom) / 2;
@@ -347,7 +354,7 @@ function update() {
   for (const cell of document.querySelectorAll(`[${CELL_ATTR}]`)) {
     if (!seen.has(cell)) cell.removeAttribute(CELL_ATTR);
   }
-  syncVideos();
+  syncVideos(!tween);
   trackSettled(current, cfg.translateOnlyCurrent);
 }
 
@@ -362,10 +369,10 @@ function schedule() {
   if (wait > 0) {
     frameTimer = setTimeout(() => {
       frameTimer = 0;
-      frame = requestAnimationFrame(update);
+      frame = requestAnimationFrame(() => update());
     }, wait);
   } else {
-    frame = requestAnimationFrame(update);
+    frame = requestAnimationFrame(() => update());
   }
 }
 
@@ -418,19 +425,29 @@ function stopTween() {
   pinned = null;
 }
 
-/** Ease the window to `target()` (re-read every frame, so layout shifts do not derail it). */
-function animateTo(target, cell = null) {
+/**
+ * Ease the window to `target()` (re-read every frame, so layout shifts do not derail it).
+ * @param {() => number | null} target
+ * @param {Element | null} cell    unit being scrolled to; stays active until the tween ends
+ * @param {Unit[] | null} units    units already collected by the caller, when it has them
+ */
+function animateTo(target, cell = null, units = null) {
   stopTween();
   pinned = cell;
   const factor = SPEED[getFeatureSettings('shorts').speed] ?? 1;
   const from = window.scrollY;
-  const jump = (top) => window.scrollTo({ top, left: 0, behavior: 'instant' });
+  // Direct assignment instead of `scrollTo({ ... })` every frame: no options to
+  // parse at 60 Hz, and no horizontal scroll to reset.
+  const scroller = document.scrollingElement || document.documentElement;
+  const jump = (top) => {
+    scroller.scrollTop = top;
+  };
 
   if (reducedMotion() || factor === 0) {
     const now = target();
     if (now != null) jump(now);
     pinned = null;
-    update();
+    update(units);
     return;
   }
   let to = target();
@@ -444,12 +461,14 @@ function animateTo(target, cell = null) {
   const state = { id: 0, until: startedAt + duration + 400 };
   tween = state;
   // Mark the target right away so the grow / blur transitions run together with the scroll.
-  update();
+  update(units);
   const step = (now) => {
     if (tween !== state) return;
     const progress = Math.min(1, (now - startedAt) / duration);
-    // Ease in and out: no abrupt start or stop.
-    const eased = progress < 0.5 ? 4 * progress ** 3 : 1 - (-2 * progress + 2) ** 3 / 2;
+    // Smoothstep: no abrupt start or stop, and half the peak speed of ease-in-out
+    // cubic, so a frame the browser drops covers less ground — the step glides
+    // instead of jumping.
+    const eased = progress * progress * (3 - 2 * progress);
     // The target is re-measured now and then (layout can shift while we go), not every frame.
     if (frames++ % REMEASURE_FRAMES === 0 || progress >= 1) {
       const measured = target();
@@ -486,19 +505,20 @@ function scheduleRecentre() {
   recentreTimer = setTimeout(() => {
     recentreTimer = 0;
     if (!active || tween || lastInputAt > arrivedAt) return;
-    const current = pickActive(collect());
+    const units = collect();
+    const current = pickActive(units);
     if (!current) return;
     const want = offsetFor(current.cells);
     const off = want == null ? 0 : Math.abs(want - window.scrollY);
     if (off < RECENTRE_MIN || off > window.innerHeight * 0.5) return;
-    animateTo(() => offsetFor(current.cells), current.cell);
+    animateTo(() => offsetFor(current.cells), current.cell, units);
   }, RECENTRE_AFTER_MS);
 }
 
-/** @param {Unit} unit */
-function scrollToUnit(unit) {
+/** @param {Unit} unit @param {Unit[] | null} units */
+function scrollToUnit(unit, units = null) {
   recentreBudget = 1;
-  animateTo(() => offsetFor(unit.cells), unit.cell);
+  animateTo(() => offsetFor(unit.cells), unit.cell, units);
 }
 
 /** Move one post up (-1) or down (1). */
@@ -509,14 +529,14 @@ function go(direction) {
   if (!current) return;
   const target = units[units.indexOf(current) + direction];
   if (target) {
-    scrollToUnit(target);
+    scrollToUnit(target, units);
     return;
   }
   // The neighbour is not in the DOM yet (X renders a window of the feed, and
   // loads more at the end): move a little in that direction so it gets
   // rendered, never to the start of the feed.
   const top = clamp(Math.round(window.scrollY + direction * window.innerHeight * 0.6), 0, maxScroll());
-  if (top !== window.scrollY) animateTo(() => top);
+  if (top !== window.scrollY) animateTo(() => top, null, units);
 }
 
 /** Button handler: one step at a time, like the keys. */
@@ -625,10 +645,11 @@ function start() {
   window.addEventListener('scroll', schedule, { passive: true });
   window.addEventListener('resize', schedule);
   startVideos();
-  update();
+  const units = collect();
+  update(units);
   // Settle on the post nearest to the middle right away.
-  const current = pickActive(collect());
-  if (current) scrollToUnit(current);
+  const current = pickActive(units);
+  if (current) scrollToUnit(current, units);
 }
 
 function stop() {

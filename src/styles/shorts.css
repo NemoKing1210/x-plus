@@ -2,13 +2,18 @@
 
 /* Effects sit on the article: X moves the cell itself with transforms.
    Only the top-level article: a quote embed nests its own <article>, and
-   matching it would scale the quote twice and inherit the outer origin. */
+   matching it would scale the quote twice and inherit the outer origin.
+
+   `filter` is deliberately not transitioned: while a blur animates, Chrome
+   re-rasterises the whole post every frame, and with three posts moving that
+   is the main source of stutter while stepping (measured in the harness: ~8
+   dropped frames per 10 steps with the transition, ~2 without). The blur
+   switches at once instead; transform and opacity carry the motion. */
 html[data-xp-shorts-on] [data-xp-shorts] article:not(article article) {
   position: relative;
   transform-origin: center center;
   transition:
     transform var(--xp-shorts-time, 0.5s) cubic-bezier(0.4, 0, 0.2, 1),
-    filter var(--xp-shorts-time, 0.5s) cubic-bezier(0.4, 0, 0.2, 1),
     opacity var(--xp-shorts-time, 0.5s) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -16,10 +21,10 @@ html[data-xp-shorts-on] [data-xp-shorts] article:not(article article) {
 html[data-xp-shorts-on] [data-xp-shorts='active'] article:not(article article),
 html[data-xp-shorts-on] [data-xp-shorts='prev'] article:not(article article),
 html[data-xp-shorts-on] [data-xp-shorts='next'] article:not(article article) {
-  will-change: transform, filter, opacity;
+  will-change: transform, opacity;
 }
 
-/* Posts further away only fade: animating a blur there is wasted work. */
+/* Posts further away only fade: they never scale, so transform can snap. */
 html[data-xp-shorts-on] [data-xp-shorts='far'] article:not(article article) {
   transition: opacity var(--xp-shorts-time, 0.5s) cubic-bezier(0.4, 0, 0.2, 1);
 }

@@ -42,6 +42,7 @@ let actions = null;
 /** Pointer on the controls (tracked by events: asking `:hover` every frame forces style work). */
 let hovered = false;
 const pressTimers = new WeakMap();
+const pressFrames = new WeakMap();
 /** Last written position / auto button text, to skip identical DOM writes. */
 let placedLeft = null;
 let autoTitle = '';
@@ -184,12 +185,23 @@ export function setRing(state) {
 export function pulseNav(direction) {
   const button = direction === 0 ? auto : direction < 0 ? prev : next;
   if (!button || box.hidden || button.disabled) return;
-  button.classList.remove('is-pressed');
-  // Force a reflow so the animation restarts on quick repeats.
-  void button.offsetWidth;
-  button.classList.add('is-pressed');
   clearTimeout(pressTimers.get(button));
-  pressTimers.set(button, setTimeout(() => button.classList.remove('is-pressed'), PRESS_MS));
+  cancelAnimationFrame(pressFrames.get(button));
+  // Restart the animation on the next frame instead of forcing a reflow here:
+  // `void button.offsetWidth` lays out the whole feed inside the input handler,
+  // exactly when the step is meant to start. A frame later is not visible.
+  button.classList.remove('is-pressed');
+  pressFrames.set(
+    button,
+    requestAnimationFrame(() => {
+      pressFrames.delete(button);
+      button.classList.add('is-pressed');
+      pressTimers.set(
+        button,
+        setTimeout(() => button.classList.remove('is-pressed'), PRESS_MS),
+      );
+    }),
+  );
 }
 
 export function hideNav() {

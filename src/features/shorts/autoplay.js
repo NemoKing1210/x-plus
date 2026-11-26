@@ -78,6 +78,8 @@ let chip = null;
 let chipOver = false;
 /** Last drawn state of the bar / ring, and when the bar was last measured. */
 let barShown = { progress: -1, paused: null };
+/** Whether the bar is currently shown, so hiding it again is not rewritten every frame. */
+let barOn = false;
 let barRect = null;
 let barMeasuredAt = 0;
 let barCell = null;
@@ -262,12 +264,20 @@ function renderBar(state, cfg, now = performance.now()) {
   const node = ensureBar();
   const rect = state ? barGeometry(state.cell, now) : null;
   const visible = Boolean(rect?.width);
-  node.classList.toggle('is-on', visible);
   if (!visible) {
+    // The countdown is not drawing (a step is running, a dialog is open): the
+    // rAF loop calls this every frame, and the bar is already hidden.
+    if (!barOn) return;
+    barOn = false;
+    node.classList.remove('is-on');
     chip?.classList.remove('is-on');
     barShown = { progress: -1, paused: null };
     barCell = null;
     return;
+  }
+  if (!barOn) {
+    barOn = true;
+    node.classList.add('is-on');
   }
   node.classList.toggle('is-paused', state.paused);
   const left = `${Math.round(rect.left)}px`;

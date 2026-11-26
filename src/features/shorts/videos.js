@@ -28,9 +28,18 @@ function onPlay(event) {
   if (state && state !== 'active') holdBack(video);
 }
 
-/** Pause the videos of posts that are not active, resume the ones we paused in the active post. Idempotent. */
-export function syncVideos() {
+/**
+ * Pause the videos of posts that are not active. With `resume`, also play the
+ * ones we paused in the active post again.
+ *
+ * The engine calls this without `resume` while its scroll tween runs: starting
+ * a video means fetching, decoding and often audio, and doing that in the
+ * first frames of a step is a stutter the user sees. The tween's final
+ * `update()` resumes it once the post has landed.
+ */
+export function syncVideos(resume = true) {
   for (const video of document.querySelectorAll(NOT_ACTIVE_VIDEOS)) holdBack(video);
+  if (!resume) return;
   for (const video of document.querySelectorAll(ACTIVE_VIDEOS)) {
     if (!pausedByUs.has(video)) continue;
     pausedByUs.delete(video);
