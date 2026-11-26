@@ -1,3 +1,4 @@
+import { dom } from '../../core/compat/index.js';
 import {
   formatHandleDisplay,
   handleFromHref,
@@ -7,7 +8,7 @@ import {
 /** Closest tweet article for a text node. */
 export function getTweetArticle(postEl) {
   if (!postEl || !(postEl instanceof Element)) return null;
-  return postEl.closest('article[data-testid="tweet"]');
+  return dom.getPostArticle(postEl);
 }
 
 /**
@@ -68,12 +69,8 @@ export function resolvePostAuthorHandle(postEl) {
 
   const article = getTweetArticle(postEl);
   if (article) {
-    // Walk User-Name blocks; first one outside the quote card is the author.
-    for (const userName of article.querySelectorAll('[data-testid="User-Name"]')) {
-      if (quote && quote.contains(userName)) continue;
-      const handle = resolveHandleFromScope(userName);
-      if (handle) return handle;
-    }
+    const handle = dom.getAuthorHandle(article);
+    if (handle) return handle;
     return resolveHandleFromScope(article);
   }
 
@@ -84,10 +81,12 @@ export function resolvePostAuthorHandle(postEl) {
 export function resolveHandleFromDropdownTrigger(trigger) {
   if (!trigger || !(trigger instanceof Element)) return null;
 
-  const article = trigger.closest('article[data-testid="tweet"]');
+  const article = dom.getPostArticle(trigger);
   if (article) {
-    const tweetText = article.querySelector('[data-testid="tweetText"]');
-    if (tweetText) return resolvePostAuthorHandle(tweetText);
+    if (dom.getAuthorHeader(article)) {
+      const handle = dom.getAuthorHandle(article);
+      if (handle) return handle;
+    }
     return resolveHandleFromScope(article);
   }
 

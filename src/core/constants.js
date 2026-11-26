@@ -59,38 +59,12 @@ export const CACHE_SOFT_LIMIT_BYTES = 10 * 1024 * 1024;
 /* ------------------------------------------------------------------ */
 /* X web client selectors                                              */
 /*                                                                     */
-/* X's DOM changes often. Prefer data-testid, keep every selector in   */
-/* one place so a breakage is a one-line fix.                          */
+/* Moved to the compat legacy profile; re-exported while features      */
+/* migrate. Feature code should use `dom` from core/compat instead.    */
 /* ------------------------------------------------------------------ */
 
-export const SEL = Object.freeze({
-  article: 'article[data-testid="tweet"]',
-  tweetText: '[data-testid="tweetText"]',
-  quoteTweet: '[data-testid="quoteTweet"]',
-  userName: '[data-testid="User-Name"]',
-  userCell: '[data-testid="UserCell"]',
-  quoteAvatar: '[data-testid="Tweet-User-Avatar"]',
-  caret: '[data-testid="caret"]',
-  actionReply: '[data-testid="reply"]',
-  photo: '[data-testid="tweetPhoto"]',
-  videoPlayer: '[data-testid="videoPlayer"]',
-  cell: '[data-testid="cellInnerDiv"]',
-  sidebar: '[data-testid="sidebarColumn"]',
-  primaryColumn: '[data-testid="primaryColumn"]',
-  sideNav: '[data-testid="AppTabBar"], nav[role="navigation"]',
-  showMore: '[data-testid="tweet-text-show-more-link"]',
-});
-
-/**
- * Quote-card header row (avatar | User-Name). X atomic classes — adjust when
- * the web client renames them. Current: r-1awozwy; legacy: r-1habvwh.
- */
-export const QUOTE_HEADER_ROW_SELECTOR =
-  '.r-1awozwy.r-18u37iz.r-1wbh5a2, .r-1habvwh.r-18u37iz.r-1wbh5a2';
-
-/**
- * Path prefix of X's machine-translation glyph (viewBox ≈ 0 0 33 32). Used on
- * the native auto-translate bar and the Grok header button, so detection must
- * stay scoped to the text column.
- */
-export const NATIVE_AUTO_TRANSLATE_ICON_PATH = 'M12.745 20.54';
+export {
+  NATIVE_AUTO_TRANSLATE_ICON_PATH,
+  QUOTE_HEADER_ROW_SELECTOR,
+  SEL,
+} from './compat/profiles/legacy.js';

@@ -109,6 +109,16 @@ test('the resolver reports misses to the logger', () => {
   assert.deepEqual(seen, ['getNav']);
 });
 
+test('a missing capability is not applicable, not an error', () => {
+  const report = createReport();
+  const modern = profile('modern', {});
+  const legacy = profile('legacy', { getNav: () => node('nav') });
+  const resolver = createResolver({ profiles: [modern, legacy], report });
+  resolver.setActive('modern');
+  assert.equal(resolver.resolve('getNav', [{}]).id, 'nav');
+  assert.equal(report.snapshot().errors.length, 0);
+});
+
 test('element capabilities are cached until owners are cleared', () => {
   const article = node('article');
   let calls = 0;

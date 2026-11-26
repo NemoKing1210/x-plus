@@ -132,6 +132,10 @@ export function createResolver({ profiles, report, logger = {} }) {
 
     for (const profile of order) {
       const ownedForThis = owned && profile.id === ownedId;
+      if (typeof profile.api[key] !== 'function') {
+        if (ownedForThis) owned = false;
+        continue;
+      }
       let value;
       try {
         value = profile.api[key](...args);
@@ -185,6 +189,10 @@ export function createResolver({ profiles, report, logger = {} }) {
 
     for (const profile of order) {
       const ownedForThis = owned && profile.id === ownedId;
+      if (typeof profile.api[key] !== 'function') {
+        if (ownedForThis) owned = false;
+        continue;
+      }
       let value;
       try {
         value = profile.api[key](...args);

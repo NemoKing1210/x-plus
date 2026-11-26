@@ -1,3 +1,4 @@
+import { dom } from '../../core/compat/index.js';
 import { QUOTE_HEADER_ROW_SELECTOR, SEL, UI_ATTR } from '../../core/constants.js';
 import { getQuoteCard, getTweetArticle } from './author.js';
 import { ATTR } from './config.js';
@@ -20,14 +21,7 @@ export function setToolbarBinder(fn) {
 
 /** Real timeline / thread tweet bodies (composer and other chrome excluded). */
 export function findPostTextRoots(root = document) {
-  const nodes = [];
-  root.querySelectorAll(SEL.tweetText).forEach((el) => {
-    if (!el.closest?.(SEL.article)) return;
-    const nestedParent = el.parentElement?.closest?.(SEL.tweetText);
-    if (nestedParent && nestedParent !== el) return;
-    nodes.push(el);
-  });
-  return nodes;
+  return dom.getTextRoots(root);
 }
 
 function isInQuoteEmbed(el, article) {
