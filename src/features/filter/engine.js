@@ -1,6 +1,6 @@
 import { dom } from '../../core/compat/index.js';
 import { UI_ATTR } from '../../core/constants.js';
-import { readPost } from './facts.js';
+import { readPost, focalArticleFor } from './facts.js';
 import { compileRules, postMatches } from './match.js';
 
 /**
@@ -62,11 +62,11 @@ export function topLevelArticle(article) {
 }
 
 /** Recompute one post; X reuses cells, so a mark that no longer applies is removed. */
-function process(article) {
+function process(article, focal) {
   const post = topLevelArticle(article);
   if (!post?.isConnected) return;
   const cell = dom.getPostCell(post) || post;
-  const facts = readPost(post);
+  const facts = readPost(post, focal);
   const hit = facts ? postMatches(rules, facts) : false;
   const previous = marked.get(post);
   if (previous) previous.removeAttribute(MARK_ATTR);
@@ -83,9 +83,12 @@ function process(article) {
 function flush() {
   frame = 0;
   const started = performance.now();
+  // One lookup per batch: the focal post is the same for every article and
+  // resolving it again per post re-scans the whole column.
+  const focal = focalArticleFor();
   for (const article of dirty) {
     dirty.delete(article);
-    process(article);
+    process(article, focal);
     if (performance.now() - started > BUDGET_MS) break;
   }
   if (dirty.size) frame = requestAnimationFrame(flush);
@@ -184,8 +187,9 @@ export function previewRule(rule) {
   let count = 0;
   const primary = dom.getPrimaryColumn(document);
   if (!primary) return 0;
+  const focal = focalArticleFor(document);
   for (const article of dom.getArticles(primary)) {
-    const facts = readPost(article);
+    const facts = readPost(article, focal);
     if (!facts || !postMatches(compiled, facts)) continue;
     const cell = dom.getPostCell(article) || article;
     cell.setAttribute(PEEK_ATTR, '');

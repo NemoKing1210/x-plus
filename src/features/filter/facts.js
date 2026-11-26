@@ -53,13 +53,15 @@ export function focalArticleFor(doc = document, pathname = location.pathname) {
 
 /**
  * @param {Element} article
+ * @param {Element|null} focal the page's focal post, resolved once per pass:
+ *   re-resolving it for every post would scan the whole column again.
  * @returns {null | {authorName: string, handle: string, text: string, lang: string,
  *   media: Set<string>, attachments: Set<string>, meta: Set<string>}}
  */
-export function readPost(article) {
+export function readPost(article, focal = focalArticleFor()) {
   if (!article?.isConnected) return null;
   if (article.closest(`[role="dialog"], [${UI_ATTR}]`)) return null;
-  if (article === focalArticleFor()) return null;
+  if (article === focal) return null;
 
   const embedded = dom.getAttachments(article);
   const header = dom.getAuthorHeader(article);
