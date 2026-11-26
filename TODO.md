@@ -35,6 +35,9 @@ you are about to work on here.
 
 ### Done ✓
 
+- [x] Ship user-visible fixes as patch releases ~0.5h #chore @NemoKing1210 2026-11-27
+  - [x] `AGENTS.md`, `CONTRIBUTING.md` and `docs/DEVELOPMENT.md`: a `fix` / `perf` change moves the patch version with the change, a feature waits in `[Unreleased]` for the next minor
+  - [x] The Shorts smoothness fix is the first one shipped this way (`0.16.1`, README badges and root artifacts rebuilt)
 - [x] Fix the timeline shading from the un-stuck feed tabs ~1h #interface @NemoKing1210 2026-11-26  
   - [x] With “Scroll the feed tabs with the page” on, the modern build shaded the whole timeline at the top of the page until the next scroll  
   - [x] The marked element is X's page `<header>`; setting it to `position: static` dropped it as the containing block of its absolutely positioned frosted backdrop, which then sized against the viewport  

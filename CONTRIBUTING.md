@@ -133,10 +133,14 @@ native speaker can review it.
 
 ## Changelog and versioning
 
-- Add a [Keep a Changelog](https://keepachangelog.com/) entry under
-  `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md) for user-visible changes.
-  One bullet per outcome, no work-log noise.
-- Do not bump `version` in `package.json` — version bumps and releases are
+- Add a [Keep a Changelog](https://keepachangelog.com/) entry to
+  [CHANGELOG.md](CHANGELOG.md) for user-visible changes. One bullet per
+  outcome, no work-log noise.
+- A `fix` or `perf` change users can see also bumps the patch version
+  (`0.16.0` → `0.16.1`) in `package.json` and gets its own dated
+  `## [x.y.z]` section, because userscript managers only update when
+  `@version` moves. Run `npm run readmes` after the bump. A feature stays in
+  `## [Unreleased]` until the next minor release; minor/major versions are
   handled by the maintainer.
 
 ## Testing checklist
@@ -157,7 +161,8 @@ native speaker can review it.
    (Conventional Commits: `type(scope): subject`).
 2. Keep PRs focused; unrelated drive-by refactors will be asked to split out.
 3. Fill in the testing checklist above.
-4. CI must be green. Version bumps and releases are handled by the maintainer.
+4. CI must be green. Patch bumps follow the changelog rule above; minor and
+   major releases are handled by the maintainer.
 
 ## License
 

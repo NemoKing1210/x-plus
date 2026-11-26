@@ -221,9 +221,12 @@ in every translation, then run `npm run readmes` and `npm run check:readmes`.
 
 ## Releasing
 
-1. Bump `version` in `package.json` once per release (SemVer).
+1. Set `version` in `package.json` (SemVer): a patch with a user-visible fix
+   (`0.16.0` → `0.16.1`), a minor/major once per feature release.
 2. `npm run ci` — builds and refreshes the root `x-plus.user.js` / `.meta.js`.
-3. Move the `[Unreleased]` notes of `CHANGELOG.md` under the new version.
+3. Add the notes to `CHANGELOG.md`: the fix under its new patch version, a
+   feature under `[Unreleased]` until its release; keep the comparison links at
+   the bottom in step.
 4. Update `README.md` wherever the change is user-visible, mirror it in the
    localized READMEs and run `npm run readmes`.
 5. Commit the root artifacts together with the sources: `@updateURL` /

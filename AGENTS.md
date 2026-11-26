@@ -59,9 +59,11 @@ mirror anything you are about to act on into `TODO.md`.
    [CONTRIBUTING.md](CONTRIBUTING.md#testing-checklist): harness at
    <http://localhost:5179/>, real `x.com`, all three themes and every locale.
 6. **Close.** Move the task to **Done ✓** with the completion date
-   (`yyyy-mm-dd`); add user-visible changes to `## [Unreleased]` in
-   `CHANGELOG.md`, update the READMEs and rebuild the root artifacts. Never
-   delete a finished task — the Done column is the recent history.
+   (`yyyy-mm-dd`); add user-visible changes to `CHANGELOG.md` — under a new
+   patch version for a `fix` or `perf` change, otherwise under
+   `## [Unreleased]` (see [Releases](#releases)) —, update the READMEs and
+   rebuild the root artifacts. Never delete a finished task — the Done column
+   is the recent history.
 
 **Writing tasks:** one outcome per task, imperative, with `~estimate`, a
 `#scope` tag (the Conventional Commit scope, e.g. `#translate`, `#media`),
@@ -129,11 +131,29 @@ block and language switcher at the top of every README are generated — edit
 
 ## Releases
 
-1. Bump `version` in `package.json` **once per release**, not per edit.
+`version` moves with user-visible work, not with every edit:
+
+- **A fix ships as a patch, with the change.** A `fix` or a `perf` change users
+  can see bumps the patch (`0.16.0` → `0.16.1`) in `package.json` as part of
+  that change, with its notes under `## [0.16.1] - yyyy-mm-dd` in
+  `CHANGELOG.md`. Userscript managers only update when `@version` moves, so a
+  fix left in `[Unreleased]` never reaches them. Run `npm run readmes` (the
+  README badges carry the version) and rebuild the root artifacts.
+- **A feature waits for a release.** Add new functionality to
+  `## [Unreleased]`; it ships with the next minor (`0.17.0`) or major bump,
+  made once per release. Docs, refactors, tests, build and CI edits do not move
+  the version.
+
+Release steps:
+
+1. Set `version` in `package.json` for the content: a patch with a fix, a
+   minor/major when cutting a feature release.
 2. `npm run ci` (i18n check + build + artifact verification).
-3. Add / update the `CHANGELOG.md` entry — notable user-facing changes only,
-   one bullet per outcome, no work-log noise.
-4. Update `README.md` wherever the change is user-visible, and
+3. Add the `CHANGELOG.md` entry — notable user-facing changes only, one bullet
+   per outcome, no work-log noise — and its comparison link at the bottom of
+   the file.
+4. Update `README.md` wherever the change is user-visible (`npm run readmes`
+   refreshes the generated badges and language switcher), and
    `docs/ARCHITECTURE.md` when structure changes.
 
 ## Commits
