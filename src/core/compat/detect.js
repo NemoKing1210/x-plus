@@ -1,3 +1,5 @@
+import { Codes, logWarn } from '../debug.js';
+
 /**
  * Generation detection.
  *
@@ -5,7 +7,7 @@
  * wins when both generations match, because the new layout may keep a few
  * legacy test ids. A probe that throws must not hide the next profile.
  *
- * See docs/superpowers/specs/2026-11-26-dom-compatibility-design.md §6.3.
+ * See `DOM generations` in docs/DEVELOPMENT.md.
  *
  * @param {ParentNode} root
  * @param {Array<{ id: string, detect: (root: ParentNode) => boolean }>} profiles priority order
@@ -15,8 +17,10 @@ export function detectGeneration(root = document, profiles = []) {
   for (const profile of profiles) {
     try {
       if (profile.detect(root)) return profile.id;
-    } catch {
-      /* a broken probe must not hide the next generation */
+    } catch (error) {
+      // A broken probe must not hide the next generation, but it is still a
+      // profile failure: report it with the same code as a capability throw.
+      logWarn(Codes.COMPAT_PROFILE, `${profile.id} probe failed`, error);
     }
   }
   return 'unknown';

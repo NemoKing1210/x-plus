@@ -4,7 +4,12 @@
  * CSS cannot call capability functions, so static and generated rules build
  * `:is(legacy, modern)` unions from these fragments. A modern fragment must not
  * also match legacy markup: the union then changes the legacy page instead of
- * covering a mixed one (a legacy `<main>` wraps both columns).
+ * covering a mixed one (a legacy `<main>` wraps both columns). The post
+ * `article` is the same element in both builds, so that fragment is the one
+ * intentional overlap.
+ *
+ * Never compose a fragment that itself contains `:has()` inside another
+ * `:has()`: CSS forbids nesting, and the browser silently drops that branch.
  */
 
 export function union(selectors) {

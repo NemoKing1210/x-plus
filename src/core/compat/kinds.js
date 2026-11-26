@@ -3,8 +3,8 @@
  * from a profile: list kinds union, single kinds take the first answer, and
  * predicates are boolean.
  *
- * Keep this table in sync with docs/superpowers/specs/2026-11-26-dom-compatibility-design.md
- * §6.2.1 and with the profile API in profiles/legacy.js and profiles/modern.js.
+ * Keep this table in sync with `DOM compatibility` in docs/ARCHITECTURE.md
+ * and with the profile API in profiles/legacy.js and profiles/modern.js.
  */
 
 export const KINDS = Object.freeze({

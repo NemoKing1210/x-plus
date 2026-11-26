@@ -12,7 +12,7 @@ export function createReport() {
   const misses = new Set();
   const errors = [];
 
-  return {
+  const report = {
     generation: 'unknown',
     xBuild: '',
     active: 'unknown',
@@ -49,9 +49,9 @@ export function createReport() {
 
     snapshot() {
       return {
-        generation: this.generation,
-        xBuild: this.xBuild,
-        active: this.active,
+        generation: report.generation,
+        xBuild: report.xBuild,
+        active: report.active,
         hits: Object.fromEntries([...hits].map(([id, set]) => [id, [...set]])),
         fallbacks: Object.fromEntries(fallbacks),
         misses: [...misses],
@@ -59,4 +59,6 @@ export function createReport() {
       };
     },
   };
+
+  return report;
 }

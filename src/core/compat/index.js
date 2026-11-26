@@ -5,7 +5,7 @@
  * selectors. This module owns the singleton resolver, the generation
  * attributes on `<html>` and the debug report.
  *
- * See docs/superpowers/specs/2026-11-26-dom-compatibility-design.md.
+ * See `DOM compatibility` in docs/ARCHITECTURE.md.
  */
 
 import { Codes, isVerbose, logError, logInfo, logWarn } from '../debug.js';
@@ -100,13 +100,6 @@ export function initCompat(root = document) {
 
 export function refreshCompat(root = document, { navigation = false } = {}) {
   return applyGeneration(root, { reset: navigation });
-}
-
-export function resetCompat() {
-  resolver.clearOwners();
-  report.resetForNavigation();
-  missesSinceDetect = 0;
-  redetected = false;
 }
 
 export function getGeneration() {
