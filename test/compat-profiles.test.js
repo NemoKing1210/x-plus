@@ -144,7 +144,7 @@ test('legacy css marks the sidebar trends and the slid-in panels', () => {
 });
 
 test('modern css marks the sidebar trends', () => {
-  assert.equal(modern.css.trend, '[data-trend]');
+  assert.equal(modern.css.trend, '[data-trend], a[href*="/search?q="]');
 });
 
 test('modern getArticles excludes nested quote articles', () => {
@@ -217,6 +217,74 @@ test('modern getNav finds the nav containing /home', () => {
   const nav = { querySelector: (selector) => (selector === 'a[href="/home"]' ? {} : null) };
   const root = { querySelectorAll: (selector) => (selector === 'nav' ? [nav] : []) };
   assert.equal(modern.api.getNav(root), nav);
+});
+
+/** A nav row: an <a href> or a <button>, with the icon / label children X gives it. */
+function navRow({ href = null, tag = 'a', icon = 'nav', span = true, current = false } = {}) {
+  return {
+    tagName: tag.toUpperCase(),
+    getAttribute: (name) => {
+      if (name === 'href') return href;
+      if (name === 'aria-current') return current ? 'page' : null;
+      return null;
+    },
+    hasAttribute: () => false,
+    querySelector: (selector) => {
+      if (selector === 'svg') return icon ? { nodeType: 1 } : null;
+      if (selector === 'svg[data-icon="icon-more-dots-hor-circle"]') return icon === 'more' ? { nodeType: 1 } : null;
+      if (selector === 'span') return span ? { nodeType: 1 } : null;
+      return null;
+    },
+    querySelectorAll: () => [],
+  };
+}
+
+function modernNav(links, buttons = []) {
+  return {
+    querySelector: (selector) => (selector === 'a[href="/home"]' ? links[0] || {} : null),
+    querySelectorAll: (selector) => {
+      if (selector === 'a[href]') return links;
+      if (selector === 'button') return buttons;
+      return [];
+    },
+  };
+}
+
+test('modern nav rows match sub-paths of their base href', () => {
+  const premium = navRow({ href: '/i/premium_sign_up' });
+  const studio = navRow({ href: '/i/jf/creators/studio' });
+  const nav = modernNav([navRow({ href: '/home' }), premium, studio]);
+  const root = { querySelectorAll: (selector) => (selector === 'nav' ? [nav] : []) };
+  assert.equal(modern.api.getNavItem(root, 'premium'), premium);
+  assert.equal(modern.api.getNavItem(root, 'creatorStudio'), studio);
+});
+
+test('modern finds the Post button outside the nav', () => {
+  const compose = navRow({ href: '/compose/post', icon: 'edit' });
+  const nav = modernNav([navRow({ href: '/home' })]);
+  const root = {
+    querySelectorAll: (selector) => {
+      if (selector === 'nav') return [nav];
+      if (selector === 'a[href]') return [compose];
+      return [];
+    },
+  };
+  assert.equal(modern.api.getNavItem(root, 'post'), compose);
+});
+
+test('modern getNavTemplate inserts the row before the More button when there is no settings row', () => {
+  const explore = navRow({ href: '/explore' });
+  const more = navRow({ tag: 'button', icon: 'more' });
+  const slot = modern.api.getNavTemplate(modernNav([navRow({ href: '/home', current: true }), explore], [more]));
+  assert.equal(slot.template, explore);
+  assert.equal(slot.before, more);
+});
+
+test('modern getNavTemplate still prefers a settings row', () => {
+  const settings = navRow({ href: '/settings' });
+  const more = navRow({ tag: 'button', icon: 'more' });
+  const nav = modernNav([navRow({ href: '/home', current: true }), navRow({ href: '/explore' }), settings], [more]);
+  assert.equal(modern.api.getNavTemplate(nav).before, settings);
 });
 
 test('modern getFeedTabs, getUserCells and getComposer pin the current markers', () => {

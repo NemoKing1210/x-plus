@@ -48,6 +48,12 @@ const NAV_HREFS = {
   post: '/compose/post',
 };
 
+/** Whether `actual` is the base href or a sub-path of it (`/i/premium` ← `/i/premium_sign_up`). */
+function matchesNavHref(actual, base) {
+  const path = String(actual || '').split('?')[0];
+  return path === base || path.startsWith(`${base}/`) || path.startsWith(`${base}_`);
+}
+
 /** Nearest `position: sticky` ancestor below `stop` (the feed tabs float there). */
 function stickyAncestor(list, stop) {
   for (let node = list.parentElement; node && node !== stop; node = node.parentElement) {
@@ -419,12 +425,15 @@ const api = {
     }
     const href = NAV_HREFS[kind];
     if (!href) return null;
-    const links = [...nav.querySelectorAll('a[href]')].filter(
-      (link) => (link.getAttribute('href') || '').split('?')[0] === href,
-    );
+    const links = [...nav.querySelectorAll('a[href]')].filter((link) => matchesNavHref(link.getAttribute('href'), href));
     // `/home` is both the logo and the Home row: the row carries a text label.
     if (kind === 'home') return links.find((link) => link.querySelector('span')) || links[0] || null;
-    return links[0] || null;
+    if (links[0]) return links[0];
+    // The Post button is not one of the nav rows on the modern build.
+    if (kind === 'post' && nav !== root) {
+      return [...root.querySelectorAll('a[href]')].find((link) => matchesNavHref(link.getAttribute('href'), href)) || null;
+    }
+    return null;
   },
 
   getNavTemplate(nav) {
@@ -441,9 +450,14 @@ const api = {
       links[0] ||
       null;
     if (!template) return null;
-    const before = [...nav.querySelectorAll('a[href]')].find((link) =>
-      (link.getAttribute('href') || '').includes('/settings'),
-    );
+    // Before Settings when the menu has that row; otherwise before the trailing "More"
+    // button, where X keeps the entries that open a sheet.
+    const before =
+      [...nav.querySelectorAll('a[href]')].find((link) => (link.getAttribute('href') || '').includes('/settings')) ||
+      [...nav.querySelectorAll('button')].find((button) =>
+        button.querySelector('svg[data-icon="icon-more-dots-hor-circle"]'),
+      ) ||
+      null;
     return { template, before: before || null };
   },
 
@@ -654,7 +668,8 @@ export default {
     avatar: '[data-post-avatar]',
     userCell: '[data-who-to-follow]',
     verified: '[data-icon*="verified"]',
-    // One trend in the sidebar trends module.
-    trend: '[data-trend]',
+    // One trend in the sidebar trends module: the new build marks nothing, but each
+    // trend links to its search query.
+    trend: '[data-trend], a[href*="/search?q="]',
   },
 };
