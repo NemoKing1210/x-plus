@@ -51,12 +51,13 @@ function ensureStyle() {
 function contentWidthCss(width) {
   if (!width) return '';
   const column = cssFor('primaryColumn');
+  // X caps inner feed blocks with an atomic class; only the legacy profile knows it.
+  const cap = cssFor('contentCap');
   return [
     `${column}{width:${width}px!important;max-width:100vw!important;flex:none!important}`,
-    // X caps inner feed blocks with the atomic class `max-width: 600px`.
-    `${column} .r-1ye8kvj{max-width:none!important}`,
+    cap ? `${column} ${cap}{max-width:none!important}` : '',
     `div:has(> ${column}),div:has(> div > ${column}){width:auto!important;max-width:none!important;flex-grow:1}`,
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 }
 
 /** Column / chrome selectors as `:is(legacy, modern)` unions. */
@@ -75,10 +76,11 @@ const MENU_LEFT_CSS = [
  * on the way down to the nav grows to the full height and the one that holds
  * the nav centres its children.
  */
+const NAV_LIST = cssFor('leftNavList');
 const MENU_CENTER_CSS = [
-  `${LEFT_NAV} div:has(nav[role="navigation"]){flex:1 1 auto!important;min-height:0}`,
-  `${LEFT_NAV} div:has(> nav[role="navigation"]){display:flex!important;flex-direction:column!important;justify-content:center!important}`,
-].join('\n');
+  NAV_LIST ? `${LEFT_NAV} div:has(${NAV_LIST}){flex:1 1 auto!important;min-height:0}` : '',
+  NAV_LIST ? `${LEFT_NAV} div:has(> ${NAV_LIST}){display:flex!important;flex-direction:column!important;justify-content:center!important}` : '',
+].filter(Boolean).join('\n');
 
 /** Remove the whole left menu from the page. */
 const MENU_HIDE_CSS = `${LEFT_NAV}:not([${PEEK_ATTR}]){display:none!important}`;
@@ -98,16 +100,21 @@ const SIDEBAR_RIGHT_CSS = `${SIDEBAR}{position:fixed!important;top:0;right:0;bot
  * The wrapper fills its parent row with `100%`, not `100vw`: viewport units
  * include the vertical scrollbar, which would add a horizontal scrollbar.
  */
+const CENTER_ROW = cssFor('mainRow');
 const CENTER_CSS = [
   `${LEFT_NAV}{position:fixed!important;top:0;bottom:0;left:0;z-index:2;width:auto!important;flex-grow:0!important}`,
   SIDEBAR_RIGHT_CSS,
-  'main[role="main"]{flex:none!important;display:flex!important;flex-direction:row!important;justify-content:center!important;align-items:flex-start!important;width:100%!important;max-width:none!important}',
-  'main[role="main"] > div,main[role="main"] > div > div{flex:0 1 auto!important;width:auto!important;max-width:none!important;margin:0!important}',
+  CENTER_ROW ? `${CENTER_ROW}{flex:none!important;display:flex!important;flex-direction:row!important;justify-content:center!important;align-items:flex-start!important;width:100%!important;max-width:none!important}` : '',
+  CENTER_ROW ? `${CENTER_ROW} > div,${CENTER_ROW} > div > div{flex:0 1 auto!important;width:auto!important;max-width:none!important;margin:0!important}` : '',
   `div:has(> ${PRIMARY}){width:auto!important;max-width:none!important;flex-grow:0!important}`,
-].join('\n');
+].filter(Boolean).join('\n');
 
-/** Selectors that hide a rule: its own CSS, or the marker its JS finder sets. */
-const selectorsOf = (rule) => (rule.css ? [].concat(rule.css) : [`[${MARK_ATTR}~="${ruleId(rule)}"]`]);
+/**
+ * Selectors that hide a rule: its own CSS, or the marker its JS finder sets.
+ * Empty strings are dropped: an empty selector would become `:not(…)` and hide the whole page.
+ */
+const selectorsOf = (rule) =>
+  (rule.css ? [].concat(rule.css) : [`[${MARK_ATTR}~="${ruleId(rule)}"]`]).filter(Boolean);
 
 /** Rewrite the stylesheet for the current settings. */
 export function applyRuleStyles() {
@@ -186,11 +193,14 @@ function visibleBox(node) {
 
 /** Every element `rule` would hide right now (works whether or not the rule is on). */
 function ruleTargets(rule) {
-  if (rule.css) return [...document.querySelectorAll([].concat(rule.css).join(','))];
+  if (rule.css) {
+    const selector = [].concat(rule.css).filter(Boolean).join(',');
+    return selector ? [...document.querySelectorAll(selector)] : [];
+  }
   if (rule.inArticle) {
     return dom.getArticles(document).flatMap((article) => rule.inArticle(article, new Map()));
   }
-  return rule.find(document);
+  return rule.find ? rule.find(document) : [];
 }
 
 /** Stop any running preview and restore the page. */

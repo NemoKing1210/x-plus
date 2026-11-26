@@ -1,5 +1,4 @@
 import { cssFor, dom } from '../../core/compat/index.js';
-import { SEL } from '../../core/constants.js';
 
 /**
  * Declarative clean-up rules. A rule hides something on X and is toggled by
@@ -40,6 +39,24 @@ import { SEL } from '../../core/constants.js';
 
 /** Promoted posts, detected by the DOM profile. */
 const isPromotedArticle = (article) => dom.isPromotedArticle(article);
+
+/* CSS fragments of the page chrome, as `:is(legacy, modern)` unions. */
+const CELL = cssFor('cell');
+const USER_CELL = cssFor('userCell');
+const PRIMARY_COLUMN = cssFor('primaryColumn');
+const SHOW_POSTS_BUTTON = cssFor('showPostsButton');
+
+/** A finder that needs a fragment; without one (a profile does not know it) it finds nothing. */
+const onFragment = (key, build) => {
+  const fragment = cssFor(key);
+  return fragment ? build(fragment) : () => [];
+};
+
+/** The wrapper X slides in around floating page chrome; empty when no profile knows it. */
+const slidIn = (key, inner) => {
+  const marker = cssFor(key);
+  return marker ? `div:has(> div > ${inner(marker)})` : '';
+};
 
 /** Sidebar cards around the first block that contains a `selector` match. */
 const blocksContaining = (selector) => (root) => {
@@ -85,9 +102,11 @@ const navItemMapped = (kind, map) => (root) => {
  */
 function showPostsRows(root) {
   if (location.pathname.includes('/status/')) return [];
-  return [...root.querySelectorAll(`${SEL.primaryColumn} ${SEL.cell}`)].filter((cell) => {
+  const primary = dom.getPrimaryColumn(root);
+  if (!primary || !SHOW_POSTS_BUTTON) return [];
+  return dom.getPostCells(primary).filter((cell) => {
     if (cell.querySelector('article')) return false;
-    const button = cell.querySelector('[data-keep-composer-open] > button');
+    const button = cell.querySelector(SHOW_POSTS_BUTTON);
     const text = (cell.textContent || '').trim();
     return Boolean(button) && text.length <= 60 && /\d/.test(text);
   });
@@ -216,7 +235,9 @@ function handleLabels(article) {
  */
 function moreFromX(root) {
   if (!location.pathname.includes('/status/')) return [];
-  const cells = [...document.querySelectorAll(`${SEL.primaryColumn} ${SEL.cell}`)];
+  const primary = dom.getPrimaryColumn(root);
+  if (!primary) return [];
+  const cells = dom.getPostCells(primary);
   const first = cells.findIndex((cell) => cell.querySelector('article'));
   const header = cells.findIndex(
     (cell, index) =>
@@ -237,19 +258,21 @@ function moreFromX(root) {
  * with it.
  */
 function feedSuggestions(root) {
+  const primary = dom.getPrimaryColumn(root);
+  if (!primary) return [];
   const found = new Set();
   // Cheap: timeline headings are few, unlike the (virtualized) cells themselves.
-  for (const heading of root.querySelectorAll(`${SEL.primaryColumn} ${SEL.cell} h2[role="heading"]`)) {
-    const cell = heading.closest(SEL.cell);
-    if (!cell || cell.parentElement?.closest(SEL.cell) || cell.querySelector('article')) continue;
-    if (cell.querySelector(SEL.userCell)) {
+  for (const heading of primary.querySelectorAll(`${CELL} h2[role="heading"]`)) {
+    const cell = heading.closest(CELL);
+    if (!cell || cell.parentElement?.closest(CELL) || cell.querySelector('article')) continue;
+    if (cell.querySelector(USER_CELL)) {
       found.add(cell);
       continue;
     }
     const group = [cell];
-    for (let next = cell.nextElementSibling; next?.matches(SEL.cell); next = next.nextElementSibling) {
+    for (let next = cell.nextElementSibling; next?.matches(CELL); next = next.nextElementSibling) {
       if (next.querySelector('article')) break;
-      if (next.querySelector(SEL.userCell)) {
+      if (next.querySelector(USER_CELL)) {
         group.push(next);
         continue;
       }
@@ -269,7 +292,7 @@ const feedTabs = (root) => dom.getFeedTabs(root).map((list) => dom.getFeedTabsBl
 function stickyAncestor(list) {
   const known = list.closest('[data-xp-sticky]');
   if (known) return known;
-  for (let node = list.parentElement; node && !node.matches(SEL.primaryColumn); node = node.parentElement) {
+  for (let node = list.parentElement; node && !node.matches(PRIMARY_COLUMN); node = node.parentElement) {
     // `data-xp-sticky` remembers a wrapper that was already un-stuck by us.
     if (node.hasAttribute('data-xp-sticky') || getComputedStyle(node).position === 'sticky') return node;
   }
@@ -304,8 +327,10 @@ export const RULES = [
     group: 'posts',
     key: 'newPostsPill',
     hint: true,
+    // X does not use the marker in the modern build yet; the switch and its CSS stay behind.
+    generations: { modern: false },
     // The slid-in wrapper of the "N new posts" pill above the timeline.
-    css: 'div:has(> div > [role="status"] [data-testid="pillLabel"])',
+    css: slidIn('newPostsPill', (marker) => `[role="status"] ${marker}`),
   },
   { group: 'posts', key: 'composer', hint: true, find: (root) => [dom.getInlineComposer(root)].filter(Boolean) },
   { group: 'posts', key: 'moreFromX', hint: true, find: moreFromX },
@@ -395,7 +420,7 @@ export const RULES = [
     group: 'sidebar',
     key: 'trends',
     hint: true,
-    find: blocksContaining('[data-testid="trend"]'),
+    find: onFragment('trend', blocksContaining),
   },
   {
     group: 'sidebar',
@@ -411,10 +436,8 @@ export const RULES = [
     find: (root) => {
       const sidebar = dom.getSidebar(root);
       if (!sidebar) return [];
-      return [...sidebar.querySelectorAll('nav[role="navigation"] a[href$="/tos"]')]
-        .map((link) => link.closest('nav'))
-        .filter(Boolean)
-        .map((nav) => dom.getSidebarCard(nav));
+      return [...sidebar.querySelectorAll('a[href$="/tos"]')]
+        .map((link) => dom.getSidebarCard(link.closest('nav') || link));
     },
   },
 
@@ -436,7 +459,7 @@ export const RULES = [
   { group: 'nav', key: 'premium', find: navItem('premium') },
   { group: 'nav', key: 'followerRequests', find: navItem('followerRequests') },
   // Our own entry (nav-button.js); General → "Sidebar button" removes it for good.
-  { group: 'nav', key: 'xplus', css: 'header[role="banner"] [data-xp-nav]' },
+  { group: 'nav', key: 'xplus', css: `${cssFor('leftNav')} [data-xp-nav]` },
   { group: 'nav', key: 'profile', find: navItem('profile') },
   { group: 'nav', key: 'more', find: navItem('more') },
   {
@@ -462,13 +485,16 @@ export const RULES = [
     key: 'grokDrawer',
     hint: true,
     // The slid-in wrapper around the drawer, so no gap stays behind.
-    css: 'div:has(> div > [data-testid="GrokDrawer"])',
+    // X does not use the marker in the modern build yet; the switch and its CSS stay behind.
+    generations: { modern: false },
+    css: slidIn('grokDrawer', (marker) => marker),
   },
   {
     group: 'chrome',
     key: 'chatDrawer',
     hint: true,
-    css: 'div:has(> div > [data-testid="chat-drawer-root"])',
+    generations: { modern: false },
+    css: slidIn('chatDrawer', (marker) => marker),
   },
 ];
 

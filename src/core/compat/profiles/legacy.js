@@ -839,5 +839,20 @@ export default {
     verified: '[data-testid="icon-verified"]',
     // Empty atomic-class strip X draws above the feed, which reads as a top border.
     feedEdgeStrip: 'div.r-109y4c4.r-gu4em3',
+    // X caps inner feed blocks with the atomic class `max-width: 600px`.
+    contentCap: '.r-1ye8kvj',
+    // The row that holds the three columns, inside <body>.
+    mainRow: 'main[role="main"]',
+    // The list of menu entries inside the left column.
+    leftNavList: 'nav[role="navigation"]',
+    // One trend in the sidebar trends module.
+    trend: '[data-testid="trend"]',
+    // The "N new posts" pill above the timeline.
+    newPostsPill: '[data-testid="pillLabel"]',
+    // The button of the "Show N posts" row.
+    showPostsButton: '[data-keep-composer-open] > button',
+    // Floating panels in the bottom-right corner (Grok, chat) and their roots.
+    grokDrawer: '[data-testid="GrokDrawer"]',
+    chatDrawer: '[data-testid="chat-drawer-root"]',
   },
 };

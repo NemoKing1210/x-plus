@@ -1,4 +1,5 @@
 import { registerFeature } from '../../core/features.js';
+import { getGeneration } from '../../core/compat/index.js';
 import { field } from '../../core/schema.js';
 import { t } from '../../i18n/index.js';
 import {
@@ -11,6 +12,7 @@ import {
   syncRules,
 } from './engine.js';
 import { AVATAR_SHAPES, CARD_STYLES, POST_VIEW_FIELDS } from './posts.js';
+import { groupApplies, ruleApplies } from './rule-applies.js';
 import { RULES, RULE_GROUPS, ruleId, ruleLabelKey } from './rules.js';
 
 /** One boolean field per rule, grouped (`posts.promoted`, …). */
@@ -70,7 +72,10 @@ const whenEnabled = (section) => section.enabled;
 const sidebarHidden = (section) => section.sidebarHide;
 const menuHidden = (section) => section.menuHide;
 
-/** "Hide" subheading plus one switch per rule of `group` (needs the master switch). */
+/**
+ * "Hide" subheading plus one switch per rule of `group` (needs the master switch).
+ * A rule whose target this generation of the page does not have gets no switch.
+ */
 function hideControls(group, part) {
   return [
     { type: 'subheading', textKey: 'interface.sub.hide', showIf: whenEnabled },
@@ -80,7 +85,7 @@ function hideControls(group, part) {
       labelKey: ruleLabelKey(rule),
       hintKey: rule.hint ? `${ruleLabelKey(rule)}Hint` : undefined,
       peek: rulePeek(rule),
-      showIf: whenEnabled,
+      showIf: (section) => whenEnabled(section) && ruleApplies(rule, getGeneration()),
       // The whole column / menu is hidden: its parts need no switches.
       disabledIf: { sidebar: sidebarHidden, nav: menuHidden }[rule.group],
     })),
@@ -220,6 +225,8 @@ registerFeature({
         {
           titleKey: 'interface.sectionDrawers',
           descKey: 'interface.sectionDrawersDesc',
+          // No drawer this generation knows about: the section would hold nothing.
+          showIf: () => groupApplies(RULES, 'chrome', getGeneration()),
           controls: hideControls('chrome'),
         },
       ],

@@ -135,6 +135,18 @@ test('legacy css exposes the article and cell fragments', () => {
   assert.equal(legacy.css.cell, '[data-testid="cellInnerDiv"]');
 });
 
+test('legacy css marks the sidebar trends and the slid-in panels', () => {
+  assert.equal(legacy.css.trend, '[data-testid="trend"]');
+  assert.equal(legacy.css.newPostsPill, '[data-testid="pillLabel"]');
+  assert.equal(legacy.css.grokDrawer, '[data-testid="GrokDrawer"]');
+  assert.equal(legacy.css.chatDrawer, '[data-testid="chat-drawer-root"]');
+  assert.equal(legacy.css.showPostsButton, '[data-keep-composer-open] > button');
+});
+
+test('modern css marks the sidebar trends', () => {
+  assert.equal(modern.css.trend, '[data-trend]');
+});
+
 test('modern getArticles excludes nested quote articles', () => {
   const outer = { nodeType: 1, closest: () => null, parentElement: null, matches: () => false };
   const inner = { nodeType: 1, closest: (sel) => (sel === 'article' ? outer : null), parentElement: { closest: () => outer }, matches: () => false };

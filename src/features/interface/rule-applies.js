@@ -12,3 +12,16 @@
 export function ruleApplies(rule, generation) {
   return rule?.generations?.[generation] !== false;
 }
+
+/**
+ * Whether any rule of `group` applies to `generation`: a settings section whose
+ * every switch would do nothing is hidden as a whole.
+ *
+ * @param {{ group: string, generations?: Record<string, boolean> }[]} rules
+ * @param {string} group
+ * @param {string} generation
+ * @returns {boolean}
+ */
+export function groupApplies(rules, group, generation) {
+  return rules.some((rule) => rule.group === group && ruleApplies(rule, generation));
+}

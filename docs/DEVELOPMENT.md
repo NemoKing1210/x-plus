@@ -78,6 +78,48 @@ All selectors are centralised:
 | header action slot (Grok / caret) | `src/features/translate/placement.js` |
 | sidebar nav template | `src/features/settings/nav-button.js` |
 
+## Clean-up rules per DOM generation
+
+Every switch of the Interface tab is one entry in
+`src/features/interface/rules.js`. A rule either works on both generations —
+through a `dom.*` capability or a CSS fragment from
+`src/core/compat/profiles/*.js` — or its target exists only in the legacy
+markup. Such a rule carries `generations: { modern: false }`: it is skipped on
+the modern page, its switch is hidden, and a group with no applicable rule
+left hides its whole section. Check the page you are on with
+`document.documentElement.dataset.xpDom` (`legacy` | `modern` | `unknown`).
+
+| Rule | Legacy | Modern |
+|------|--------|--------|
+| `posts.feedTabs` | tabs list (`data-testid="ScrollSnap-List"`) | tabs list inside the page header |
+| `posts.showPosts` | cell with a `[data-keep-composer-open]` button | same finder; the marker is not confirmed yet |
+| `posts.newPostsPill` | wrapper of `[data-testid="pillLabel"]` | **legacy only** — no marker found yet |
+| `posts.composer` | inline composer (`tweetTextarea_0`) | composer inside the page header |
+| `posts.moreFromX` | heading cell after the replies | same structure |
+| `posts.promoted` | promoted badge markers | `dom.isPromotedArticle` |
+| `posts.viewCounts` | analytics link in the action bar | same (`role="group"` + `/analytics`) |
+| `posts.avatars`, `posts.images`, `posts.videos` | avatar / `tweetPhoto` / player | `data-post-avatar`, media holders |
+| `posts.linkCards`, `posts.articles` | card attachments | card attachments |
+| `posts.translateNotice` | native translate bar | native translate bar |
+| `posts.handles`, `posts.quotedPosts` | header handle, quote card | header handle, quote card |
+| `posts.actionBar` | `[role="group"]` with a reply button | `[role="group"]` with `data-engagement-action` |
+| `posts.verifiedBadges` | `icon-verified` | verified icon |
+| `posts.grokButton` | Grok glyph in the header | Grok glyph in the header |
+| `posts.whoToFollow` (in the feed) | heading cell + `UserCell` cells | heading cell + `[data-who-to-follow]` cells |
+| `sidebar.search` | `form[role="search"]` | `form[role="search"]` |
+| `sidebar.premium` | premium link in a sidebar block | premium link in a sidebar section |
+| `sidebar.trends` | `[data-testid="trend"]` | `[data-trend]` |
+| `sidebar.whoToFollow` | `UserCell` cells | `[data-who-to-follow]` modules |
+| `sidebar.footer` | footer `nav` with a `/tos` link | footer `nav` with a `/tos` link |
+| `nav.*` (logo … account) | links and buttons of the left menu | `dom.getNavItem` on the modern nav |
+| `nav.xplus` | our entry inside the left column | our entry inside the modern nav |
+| `chrome.grokDrawer` | wrapper of `[data-testid="GrokDrawer"]` | **legacy only** — no marker found yet |
+| `chrome.chatDrawer` | wrapper of `[data-testid="chat-drawer-root"]` | **legacy only** — no marker found yet |
+
+"Legacy only" is temporary: once the modern marker is known, add it as a
+`css` fragment to the modern profile and drop `generations` from the rule.
+
+
 ## Localized READMEs
 
 `README.md` is the English source. The other supported UI languages have their

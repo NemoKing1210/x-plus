@@ -654,5 +654,7 @@ export default {
     avatar: '[data-post-avatar]',
     userCell: '[data-who-to-follow]',
     verified: '[data-icon*="verified"]',
+    // One trend in the sidebar trends module.
+    trend: '[data-trend]',
   },
 };
