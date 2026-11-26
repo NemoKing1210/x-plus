@@ -10,7 +10,15 @@
  * See docs/superpowers/specs/2026-11-26-dom-compatibility-design.md §7.2.
  */
 
-import { AD_ICON_PATH_PREFIX, AD_LABELS, navLabelWeight, normalizeHandleText } from './shared.js';
+import {
+  AD_ICON_PATH_PREFIX,
+  AD_LABELS,
+  NATIVE_AUTO_TRANSLATE_LABEL_RE,
+  navLabelWeight,
+  normalizeHandleText,
+  overlayRoots,
+  UI_ATTR,
+} from './shared.js';
 
 const QUOTE_FRAME = '[data-slot="embedded-tweet-frame"]';
 const POST_TEXT = '[dir="auto"].whitespace-pre-wrap';
@@ -21,6 +29,9 @@ const ARTICLE_COVER = '[data-testid="article-cover-image"], a[href*="/i/article/
 const VERIFIED = 'svg[data-icon*="verified"], [data-testid="icon-verified"]';
 const MENU = '[role="menu"][data-slot="xds-menu-content"]';
 const SIDEBAR_BLOCK = 'section, div[role="complementary"], aside, [role="region"], nav';
+const ARTICLE_BODY = '[data-testid="twitterArticleRichTextView"], .x-article-body';
+const ARTICLE_TITLE = '[data-testid="twitter-article-title"], h1';
+const VIEWER_LAYER = '[role="dialog"][data-slot="xds-modal-surface"], [role="dialog"][aria-modal="true"]';
 
 /** Left-navigation hrefs of the modern nav (one path per row). */
 const NAV_HREFS = {
@@ -43,6 +54,32 @@ function stickyAncestor(list, stop) {
     if (node.hasAttribute?.('data-xp-sticky') || getComputedStyle(node).position === 'sticky') return node;
   }
   return null;
+}
+
+/** First previous / next element sibling of `node` that `visit` accepts. */
+function nearbySibling(node, visit) {
+  for (const prop of ['previousElementSibling', 'nextElementSibling']) {
+    let sibling = node[prop];
+    while (sibling) {
+      if (visit(sibling) === true) return sibling;
+      sibling = sibling[prop];
+    }
+  }
+  return null;
+}
+
+/** X's "Source language: … Show original" bar, identified by shape and label. */
+function isNativeTranslateChrome(root) {
+  if (!root || root.nodeType !== 1 || root.closest?.(`[${UI_ATTR}]`)) return false;
+  if (root.matches?.(POST_TEXT)) return false;
+  if (root.querySelector?.(`:scope > ${POST_TEXT}`)) return false;
+
+  for (const button of root.querySelectorAll('button[aria-label]')) {
+    if (button.closest?.(`[${UI_ATTR}]`)) continue;
+    if (NATIVE_AUTO_TRANSLATE_LABEL_RE.test((button.getAttribute('aria-label') || '').trim())) return true;
+  }
+  const label = root.textContent?.trim() || '';
+  return label.length > 0 && label.length <= 60 && NATIVE_AUTO_TRANSLATE_LABEL_RE.test(label);
 }
 
 /**
@@ -441,6 +478,120 @@ const api = {
       block = parent;
     }
     return block;
+  },
+
+  getArticleBody(root) {
+    return root.querySelector(ARTICLE_BODY);
+  },
+
+  /** The article's title element (outside the body, inside a nearby ancestor). */
+  getArticleTitle(body) {
+    if (!body) return null;
+    let scope = body;
+    for (let depth = 0; depth < 6; depth += 1) {
+      scope = scope.parentElement;
+      if (!scope) return null;
+      for (const candidate of scope.querySelectorAll(ARTICLE_TITLE)) {
+        if (!body.contains(candidate) && !candidate.closest(`article, [${UI_ATTR}]`)) return candidate;
+      }
+    }
+    return null;
+  },
+
+  getViewerLayer(root) {
+    return root.querySelector(VIEWER_LAYER);
+  },
+
+  getViewerImages(root) {
+    const layer = api.getViewerLayer(root);
+    if (!layer) return [];
+    return [...layer.querySelectorAll('img[src*="pbs.twimg.com/media/"]')].filter(
+      (img) => !img.closest(`[${UI_ATTR}]`),
+    );
+  },
+
+  /** The photo stage: the nearest `object-contain` ancestor, else the viewport-sized one. */
+  getViewerStage(img) {
+    if (!img) return null;
+    const layer = img.closest?.(VIEWER_LAYER) || null;
+    for (let node = img.parentElement; node && node !== layer; node = node.parentElement) {
+      if (node.classList?.contains('object-contain') || getComputedStyle(node).objectFit === 'contain') return node;
+    }
+    for (let node = img.parentElement; node && node !== layer; node = node.parentElement) {
+      const rect = node.getBoundingClientRect();
+      if (rect.width >= window.innerWidth * 0.95 && rect.height >= window.innerHeight * 0.95) return node;
+    }
+    return layer;
+  },
+
+  getPrimaryColumn(root) {
+    return root.querySelector('main');
+  },
+
+  getSidebarColumn(root) {
+    return api.getSidebar(root);
+  },
+
+  getLeftNav(root) {
+    return api.getNav(root);
+  },
+
+  getOverlayRoots(root) {
+    return overlayRoots(root);
+  },
+
+  /** The avatar column of the post itself (`self-stretch` row next to the text). */
+  getAvatarColumn(article) {
+    if (!article) return null;
+    const avatar = api.getAuthorAvatar(article);
+    if (!avatar) return null;
+    let node = avatar;
+    while (node.parentElement && node.parentElement !== article) {
+      if (node.classList?.contains('self-stretch')) return node;
+      node = node.parentElement;
+    }
+    return avatar.parentElement || avatar;
+  },
+
+  /**
+   * Bars that may be a thread line: the empty spans / divs of the avatar column.
+   * Geometry filtering (thin, on the avatar axis) stays with the caller.
+   */
+  getThreadLineCandidates(article) {
+    const column = api.getAvatarColumn(article);
+    if (!column) return [];
+    return [...column.querySelectorAll('span, div')];
+  },
+
+  /**
+   * X's own machine-translation bar for `article` (the post itself or a quote
+   * card): the sibling of its text that carries a button labelled "Show original".
+   */
+  getNativeTranslateBar(article) {
+    if (!article) return null;
+    const text = article.matches?.(POST_TEXT) ? article : article.querySelector?.(POST_TEXT);
+    if (!text) return null;
+    const inQuote = api.getPostArticle(article) !== article;
+
+    let node = text;
+    for (let depth = 0; depth < 6 && node && article.contains?.(node); depth += 1) {
+      const hit = nearbySibling(node, (sibling) => {
+        if (sibling === text || sibling.contains?.(text)) return false;
+        if (sibling.matches?.(POST_TEXT)) return false;
+        if (!inQuote && sibling.matches?.(QUOTE_FRAME)) return false;
+        // Stay in the text column — skip header chrome (Grok carries a translate glyph).
+        if (sibling.querySelector?.('[data-post-avatar], button[aria-haspopup="menu"]')) return false;
+        return isNativeTranslateChrome(sibling);
+      });
+      if (hit) return hit;
+      if (node === article) break;
+      node = node.parentElement;
+    }
+    return null;
+  },
+
+  hasNativeAutoTranslate(article) {
+    return Boolean(api.getNativeTranslateBar(article));
   },
 };
 

@@ -220,3 +220,11 @@ test('modern getFeedTabs, getUserCells and getComposer pin the current markers',
   modern.api.getComposer(composer);
   assert.ok(composer.calls.some((selector) => selector.includes('textarea[aria-label]')));
 });
+
+test('every profile implements every capability', () => {
+  for (const profile of [legacy, modern]) {
+    for (const key of Object.keys(KINDS)) {
+      assert.equal(typeof profile.api[key], 'function', `${profile.id}.${key}`);
+    }
+  }
+});
