@@ -4,6 +4,7 @@ import { t } from '../../i18n/index.js';
 import { icon } from '../../ui/icons.js';
 import { el } from '../../utils/dom.js';
 import { keyHint } from '../../utils/keys.js';
+import { ringOffset, ringVisible } from './ring.js';
 
 /**
  * Controls of Shorts mode: previous / next buttons and an auto-scroll
@@ -23,8 +24,6 @@ const PRESS_MS = 380;
 const SIZE = 50;
 const GAP = 16;
 const MARGIN = 8;
-/** Circumference of the ring (r = 21), matches stroke-dasharray in the CSS. */
-const RING_LENGTH = 2 * Math.PI * 21;
 
 const RING_SVG = `<svg class="xp-shorts-ring" viewBox="0 0 46 46" aria-hidden="true" focusable="false">
   <circle class="xp-shorts-ring__track" cx="23" cy="23" r="21"/>
@@ -165,15 +164,16 @@ export function navHovered() {
 }
 
 /**
- * Auto-scroll ring around the "next" button; `null` hides it.
+ * Auto-scroll ring around the "next" button; `null` hides it. A paused
+ * countdown hides it too — see `ringVisible`.
  * @param {{ progress: number, paused: boolean } | null} state
  */
 export function setRing(state) {
   if (!ringSvg) return;
-  ringSvg.classList.toggle('is-on', Boolean(state));
-  if (!state) return;
-  ringSvg.classList.toggle('is-paused', state.paused);
-  arc.style.strokeDashoffset = String(RING_LENGTH * (1 - state.progress));
+  const on = ringVisible(state);
+  ringSvg.classList.toggle('is-on', on);
+  if (!on) return;
+  arc.style.strokeDashoffset = String(ringOffset(state.progress));
 }
 
 /**

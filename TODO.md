@@ -38,6 +38,7 @@ you are about to work on here.
 - [x] Restyle the Shorts controls as one toolbar ~1h #shorts @NemoKing1210 2026-11-26  
   - [x] Previous / next / auto-scroll share one glass pill with equal 40px targets, a hairline divider and the progress ring inside it  
   - [x] Tooltips show the hotkeys (K / J and the auto-scroll key), and a key or wheel step flashes the matching button in place  
+  - [x] The ring is hidden while the countdown is paused or off, so an empty circle never sits around the next button  
 - [x] Fix the defects the live modern pass reported ~4h #compat @NemoKing1210 2026-11-26  
   - [x] The logo above the home menu is hidden without touching the nav column; post headers are rebuilt from the display-name link on the `<header>`-less markup  
   - [x] The permalink without a `<time>` element resolves media downloads and screenshot names again  

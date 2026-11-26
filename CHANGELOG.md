@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Shorts: the previous / next / auto-scroll controls are one glass toolbar with equal hit targets, the auto-scroll ring fits inside it, and the tooltips show the hotkeys; a key press flashes the matching button in place
+- Shorts: the previous / next / auto-scroll controls are one glass toolbar with equal hit targets and roomier spacing, the auto-scroll ring fits inside it, and the tooltips show the hotkeys; the ring disappears while the countdown is paused or off, and a key press flashes the matching button in place
 
 ### Fixed
 

@@ -56,7 +56,7 @@ html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'],
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   padding: 4px;
   border: 1px solid color-mix(in srgb, var(--xp-fg-muted) 38%, transparent);
   border-radius: 999px;
@@ -148,7 +148,7 @@ html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'],
 .xp-shorts-nav__btn--auto::before {
   content: '';
   position: absolute;
-  top: -2px;
+  top: -4px;
   left: 50%;
   width: 18px;
   height: 1px;
@@ -209,10 +209,6 @@ html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'],
     filter 0.2s ease;
 }
 
-.xp-shorts-ring.is-paused .xp-shorts-ring__arc {
-  opacity: 0.45;
-  filter: none;
-}
 
 /* Auto-scroll bar over the top edge of the current post */
 .xp-shorts-bar {
