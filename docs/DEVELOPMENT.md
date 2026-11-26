@@ -78,6 +78,11 @@ All selectors are centralised:
 | header action slot (Grok / caret) | `src/features/translate/placement.js` |
 | sidebar nav template | `src/features/settings/nav-button.js` |
 
+Documented exception: `nav-button.js` seeds `navHoverClass` with a legacy
+`r-*` hover pill class. It is only a starting value — the class name is learned
+from X's own menu rows at runtime — and the whole hover mirror is skipped on
+the modern page, which styles the row with CSS.
+
 ## Clean-up rules per DOM generation
 
 Every switch of the Interface tab is one entry in

@@ -1,5 +1,5 @@
-import { dom } from '../../core/compat/index.js';
-import { navLabelWeight } from '../../core/compat/profiles/shared.js';
+import { dom, getGeneration } from '../../core/compat/index.js';
+import { navLabelWeight, navUsesHoverClass } from '../../core/compat/profiles/shared.js';
 import { UI_ATTR } from '../../core/constants.js';
 import { getFeatureSettings } from '../../core/settings.js';
 import { t } from '../../i18n/index.js';
@@ -30,6 +30,8 @@ function findSideNavs() {
 
 /** Learn the live hover class from native rows (X renames r-* hashes over time). */
 function observeNativeNavHoverClass(nav) {
+  // The modern build styles the row with CSS: nothing to learn, nothing to mirror.
+  if (!navUsesHoverClass(getGeneration())) return;
   if (nav.dataset.xpHoverObs === '1') return;
   nav.dataset.xpHoverObs = '1';
   const observer = new MutationObserver((mutations) => {
@@ -68,6 +70,7 @@ const navHoverPill = (btn) =>
 /** Mirror X: toggle the hover outline class on the inner pill. */
 function bindNavHoverChrome(btn) {
   if (!(btn instanceof HTMLElement) || btn.dataset.xpNavHover === '1') return;
+  if (!navUsesHoverClass(getGeneration())) return;
   btn.dataset.xpNavHover = '1';
 
   const setHover = (on) => {
@@ -134,18 +137,15 @@ function buildNavButton(template) {
     btn.innerHTML = template.innerHTML;
   }
 
+  // X's own markers (test ids, analytics ids, …) describe the row we cloned, not ours.
+  for (const attr of [...btn.attributes]) {
+    if (attr.name.startsWith('data-')) btn.removeAttribute(attr.name);
+  }
   btn.href = '#';
   btn.setAttribute(NAV_ATTR, '1');
   btn.setAttribute(UI_ATTR, '');
   btn.setAttribute('role', 'link');
-  for (const attr of [
-    'data-testid',
-    'type',
-    'aria-expanded',
-    'aria-haspopup',
-    'aria-describedby',
-    'aria-current',
-  ]) {
+  for (const attr of ['type', 'aria-expanded', 'aria-haspopup', 'aria-describedby', 'aria-current']) {
     btn.removeAttribute(attr);
   }
   btn.setAttribute('aria-label', t('nav.label'));

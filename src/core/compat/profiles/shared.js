@@ -59,6 +59,19 @@ export function navLabelWeight(node) {
   return null;
 }
 
+/**
+ * Whether the left-menu hover pill is a class. The legacy build adds an
+ * `r-*` class to the inner pill from JS on hover (so our cloned row has to
+ * mirror it, and the class name is worth learning from X's own rows); the
+ * modern build styles the row with CSS and needs neither.
+ *
+ * @param {string} generation - 'legacy' | 'modern' | 'unknown'
+ * @returns {boolean}
+ */
+export function navUsesHoverClass(generation) {
+  return generation !== 'modern';
+}
+
 /** Aria-labels for X's Show original / about-auto-translate (locale fallback). */
 export const NATIVE_AUTO_TRANSLATE_LABEL_RE =
   /^(show original|показать оригинал|mostrar (el )?original|afficher l['’]original|original anzeigen|mostra (l['’])?originale|オリジナルを表示|显示原文|顯示原文|mostrar original|about automatic translation|об автоматическом переводе|acerca de la traducci[oó]n autom[aá]tica|à propos de la traduction automatique|informationen zur automatischen [üu]bersetzung|informazioni sulla traduzione automatica|自動翻訳について|关于自动翻译|關於自動翻譯|sobre a tradu[cç][aã]o autom[aá]tica)$/i;
