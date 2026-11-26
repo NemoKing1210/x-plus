@@ -1,4 +1,4 @@
-import { SEL } from '../../core/constants.js';
+import { cssFor } from '../../core/compat/index.js';
 import { field } from '../../core/schema.js';
 
 /**
@@ -27,9 +27,10 @@ export const POST_VIEW_FIELDS = {
 /** Set on <html> while the settings dialog previews a draft: the live rules step aside. */
 export const POSTS_PEEK_ATTR = 'data-xp-peek-posts';
 
-const column = SEL.primaryColumn;
-const cell = `${column} ${SEL.cell}`;
-const article = `${cell} ${SEL.article}`;
+const column = cssFor('primaryColumn');
+const cell = `${column} ${cssFor('cell')}`;
+const article = `${cell} ${cssFor('article')}`;
+const avatar = cssFor('avatar');
 
 const CARD_SURFACE = {
   outline: 'border:1px solid var(--xp-border)!important;box-shadow:none!important',
@@ -78,14 +79,14 @@ export function postsCss(cfg, peek = false) {
 
   // Padding goes on the wrapper right around the post (inside the cell): X measures cell
   // heights, so the list stays consistent. The cell itself is a fixed-position slot.
-  if (cfg.gap > 0) css.push(`${scope} ${cell} div:has(> ${SEL.article}){padding-top:${cfg.gap / 2}px!important;padding-bottom:${cfg.gap / 2}px!important;box-sizing:content-box!important}`);
+  if (cfg.gap > 0) css.push(`${scope} ${cell} div:has(> ${cssFor('article')}){padding-top:${cfg.gap / 2}px!important;padding-bottom:${cfg.gap / 2}px!important;box-sizing:content-box!important}`);
   if (cfg.padding > 0) css.push(`${scope} ${article} > div{padding:${cfg.padding}px!important}`);
   if (cfg.textScale !== 100) {
-    css.push(`${scope} ${article} ${SEL.tweetText}{zoom:${cfg.textScale / 100}}`);
+    css.push(`${scope} ${article} ${cssFor('tweetText')}{zoom:${cfg.textScale / 100}}`);
   }
   if (AVATAR_RADIUS[cfg.avatarShape] != null) {
     css.push(
-      `${scope} ${article} [data-testid^="UserAvatar-Container"],${scope} ${article} [data-testid^="UserAvatar-Container"] *{border-radius:${AVATAR_RADIUS[cfg.avatarShape]}!important}`,
+      `${scope} ${article} ${avatar},${scope} ${article} ${avatar} *{border-radius:${AVATAR_RADIUS[cfg.avatarShape]}!important}`,
     );
   }
   return css.join('\n');

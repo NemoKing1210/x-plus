@@ -1,4 +1,5 @@
 import { Codes, logWarn } from '../../core/debug.js';
+import { cssFor } from '../../core/compat/index.js';
 import { SEL, UI_ATTR } from '../../core/constants.js';
 import { getFeatureSettings } from '../../core/settings.js';
 import { POSTS_PEEK_ATTR, postsCss } from './posts.js';
@@ -45,7 +46,7 @@ function ensureStyle() {
 /** Widen the central column (and the wrappers that cap it) to `width` px. */
 function contentWidthCss(width) {
   if (!width) return '';
-  const column = SEL.primaryColumn;
+  const column = cssFor('primaryColumn');
   return [
     `${column}{width:${width}px!important;max-width:100vw!important;flex:none!important}`,
     // X caps inner feed blocks with the atomic class `max-width: 600px`.
@@ -54,10 +55,15 @@ function contentWidthCss(width) {
   ].join('\n');
 }
 
+/** Column / chrome selectors as `:is(legacy, modern)` unions. */
+const LEFT_NAV = cssFor('leftNav');
+const SIDEBAR = cssFor('sidebarColumn');
+const PRIMARY = cssFor('primaryColumn');
+
 /** Pin the left navigation to the screen edge instead of next to the feed. */
 const MENU_LEFT_CSS = [
-  'header[role="banner"]{align-items:flex-start!important}',
-  'header[role="banner"] > div{align-items:flex-start!important}',
+  `${LEFT_NAV}{align-items:flex-start!important}`,
+  `${LEFT_NAV} > div{align-items:flex-start!important}`,
 ].join('\n');
 
 /**
@@ -66,21 +72,21 @@ const MENU_LEFT_CSS = [
  * the nav centres its children.
  */
 const MENU_CENTER_CSS = [
-  'header[role="banner"] div:has(nav[role="navigation"]){flex:1 1 auto!important;min-height:0}',
-  'header[role="banner"] div:has(> nav[role="navigation"]){display:flex!important;flex-direction:column!important;justify-content:center!important}',
+  `${LEFT_NAV} div:has(nav[role="navigation"]){flex:1 1 auto!important;min-height:0}`,
+  `${LEFT_NAV} div:has(> nav[role="navigation"]){display:flex!important;flex-direction:column!important;justify-content:center!important}`,
 ].join('\n');
 
 /** Remove the whole left menu from the page. */
-const MENU_HIDE_CSS = `header[role="banner"]:not([${PEEK_ATTR}]){display:none!important}`;
+const MENU_HIDE_CSS = `${LEFT_NAV}:not([${PEEK_ATTR}]){display:none!important}`;
 
 /** Remove the whole right column from the page. */
-const SIDEBAR_HIDE_CSS = `${SEL.sidebar}:not([${PEEK_ATTR}]){display:none!important}`;
+const SIDEBAR_HIDE_CSS = `${SIDEBAR}:not([${PEEK_ATTR}]){display:none!important}`;
 
 /** Let the feed tabs scroll away with the page instead of floating at the top. */
 const FEED_TABS_STATIC_CSS = `[${STICKY_ATTR}]{position:static!important}`;
 
 /** Pin the right column (search, trends, who to follow) to the screen edge. */
-const SIDEBAR_RIGHT_CSS = `${SEL.sidebar}{position:fixed!important;top:0;right:0;bottom:0;width:350px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}`;
+const SIDEBAR_RIGHT_CSS = `${SIDEBAR}{position:fixed!important;top:0;right:0;bottom:0;width:350px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}`;
 
 /**
  * Centre the feed on the screen: both side columns leave the layout (menu
@@ -89,11 +95,11 @@ const SIDEBAR_RIGHT_CSS = `${SEL.sidebar}{position:fixed!important;top:0;right:0
  * include the vertical scrollbar, which would add a horizontal scrollbar.
  */
 const CENTER_CSS = [
-  'header[role="banner"]{position:fixed!important;top:0;bottom:0;left:0;z-index:2;width:auto!important;flex-grow:0!important}',
+  `${LEFT_NAV}{position:fixed!important;top:0;bottom:0;left:0;z-index:2;width:auto!important;flex-grow:0!important}`,
   SIDEBAR_RIGHT_CSS,
   'main[role="main"]{flex:none!important;display:flex!important;flex-direction:row!important;justify-content:center!important;align-items:flex-start!important;width:100%!important;max-width:none!important}',
   'main[role="main"] > div,main[role="main"] > div > div{flex:0 1 auto!important;width:auto!important;max-width:none!important;margin:0!important}',
-  `div:has(> ${SEL.primaryColumn}){width:auto!important;max-width:none!important;flex-grow:0!important}`,
+  `div:has(> ${PRIMARY}){width:auto!important;max-width:none!important;flex-grow:0!important}`,
 ].join('\n');
 
 /** Selectors that hide a rule: its own CSS, or the marker its JS finder sets. */
@@ -198,7 +204,7 @@ export function peekPosts(postView) {
   endPeek();
   document.documentElement.setAttribute(POSTS_PEEK_ATTR, '');
   peekStyle().textContent = postsCss(postView, true);
-  return [...document.querySelectorAll(`${SEL.primaryColumn} ${SEL.article}`)].filter(isOnScreen).length;
+  return [...document.querySelectorAll(`${PRIMARY} ${SEL.article}`)].filter(isOnScreen).length;
 }
 
 /**
@@ -223,13 +229,13 @@ export function peekRule(ruleKey) {
 
 /** Layout option → the page elements it moves or resizes (outlined while previewing). */
 const LAYOUT_TARGETS = {
-  contentWidth: () => document.querySelectorAll(SEL.primaryColumn),
-  centerContent: () => document.querySelectorAll(SEL.primaryColumn),
-  menuLeft: () => document.querySelectorAll('header[role="banner"]'),
-  menuCenter: () => document.querySelectorAll('header[role="banner"]'),
-  menuHide: () => document.querySelectorAll('header[role="banner"]'),
-  sidebarRight: () => document.querySelectorAll(SEL.sidebar),
-  sidebarHide: () => document.querySelectorAll(SEL.sidebar),
+  contentWidth: () => document.querySelectorAll(PRIMARY),
+  centerContent: () => document.querySelectorAll(PRIMARY),
+  menuLeft: () => document.querySelectorAll(LEFT_NAV),
+  menuCenter: () => document.querySelectorAll(LEFT_NAV),
+  menuHide: () => document.querySelectorAll(LEFT_NAV),
+  sidebarRight: () => document.querySelectorAll(SIDEBAR),
+  sidebarHide: () => document.querySelectorAll(SIDEBAR),
   feedTabsStatic: () => document.querySelectorAll(`[${STICKY_ATTR}]`),
 };
 

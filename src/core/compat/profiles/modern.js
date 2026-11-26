@@ -17,5 +17,16 @@ export default {
   },
 
   api: {},
-  css: {},
+  css: {
+    article: 'article',
+    cell: 'li[data-index]',
+    tweetText: '[dir="auto"].whitespace-pre-wrap',
+    actionReply: '[data-engagement-action="reply"]',
+    primaryColumn: 'main',
+    sidebarColumn: 'aside',
+    leftNav: 'nav[aria-label]',
+    avatar: '[data-post-avatar]',
+    userCell: '[data-who-to-follow]',
+    verified: '[data-icon*="verified"]',
+  },
 };

@@ -13,3 +13,8 @@ test('combinedCss reads the same key from every profile', () => {
   const profiles = [profile('modern', { article: 'article' }), profile('legacy', { article: 'article[data-testid="tweet"]' })];
   assert.equal(combinedCss(profiles, 'article'), ':is(article, article[data-testid="tweet"])');
 });
+
+test('cssFor combines legacy and modern fragments', async () => {
+  const { cssFor } = await import('../src/core/compat/index.js');
+  assert.equal(cssFor('cell'), ':is(li[data-index], [data-testid="cellInnerDiv"])');
+});
