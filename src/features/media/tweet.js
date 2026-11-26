@@ -1,4 +1,4 @@
-import { SEL } from '../../core/constants.js';
+import { dom } from '../../core/compat/index.js';
 
 /**
  * Reading media-related facts out of a tweet `<article>`. All X-specific DOM
@@ -7,13 +7,9 @@ import { SEL } from '../../core/constants.js';
 
 const STATUS_RE = /\/status\/(\d+)/;
 
-/** Elements that play inline video / GIFs. */
-const VIDEO_HOST_SELECTOR = `${SEL.videoPlayer}, [data-testid="videoComponent"]`;
-
 /** True when `node` sits inside a quoted tweet embedded in `article`. */
 export function isInQuote(node, article) {
-  const quote = node.closest(SEL.quoteTweet);
-  return Boolean(quote && article.contains(quote));
+  return Boolean(dom.getQuoteCard(node, article));
 }
 
 /**
@@ -38,8 +34,7 @@ export function getTweetId(article) {
 
 /** Action bar (reply / repost / like / …) of the tweet itself, not of a quote. */
 export function getActionGroup(article) {
-  const reply = article.querySelector(SEL.actionReply);
-  return reply?.closest('[role="group"]') || null;
+  return dom.getActionGroup(article);
 }
 
 /**
@@ -47,21 +42,7 @@ export function getActionGroup(article) {
  * @returns {{ el: Element, kind: 'video' | 'photo', owner: 'main' | 'quote' }[]}
  */
 export function getMediaHosts(article) {
-  const hosts = [];
-  const seen = new Set();
-  const push = (el, kind) => {
-    if (seen.has(el)) return;
-    seen.add(el);
-    hosts.push({ el, kind, owner: isInQuote(el, article) ? 'quote' : 'main' });
-  };
-
-  article.querySelectorAll(VIDEO_HOST_SELECTOR).forEach((el) => push(el, 'video'));
-  article.querySelectorAll(SEL.photo).forEach((el) => {
-    // A video wrapped in tweetPhoto (GIFs) is already covered above.
-    if (el.querySelector('video') || el.closest(VIDEO_HOST_SELECTOR)) return;
-    if (el.querySelector('img')) push(el, 'photo');
-  });
-  return hosts;
+  return dom.getMediaHosts(article);
 }
 
 /**

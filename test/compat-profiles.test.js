@@ -29,3 +29,38 @@ test('legacy getPostCells uses cellInnerDiv', () => {
   legacy.api.getPostCells(root);
   assert.ok(root.calls.includes('[data-testid="cellInnerDiv"]'));
 });
+
+test('legacy getMediaHosts uses tweetPhoto and videoPlayer', () => {
+  const root = recordingRoot();
+  legacy.api.getMediaHosts(root);
+  assert.ok(root.calls.some((selector) => selector.includes('tweetPhoto')));
+  assert.ok(root.calls.some((selector) => selector.includes('videoPlayer')));
+});
+
+test('legacy getAttachments looks for quote, link, poll and article cards', () => {
+  const root = recordingRoot();
+  legacy.api.getAttachments(root);
+  const joined = root.calls.join(' ');
+  assert.ok(joined.includes('quoteTweet'));
+  assert.ok(joined.includes('card.wrapper'));
+  assert.ok(joined.includes('card.poll'));
+  assert.ok(joined.includes('article-cover-image'));
+});
+
+test('legacy getVerifiedBadge uses the verified icon', () => {
+  const root = recordingRoot();
+  legacy.api.getVerifiedBadge(root);
+  assert.ok(root.calls.includes('[data-testid="icon-verified"]'));
+});
+
+test('legacy getSocialContext reads the post cell', () => {
+  const calls = [];
+  const cell = {
+    querySelector: (selector) => { calls.push(selector); return null; },
+  };
+  const root = {
+    closest: (selector) => { calls.push(selector); return cell; },
+  };
+  assert.equal(legacy.api.getSocialContext(root), null);
+  assert.ok(calls.includes('[data-testid="socialContext"]'));
+});

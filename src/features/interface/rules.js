@@ -1,3 +1,4 @@
+import { dom } from '../../core/compat/index.js';
 import { NATIVE_AUTO_TRANSLATE_ICON_PATH, SEL } from '../../core/constants.js';
 
 /**
@@ -37,43 +38,8 @@ import { NATIVE_AUTO_TRANSLATE_ICON_PATH, SEL } from '../../core/constants.js';
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
 
-/** Labels X uses for promoted posts, lower-case (the ones we know of). */
-const AD_LABELS = new Set([
-  'ad',
-  'promoted',
-  'реклама',
-  'anzeige',
-  'anuncio',
-  'annonce',
-  'publicité',
-  'publicidade',
-  'pubblicità',
-  'promowane',
-  'reklama',
-  'reklam',
-  '広告',
-  '广告',
-  '廣告',
-  '광고',
-]);
-
-/** Path prefix of the "Ad" rectangle glyph X draws next to promoted posts. */
-const AD_ICON_PATH_PREFIX = 'M19.498 3h-15c-1.381';
-
-export function isPromotedArticle(article) {
-  if (article.querySelector(`svg path[d^="${AD_ICON_PATH_PREFIX}"]`)) return true;
-  // Cheapest checks first: a leaf span with a short text, and only then the label set and
-  // the (costly) `closest`. The label sits near the top of the post, so a
-  // bounded walk is enough even for very long posts.
-  let examined = 0;
-  for (const span of article.querySelectorAll('span')) {
-    if (examined >= 250) break;
-    examined += 1;
-    if (span.firstElementChild || span.textContent.length > 20) continue;
-    if (AD_LABELS.has(span.textContent.trim().toLowerCase()) && !span.closest(SEL.tweetText)) return true;
-  }
-  return false;
-}
+/** Promoted posts, detected by the DOM profile. */
+export const isPromotedArticle = (article) => dom.isPromotedArticle(article);
 
 /**
  * Smallest sidebar block that contains `node`: X renders each sidebar module
@@ -168,15 +134,13 @@ const memoized = (memo, key, compute) => {
 };
 
 /**
- * The card of a post quoted inside `article` that holds `node`, or null. The quote is a
- * `role="link"` block nested in the article (the article's own avatar uses the same
- * `Tweet-User-Avatar` test id, so that id cannot tell them apart).
+ * The card of a post quoted inside `article` that holds `node`, or null. Resolved by
+ * the DOM profile: a nested `data-testid="quoteTweet"` or a `role="link"` block
+ * (the article's own avatar uses the same `Tweet-User-Avatar` test id, so that id
+ * cannot tell them apart).
  */
 export function quoteCardOf(node, article) {
-  const legacy = node.closest(SEL.quoteTweet);
-  if (legacy) return legacy;
-  const card = node.closest('[role="link"]');
-  return card && card !== article && article.contains(card) ? card : null;
+  return dom.getQuoteCard(node, article);
 }
 
 /**

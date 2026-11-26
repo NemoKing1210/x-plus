@@ -1,6 +1,6 @@
+import { dom } from '../../core/compat/index.js';
 import { SEL, UI_ATTR } from '../../core/constants.js';
 import { normalizeHandle } from '../../utils/handle.js';
-import { isPromotedArticle, quoteCardOf } from '../interface/rules.js';
 
 /**
  * DOM facts for one post, read-only. X renders emoji (including flags) as
@@ -11,12 +11,7 @@ import { isPromotedArticle, quoteCardOf } from '../interface/rules.js';
  * Selectors live here: X's markup changes often, keep fixes one line.
  */
 
-const POLL = '[data-testid="card.poll"], [data-testid="poll"]';
-const LINK_CARD = '[data-testid="card.wrapper"]';
-const ARTICLE_COVER = '[data-testid="article-cover-image"]';
 const VERIFIED = '[data-testid="icon-verified"]';
-const SOCIAL_CONTEXT = '[data-testid="socialContext"]';
-const VIDEO = `${SEL.videoPlayer}, [data-testid="previewInterstitial"], [data-testid="videoComponent"], [data-testid="playButton"], video`;
 
 /** Read-only, emoji-aware text; lower-cased and whitespace-collapsed. */
 function plainText(root) {
@@ -46,24 +41,6 @@ function plainText(root) {
   return out.replace(/ /g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
-/** Cards of posts quoted inside `article` (legacy test id or avatar-based). */
-function quoteCards(article) {
-  const cards = new Set(article.querySelectorAll(SEL.quoteTweet));
-  for (const avatar of article.querySelectorAll(SEL.quoteAvatar)) {
-    const card = quoteCardOf(avatar, article);
-    if (card) cards.add(card);
-  }
-  return [...cards];
-}
-
-/** First User-Name header that belongs to the post itself. */
-function outerHeader(article, quotes) {
-  for (const header of article.querySelectorAll(SEL.userName)) {
-    if (!quotes.some((card) => card.contains(header))) return header;
-  }
-  return null;
-}
-
 /**
  * The focal post on a status page is the first article of the primary column.
  * Resolve it on every call: SPA navigation fires `navigate` while the old
@@ -85,9 +62,10 @@ export function readPost(article) {
   if (article.closest(`[role="dialog"], [${UI_ATTR}]`)) return null;
   if (article === focalArticleFor()) return null;
 
-  const quotes = quoteCards(article);
+  const embedded = dom.getAttachments(article);
+  const quotes = embedded.filter((item) => item.kind === 'quote').map((item) => item.el);
   const quoted = (node) => quotes.some((card) => card.contains(node));
-  const header = outerHeader(article, quotes);
+  const header = dom.getAuthorHeader(article);
 
   const textNode = [...article.querySelectorAll(SEL.tweetText)].find((node) => !quoted(node)) || null;
   const text = textNode ? plainText(textNode) : '';
@@ -108,28 +86,19 @@ export function readPost(article) {
   }
 
   const media = new Set();
-  for (const node of article.querySelectorAll(`${SEL.photo}, ${VIDEO}`)) {
-    if (quoted(node)) continue;
-    media.add(node.matches(VIDEO) || node.querySelector(VIDEO) ? 'video' : 'photo');
+  for (const host of dom.getMediaHosts(article)) {
+    if (host.owner === 'main') media.add(host.kind);
   }
 
   const attachments = new Set();
-  if (quotes.length) attachments.add('quote');
-  for (const [selector, kind] of [
-    [LINK_CARD, 'link'],
-    [POLL, 'poll'],
-    [ARTICLE_COVER, 'article'],
-  ]) {
-    if ([...article.querySelectorAll(selector)].some((node) => !quoted(node))) {
-      attachments.add(kind);
-    }
+  for (const item of embedded) {
+    if (item.owner === 'main') attachments.add(item.kind);
   }
 
   const meta = new Set();
-  if (isPromotedArticle(article)) meta.add('promoted');
-  if (header?.querySelector(VERIFIED)) meta.add('verified');
-  const cell = article.closest(SEL.cell);
-  if (cell?.querySelector(SOCIAL_CONTEXT)) meta.add('context');
+  if (dom.isPromotedArticle(article)) meta.add('promoted');
+  if (dom.getVerifiedBadge(article)) meta.add('verified');
+  if (dom.getSocialContext(article)) meta.add('context');
 
   return { authorName, handle, text, lang, media, attachments, meta };
 }

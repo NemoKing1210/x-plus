@@ -17,21 +17,7 @@ export function getTweetArticle(postEl) {
  */
 export function getQuoteCard(postEl) {
   if (!postEl || !(postEl instanceof Element)) return null;
-  const article = getTweetArticle(postEl);
-  if (!article) return null;
-
-  const texts = [...article.querySelectorAll('[data-testid="tweetText"]')];
-  if (texts.length < 2) return null;
-  if (texts[0] === postEl) return null;
-
-  // Quoted tweet body lives under a nested link/card inside the outer article.
-  const quote =
-    postEl.closest('[data-testid="quoteTweet"]') ||
-    postEl.closest('div[role="link"]') ||
-    null;
-  if (!quote || !article.contains(quote)) return null;
-  if (!quote.contains(postEl)) return null;
-  return quote;
+  return dom.getQuoteCard(postEl);
 }
 
 function resolveHandleFromScope(scope) {
