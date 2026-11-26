@@ -173,6 +173,30 @@ test('modern getSidebarBlock treats a who-to-follow card as the block', () => {
   assert.equal(modern.api.getSidebarBlock(card), card);
 });
 
+test('modern getInlineComposer returns the card around the composer form', () => {
+  const card = { children: [], firstElementChild: null, querySelector: () => null };
+  const form = { parentElement: card, closest: () => null };
+  card.children = [form];
+  card.firstElementChild = form;
+  const field = { closest: (selector) => (selector === 'form' ? form : null) };
+  assert.equal(modern.api.getInlineComposer({ querySelector: () => field }), card);
+});
+
+test('modern getInlineComposer ignores the composer of a dialog or a post', () => {
+  const form = { parentElement: { children: [], querySelector: () => null }, closest: () => ({}) };
+  const field = { closest: (selector) => (selector === 'form' ? form : null) };
+  assert.equal(modern.api.getInlineComposer({ querySelector: () => field }), null);
+});
+
+test('modern css marks the Grok and chat dock windows', () => {
+  assert.equal(modern.css.grokDrawer, '[data-slot="xds-dock-window"]:has(svg[data-icon="icon-logo-grok"])');
+  assert.equal(modern.css.chatDrawer, '[data-slot="xds-dock-window"]:has(svg[data-icon="icon-chat"])');
+});
+
+test('modern css centres the left nav column', () => {
+  assert.equal(modern.css.navCenter, 'nav[aria-label]:has(a[href="/home"]):not([data-testid])');
+});
+
 test('modern getArticles excludes nested quote articles', () => {
   const outer = { nodeType: 1, closest: () => null, parentElement: null, matches: () => false };
   const inner = { nodeType: 1, closest: (sel) => (sel === 'article' ? outer : null), parentElement: { closest: () => outer }, matches: () => false };

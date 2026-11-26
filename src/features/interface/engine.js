@@ -77,9 +77,12 @@ const MENU_LEFT_CSS = [
  * the nav centres its children.
  */
 const NAV_LIST = cssFor('leftNavList');
+/** The modern nav is itself the column: its rows are the flex children to centre. */
+const NAV_CENTER = cssFor('navCenter');
 const MENU_CENTER_CSS = [
   NAV_LIST ? `${LEFT_NAV} div:has(${NAV_LIST}){flex:1 1 auto!important;min-height:0}` : '',
   NAV_LIST ? `${LEFT_NAV} div:has(> ${NAV_LIST}){display:flex!important;flex-direction:column!important;justify-content:center!important}` : '',
+  NAV_CENTER ? `${NAV_CENTER}{justify-content:center!important}` : '',
 ].filter(Boolean).join('\n');
 
 /** Remove the whole left menu from the page. */

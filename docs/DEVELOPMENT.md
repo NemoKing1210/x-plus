@@ -142,7 +142,7 @@ left hides its whole section. Check the page you are on with
 | `posts.feedTabs` | tabs list (`data-testid="ScrollSnap-List"`) | tabs list inside the page header |
 | `posts.showPosts` | cell with a `[data-keep-composer-open]` button | same finder; the marker is not confirmed yet |
 | `posts.newPostsPill` | wrapper of `[data-testid="pillLabel"]` | **legacy only** — no marker found yet |
-| `posts.composer` | inline composer (`tweetTextarea_0`) | composer inside the page header |
+| `posts.composer` | inline composer (`tweetTextarea_0`) | the card around the composer form |
 | `posts.moreFromX` | heading cell after the replies | same structure |
 | `posts.promoted` | promoted badge markers | `dom.isPromotedArticle` |
 | `posts.viewCounts` | analytics link in the action bar | same (`role="group"` + `/analytics`) |
@@ -156,13 +156,19 @@ left hides its whole section. Check the page you are on with
 | `posts.whoToFollow` (in the feed) | heading cell + `UserCell` cells | heading cell + `[data-who-to-follow]` cells |
 | `sidebar.search` | `form[role="search"]` | `form[role="search"]` |
 | `sidebar.premium` | premium link in a sidebar block | premium link in a sidebar section |
-| `sidebar.trends` | `[data-testid="trend"]` | `[data-trend]` |
+| `sidebar.trends` | `[data-testid="trend"]` | `[data-trend]`, or a sidebar link to a search query |
 | `sidebar.whoToFollow` | `UserCell` cells | `[data-who-to-follow]` modules |
 | `sidebar.footer` | footer `nav` with a `/tos` link | footer `nav` with a `/tos` link |
 | `nav.*` (logo … account) | links and buttons of the left menu | `dom.getNavItem` on the modern nav |
+| `nav.logo` | the spacer wrapper around the logo `<h1>` | the logo's `<h1>`; its parent is the whole nav column |
 | `nav.xplus` | our entry inside the left column | our entry inside the modern nav |
-| `chrome.grokDrawer` | wrapper of `[data-testid="GrokDrawer"]` | **legacy only** — no marker found yet |
-| `chrome.chatDrawer` | wrapper of `[data-testid="chat-drawer-root"]` | **legacy only** — no marker found yet |
+| `chrome.grokDrawer` | wrapper of `[data-testid="GrokDrawer"]` | dock window carrying the Grok icon |
+| `chrome.chatDrawer` | wrapper of `[data-testid="chat-drawer-root"]` | dock window carrying the chat icon |
+
+Layout options follow the same split: `menuLeft`, `menuCenter`, `contentWidth`,
+`centerContent` and the column show/hide rules use the layout fragments
+(`leftNav`, `leftNavList` / `navCenter`, `primaryColumn`, `sidebarColumn`), and
+a modern fragment must never also match legacy markup.
 
 "Legacy only" is temporary: once the modern marker is known, add it as a
 `css` fragment to the modern profile and drop `generations` from the rule.

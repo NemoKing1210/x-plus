@@ -58,6 +58,16 @@ const slidIn = (key, inner) => {
   return marker ? `div:has(> div > ${inner(marker)})` : '';
 };
 
+/**
+ * A floating drawer: on the legacy build the marker sits inside the wrapper X
+ * slides in (hide the wrapper too, so no gap stays behind); on the modern build
+ * the dock window is the thing to hide.
+ */
+const drawerCss = (key) => {
+  const marker = cssFor(key);
+  return marker ? `div:has(> div > ${marker}),${marker}` : '';
+};
+
 /** Sidebar cards around the first block that contains a `selector` match. */
 const blocksContaining = (selector) => (root) => {
   const sidebar = dom.getSidebar(root);
@@ -90,6 +100,19 @@ const navItemMapped = (kind, map) => (root) => {
   const node = dom.getNavItem(root, kind);
   return node ? [map(node)] : [];
 };
+
+/**
+ * The logo and, on the legacy build, the spacer wrapper around its `<h1>`.
+ * The wrapper is only safe while it holds the logo alone: on the modern build
+ * the `<h1>` sits directly in the nav column, whose parent holds every row.
+ */
+function logoTarget(link) {
+  const heading = link.closest('h1');
+  if (!heading) return link;
+  const wrapper = heading.parentElement;
+  if (wrapper && wrapper.querySelectorAll('a[href], button').length <= 1) return wrapper;
+  return heading;
+}
 
 /* ------------------------------------------------------------------ */
 /* Rules                                                               */
@@ -446,7 +469,7 @@ export const RULES = [
     group: 'nav',
     key: 'logo',
     // The wrapper around the <h1> too, so no empty gap stays above the menu.
-    find: navItemMapped('logo', (link) => link.closest('h1')?.parentElement || link.closest('h1') || link),
+    find: navItemMapped('logo', logoTarget),
   },
   { group: 'nav', key: 'home', find: navItem('home') },
   { group: 'nav', key: 'explore', find: navItem('explore') },
@@ -484,17 +507,13 @@ export const RULES = [
     group: 'chrome',
     key: 'grokDrawer',
     hint: true,
-    // The slid-in wrapper around the drawer, so no gap stays behind.
-    // X does not use the marker in the modern build yet; the switch and its CSS stay behind.
-    generations: { modern: false },
-    css: slidIn('grokDrawer', (marker) => marker),
+    css: drawerCss('grokDrawer'),
   },
   {
     group: 'chrome',
     key: 'chatDrawer',
     hint: true,
-    generations: { modern: false },
-    css: slidIn('chatDrawer', (marker) => marker),
+    css: drawerCss('chatDrawer'),
   },
 ];
 

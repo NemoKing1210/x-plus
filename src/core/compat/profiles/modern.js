@@ -511,13 +511,14 @@ const api = {
   getInlineComposer(root) {
     const field = api.getComposer(root);
     if (!field) return null;
-    let node = field;
-    for (let i = 0; i < 8 && node.parentElement; i += 1) {
-      node = node.parentElement;
-      if (node.closest?.('article, [role="dialog"]')) break;
-      if (node.querySelector?.('[role="progressbar"]')) return node;
-    }
-    return null;
+    const form = field.closest?.('form');
+    if (!form || form.closest?.('article, [role="dialog"]')) return null;
+    // X wraps the feed composer in a bordered card whose only child is the form:
+    // hide the card so no empty frame stays behind, and never a container of posts.
+    const card = form.parentElement;
+    return card && card.children?.length === 1 && card.firstElementChild === form && !card.querySelector?.('article')
+      ? card
+      : form;
   },
 
   getFeedTabs(root) {
@@ -680,6 +681,12 @@ export default {
     avatar: '[data-post-avatar]',
     userCell: '[data-who-to-follow]',
     verified: '[data-icon*="verified"]',
+    // Floating Grok and chat docks: each window holds its launcher and, when open,
+    // its panel. Identified by icon, not the localized aria-label.
+    grokDrawer: '[data-slot="xds-dock-window"]:has(svg[data-icon="icon-logo-grok"])',
+    chatDrawer: '[data-slot="xds-dock-window"]:has(svg[data-icon="icon-chat"])',
+    // The modern nav is the column itself, not a list inside a wrapper.
+    navCenter: 'nav[aria-label]:has(a[href="/home"]):not([data-testid])',
     // One trend in the sidebar trends module: the new build marks nothing, but each
     // trend links to its search query.
     trend: '[data-trend], a[href*="/search?q="]',
