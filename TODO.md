@@ -18,6 +18,8 @@ you are about to work on here.
   - [ ] Install in Tampermonkey, Violentmonkey and ScriptCat: every feature boots, the settings entry appears  
   - [ ] Home → post → replies → back: no duplicate buttons, no stale owners, no new `XP-3002`  
   - [ ] Promoted post, native translate bar, Following/Explore tabs, narrow layout, light / dim / lights-out  
+  - [ ] Layout settings (`Content width`, `Sidebar right`, `Center content`, `Hide menu`) change only the feed and menu, not the whole row or the sidebar footer  
+  - [ ] `Hide handles` and `Who to follow (sidebar)` on the modern build touch only the handle rows and the module, not the post text or the whole right column  
   - [ ] Photo viewer, X Article, composer, post menu and Shorts on the live modern build  
 - [ ] Review UI strings in all eight locales ~1d #i18n @NemoKing1210  
   - [ ] `npm run check:i18n` reports no missing or unused keys  

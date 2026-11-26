@@ -147,6 +147,32 @@ test('modern css marks the sidebar trends', () => {
   assert.equal(modern.css.trend, '[data-trend], a[href*="/search?q="]');
 });
 
+test('modern layout fragments do not also match the legacy markup', () => {
+  // A legacy page's <main> wraps both columns: matching it would resize the whole row.
+  assert.equal(modern.css.primaryColumn, 'main:not(:has([data-testid="primaryColumn"]))');
+  // The legacy sidebar modules are <aside>s inside sidebarColumn: matching them pins each card.
+  assert.equal(modern.css.sidebarColumn, 'aside:not([data-testid="sidebarColumn"] *)');
+  // The sidebar footer nav also carries aria-label: only the nav with the Home row is the menu.
+  assert.equal(modern.css.leftNav, 'nav[aria-label]:has(a[href="/home"])');
+});
+
+test('modern getSidebarBlock never widens a module to the whole sidebar', () => {
+  // A plain card (the fixture's `div[data-who-to-follow]` before the marker is known)
+  // resolves to the sidebar itself, which must not become the hidden block.
+  const aside = { contains: () => true };
+  const card = { closest: () => aside };
+  assert.equal(modern.api.getSidebarBlock(card), null);
+});
+
+test('modern getSidebarBlock treats a who-to-follow card as the block', () => {
+  const aside = { contains: () => true };
+  const card = {
+    closest: (selector) =>
+      selector === 'aside' ? aside : String(selector).includes('[data-who-to-follow]') ? card : null,
+  };
+  assert.equal(modern.api.getSidebarBlock(card), card);
+});
+
 test('modern getArticles excludes nested quote articles', () => {
   const outer = { nodeType: 1, closest: () => null, parentElement: null, matches: () => false };
   const inner = { nodeType: 1, closest: (sel) => (sel === 'article' ? outer : null), parentElement: { closest: () => outer }, matches: () => false };
@@ -323,6 +349,30 @@ test('modern getAuthorHeader keeps the name row when the post has no status link
   const avatar = { closest: (selector) => (selector === 'article' ? article : null) };
   header.parentElement = article;
   avatar.parentElement = header;
+  assert.equal(modern.api.getAuthorHeader(article), header);
+});
+
+test('modern getAuthorHeader stops at the post header, not the wrapper around the text', () => {
+  const name = {};
+  const article = {
+    nodeType: 1,
+    contains: () => true,
+    querySelector: (selector) => (selector === 'header' ? header : null),
+    querySelectorAll: (selector) => (selector === '[data-post-avatar]' ? [avatar] : []),
+  };
+  const header = {
+    querySelector: (selector) => (selector === 'div[dir="auto"]' ? name : null),
+    closest: (selector) => (selector === 'article' ? article : null),
+  };
+  const wrapper = {
+    parentElement: article,
+    querySelector: (selector) => (selector === 'div[dir="auto"]' ? name : null),
+  };
+  const avatarColumn = { parentElement: wrapper };
+  const avatar = {
+    parentElement: avatarColumn,
+    closest: (selector) => (selector === 'article' ? article : null),
+  };
   assert.equal(modern.api.getAuthorHeader(article), header);
 });
 

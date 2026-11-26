@@ -117,6 +117,30 @@ export function createResolver({ profiles, report, logger = {} }) {
     return perKey?.has(key) ? perKey.get(key) : undefined;
   }
 
+  function deleteCache(input, key) {
+    cache.get(input)?.delete(key);
+  }
+
+  /**
+   * Whether a cached answer still describes the page. X re-renders a post header
+   * in place without a navigation (owners are not cleared), so an answer can name
+   * a row that was replaced: inserting into it would throw or never show.
+   * A slot's anchor must still be a child of its row for the same reason.
+   */
+  function cacheValid(value) {
+    if (value == null) return true;
+    if (Array.isArray(value)) return value.every(cacheValid);
+    if (isElement(value)) return value.isConnected !== false;
+    if (typeof value !== 'object') return true;
+    for (const field of ['el', 'row', 'before', 'template']) {
+      const element = value[field];
+      if (element == null) continue;
+      if (!isElement(element) || element.isConnected === false) return false;
+    }
+    if (isElement(value.row) && isElement(value.before) && value.before.parentElement !== value.row) return false;
+    return true;
+  }
+
   function writeCache(input, key, value) {
     let perKey = cache.get(input);
     if (!perKey) {
@@ -173,7 +197,10 @@ export function createResolver({ profiles, report, logger = {} }) {
 
     if (cacheKey) {
       const cached = readCache(cacheKey, key);
-      if (cached !== undefined) return cached.value;
+      if (cached !== undefined) {
+        if (cacheValid(cached.value)) return cached.value;
+        deleteCache(cacheKey, key);
+      }
     }
 
     const owner = ownedId ? profileById.get(ownedId) : null;

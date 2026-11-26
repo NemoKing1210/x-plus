@@ -49,20 +49,33 @@ function clearMarks() {
   marked = new WeakMap();
 }
 
+/**
+ * The outermost post article a node belongs to. On the modern build a quoted
+ * post is a nested `<article>` inside the post that holds it, while the hidden
+ * unit (the timeline cell) is shared: reading the quote's facts would mark the
+ * outer post by the quote's content.
+ */
+export function topLevelArticle(article) {
+  let current = article;
+  while (current?.parentElement?.closest?.('article')) current = current.parentElement.closest('article');
+  return current;
+}
+
 /** Recompute one post; X reuses cells, so a mark that no longer applies is removed. */
 function process(article) {
-  if (!article.isConnected) return;
-  const cell = dom.getPostCell(article) || article;
-  const facts = readPost(article);
+  const post = topLevelArticle(article);
+  if (!post?.isConnected) return;
+  const cell = dom.getPostCell(post) || post;
+  const facts = readPost(post);
   const hit = facts ? postMatches(rules, facts) : false;
-  const previous = marked.get(article);
+  const previous = marked.get(post);
   if (previous) previous.removeAttribute(MARK_ATTR);
   if (hit) {
     cell.setAttribute(MARK_ATTR, '');
-    marked.set(article, cell);
+    marked.set(post, cell);
   } else {
     cell.removeAttribute(MARK_ATTR);
-    marked.delete(article);
+    marked.delete(post);
   }
 }
 

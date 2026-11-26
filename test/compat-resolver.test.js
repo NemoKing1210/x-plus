@@ -143,3 +143,47 @@ test('dedupeElements removes descendants', () => {
   a.contains = (x) => x === b;
   assert.deepEqual(dedupeElements([a, b, a]), [a]);
 });
+
+test('a cached answer is resolved again when its element was replaced', () => {
+  const article = node('article');
+  let calls = 0;
+  const modern = profile('modern', {
+    getArticles: () => [article],
+    getPostText: () => {
+      calls += 1;
+      const text = node(`text-${calls}`);
+      text.isConnected = true;
+      return text;
+    },
+  });
+  const resolver = createResolver({ profiles: [modern], report: createReport() });
+  resolver.setActive('modern');
+  resolver.resolve('getArticles', [{}]);
+  const first = resolver.resolve('getPostText', [article]);
+  first.isConnected = false;
+  const second = resolver.resolve('getPostText', [article]);
+  assert.notEqual(second, first);
+  assert.equal(calls, 2);
+});
+
+test('a cached slot is resolved again when its anchor left the row', () => {
+  const article = node('article');
+  let calls = 0;
+  const modern = profile('modern', {
+    getArticles: () => [article],
+    getHeaderActionsSlot: () => {
+      calls += 1;
+      const slot = { row: node(`row-${calls}`), before: node(`before-${calls}`) };
+      slot.before.parentElement = slot.row;
+      return slot;
+    },
+  });
+  const resolver = createResolver({ profiles: [modern], report: createReport() });
+  resolver.setActive('modern');
+  resolver.resolve('getArticles', [{}]);
+  const first = resolver.resolve('getHeaderActionsSlot', [article]);
+  first.before.parentElement = null;
+  const second = resolver.resolve('getHeaderActionsSlot', [article]);
+  assert.notEqual(second, first);
+  assert.equal(calls, 2);
+});

@@ -28,7 +28,7 @@ const POLL = '[data-testid="card.poll"], [role="radiogroup"]';
 const ARTICLE_COVER = '[data-testid="article-cover-image"], a[href*="/i/article/"] img';
 const VERIFIED = 'svg[data-icon*="verified"], [data-testid="icon-verified"]';
 const MENU = '[role="menu"][data-slot="xds-menu-content"]';
-const SIDEBAR_BLOCK = 'section, div[role="complementary"], aside, [role="region"], nav';
+const SIDEBAR_BLOCK = 'section, div[role="complementary"], aside, [role="region"], nav, [data-who-to-follow]';
 const ARTICLE_BODY = '[data-testid="twitterArticleRichTextView"], .x-article-body';
 const ARTICLE_TITLE = '[data-testid="twitter-article-title"], h1';
 const VIEWER_LAYER = '[role="dialog"][data-slot="xds-modal-surface"], [role="dialog"][aria-modal="true"]';
@@ -154,19 +154,26 @@ const api = {
   },
 
   /**
-   * Smallest ancestor of the avatar that carries the author name; one that also
-   * holds a post link wins, but promoted posts sometimes have no time link.
+   * The post's author row: the `<header>` that carries the name, handle and time.
+   * Not the wrapper around the avatar — that one also holds the text and the
+   * action bar on the modern markup, and rules scoped to the author would leak
+   * into the post itself.
    */
   getAuthorHeader(article) {
+    if (!article) return null;
     const avatar = api.getAuthorAvatar(article);
     if (!avatar) return null;
+    const header = article.querySelector?.('header');
+    if (header?.closest?.('article') === article && header.querySelector('div[dir="auto"]')) return header;
+
+    // Promoted posts and embedded cards without a header: the smallest ancestor of
+    // the avatar that carries the name and stops before the post text.
     let fallback = null;
-    for (let node = avatar.parentElement; node; node = node.parentElement) {
-      if (node.querySelector?.('div[dir="auto"]')) {
+    for (let node = avatar.parentElement; node && node !== article; node = node.parentElement) {
+      if (node.querySelector?.('div[dir="auto"]') && !node.querySelector?.(POST_TEXT)) {
         if (node.querySelector?.('a[href*="/status/"]')) return node;
         fallback ??= node;
       }
-      if (node === article) break;
     }
     return fallback;
   },
@@ -473,7 +480,10 @@ const api = {
     const sidebar = node.closest?.('aside');
     if (!sidebar) return null;
     const block = node.closest(SIDEBAR_BLOCK);
-    return block && sidebar.contains(block) ? block : null;
+    // A card with no block of its own would resolve to the column itself: hiding one
+    // module must never take the whole sidebar (search, trends, footer with it).
+    if (!block || block === sidebar) return null;
+    return sidebar.contains(block) ? block : null;
   },
 
   getSidebarCard(node, limit = 3) {
@@ -662,9 +672,11 @@ export default {
     tweetText: '[dir="auto"].whitespace-pre-wrap',
     actionReply: '[data-engagement-action="reply"]',
     actionGroup: '[role="group"]:has(> [data-engagement-action="reply"])',
-    primaryColumn: 'main',
-    sidebarColumn: 'aside',
-    leftNav: 'nav[aria-label]',
+    // Bare `main`, `aside` and `nav[aria-label]` also exist on the legacy build (the
+    // legacy <main> wraps both columns), so each fragment excludes that markup.
+    primaryColumn: 'main:not(:has([data-testid="primaryColumn"]))',
+    sidebarColumn: 'aside:not([data-testid="sidebarColumn"] *)',
+    leftNav: 'nav[aria-label]:has(a[href="/home"])',
     avatar: '[data-post-avatar]',
     userCell: '[data-who-to-follow]',
     verified: '[data-icon*="verified"]',

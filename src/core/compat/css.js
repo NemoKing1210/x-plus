@@ -2,9 +2,9 @@
  * CSS fragments shared by profiles.
  *
  * CSS cannot call capability functions, so static and generated rules build
- * `:is(legacy, modern)` unions from these fragments. The legacy selector is a
- * subset of the modern one in most cases, which keeps the union safe on mixed
- * A/B pages.
+ * `:is(legacy, modern)` unions from these fragments. A modern fragment must not
+ * also match legacy markup: the union then changes the legacy page instead of
+ * covering a mixed one (a legacy `<main>` wraps both columns).
  */
 
 export function union(selectors) {
