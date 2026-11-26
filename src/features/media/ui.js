@@ -1,4 +1,4 @@
-import { SEL } from '../../core/constants.js';
+import { dom } from '../../core/compat/index.js';
 import { icon } from '../../ui/icons.js';
 import { el, silencePointerEvents } from '../../utils/dom.js';
 import { ATTR, cfg, tm } from './config.js';
@@ -154,11 +154,11 @@ export function scanDownloadButtons() {
     removeAllButtons();
     return;
   }
-  document.querySelectorAll(SEL.article).forEach((article) => enhanceArticle(article, config));
+  for (const article of dom.getArticles(document)) enhanceArticle(article, config);
 }
 
 export function removeAllButtons() {
-  document.querySelectorAll(SEL.article).forEach((article) => {
+  for (const article of dom.getArticles(document)) {
     if (article.hasAttribute(ATTR.article)) removeButtons(article);
-  });
+  }
 }

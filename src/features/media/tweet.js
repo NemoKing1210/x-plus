@@ -7,27 +7,14 @@ import { dom } from '../../core/compat/index.js';
 
 const STATUS_RE = /\/status\/(\d+)/;
 
-/** True when `node` sits inside a quoted tweet embedded in `article`. */
-export function isInQuote(node, article) {
-  return Boolean(dom.getQuoteCard(node, article));
-}
-
 /**
  * Status id of the tweet an article represents: the permalink of the first
  * timestamp outside any quote embed; falls back to the current URL on a
  * status page.
  */
 export function getTweetId(article) {
-  for (const time of article.querySelectorAll('a[href*="/status/"] time')) {
-    if (isInQuote(time, article)) continue;
-    const match = STATUS_RE.exec(time.closest('a')?.getAttribute('href') || '');
-    if (match) return match[1];
-  }
-  for (const link of article.querySelectorAll('a[href*="/status/"]')) {
-    if (isInQuote(link, article)) continue;
-    const match = STATUS_RE.exec(link.getAttribute('href') || '');
-    if (match) return match[1];
-  }
+  const match = STATUS_RE.exec(dom.getTimeLink(article)?.getAttribute('href') || '');
+  if (match) return match[1];
   const fromUrl = STATUS_RE.exec(location.pathname);
   return fromUrl ? fromUrl[1] : null;
 }
