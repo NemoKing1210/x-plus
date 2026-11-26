@@ -228,3 +228,20 @@ test('every profile implements every capability', () => {
     }
   }
 });
+
+test('modern getAuthorHeader keeps the name row when the post has no status link', () => {
+  const name = {};
+  const header = {
+    querySelector: (selector) => (selector === 'div[dir="auto"]' ? name : null),
+  };
+  const article = {
+    nodeType: 1,
+    contains: () => true,
+    querySelector: () => null,
+    querySelectorAll: (selector) => (selector === '[data-post-avatar]' ? [avatar] : []),
+  };
+  const avatar = { closest: (selector) => (selector === 'article' ? article : null) };
+  header.parentElement = article;
+  avatar.parentElement = header;
+  assert.equal(modern.api.getAuthorHeader(article), header);
+});

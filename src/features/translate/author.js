@@ -23,14 +23,6 @@ export function getQuoteCard(postEl) {
 function resolveHandleFromScope(scope) {
   if (!scope) return null;
 
-  const userName = scope.querySelector('[data-testid="User-Name"]');
-  if (userName) {
-    for (const link of userName.querySelectorAll('a[href]')) {
-      const handle = handleFromHref(link.getAttribute('href'));
-      if (handle) return handle;
-    }
-  }
-
   for (const link of scope.querySelectorAll('a[href^="/"]')) {
     const href = link.getAttribute('href') || '';
     if (/\/status\//i.test(href)) continue;

@@ -147,15 +147,22 @@ const api = {
     return img?.parentElement || null;
   },
 
-  /** Smallest ancestor of the avatar that also carries the author name and a post link. */
+  /**
+   * Smallest ancestor of the avatar that carries the author name; one that also
+   * holds a post link wins, but promoted posts sometimes have no time link.
+   */
   getAuthorHeader(article) {
     const avatar = api.getAuthorAvatar(article);
     if (!avatar) return null;
+    let fallback = null;
     for (let node = avatar.parentElement; node; node = node.parentElement) {
-      if (node.querySelector?.('a[href*="/status/"]') && node.querySelector?.('div[dir="auto"]')) return node;
+      if (node.querySelector?.('div[dir="auto"]')) {
+        if (node.querySelector?.('a[href*="/status/"]')) return node;
+        fallback ??= node;
+      }
       if (node === article) break;
     }
-    return null;
+    return fallback;
   },
 
   getAuthorName(article) {

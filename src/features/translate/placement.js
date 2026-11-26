@@ -1,5 +1,5 @@
 import { dom } from '../../core/compat/index.js';
-import { SEL, UI_ATTR } from '../../core/constants.js';
+import { UI_ATTR } from '../../core/constants.js';
 import { getQuoteCard, getTweetArticle } from './author.js';
 import { ATTR } from './config.js';
 
@@ -48,8 +48,8 @@ export function getToolbar(postEl) {
   if (parent) {
     for (let node = postEl.nextElementSibling; node; node = node.nextElementSibling) {
       if (node.hasAttribute?.(ATTR.toolbar)) return node;
-      if (node.matches?.(SEL.tweetText) || node.matches?.(SEL.article)) break;
-      if (node.querySelector?.(SEL.tweetText)) break;
+      // Anything that is (or contains) another post belongs to a different tweet.
+      if (node.matches?.('article') || node.querySelector?.('article')) break;
     }
   }
 
