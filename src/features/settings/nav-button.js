@@ -1,8 +1,8 @@
-import { dom, getGeneration, navLabelWeight, navUsesHoverClass } from '../../core/compat/index.js';
+import { dom, getGeneration, navUsesHoverClass } from '../../core/compat/index.js';
 import { UI_ATTR } from '../../core/constants.js';
 import { getFeatureSettings } from '../../core/settings.js';
 import { t } from '../../i18n/index.js';
-import { iconPath } from '../../ui/icons.js';
+import { applyNavIcon, applyNavLabel, navRowNeedsRebuild } from './nav-dom.js';
 
 /**
  * Adds an "X Plus" row to X's left navigation (before More / Settings) by
@@ -90,7 +90,7 @@ function bindNavHoverChrome(btn) {
 function syncNavButtonLabels(btn) {
   const label = t('nav.label');
   if (btn.getAttribute('aria-label') !== label) btn.setAttribute('aria-label', label);
-  const node = btn.querySelector('[data-xp-nav-label]') || btn.querySelector('div[dir] > span');
+  const node = btn.querySelector('[data-xp-nav-label]') || applyNavLabel(btn, label);
   if (node && node.textContent !== label) node.textContent = label;
   btn.dataset.xpNavOk = '1';
 }
@@ -101,28 +101,6 @@ function stripNavBadges(root) {
       '[aria-live], [aria-label*="непрочит" i], [aria-label*="unread" i], [aria-label*="Количество" i]',
     )
     .forEach((node) => node.remove());
-}
-
-function applyNavIcon(svg) {
-  if (!(svg instanceof SVGElement)) return;
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('aria-hidden', 'true');
-  svg.removeAttribute('width');
-  svg.removeAttribute('height');
-  // Keep X's svg class list (size / fill via r-*); only swap the glyph.
-  svg.innerHTML = `<g><path d="${iconPath('plus')}"></path></g>`;
-}
-
-function applyNavLabel(root, text) {
-  const labelDiv = [...root.querySelectorAll('div[dir]')].find(
-    (node) => node.querySelector(':scope > span') && !node.querySelector('svg'),
-  );
-  const target = labelDiv
-    ? labelDiv.querySelector(':scope > span')
-    : root.querySelector('span');
-  if (!target) return;
-  target.textContent = text;
-  target.setAttribute('data-xp-nav-label', '1');
 }
 
 /** Deep-clone the template into an <a>, preserving every native class. */
@@ -151,7 +129,7 @@ function buildNavButton(template) {
   btn.tabIndex = 0;
 
   stripNavBadges(btn);
-  applyNavIcon(btn.querySelector('svg'));
+  applyNavIcon(btn);
   applyNavLabel(btn, t('nav.label'));
   bindNavHoverChrome(btn);
   btn.dataset.xpNavOk = '1';
@@ -162,18 +140,6 @@ function buildNavButton(template) {
     openHandler();
   });
   return btn;
-}
-
-function navButtonNeedsRebuild(btn) {
-  // Checked once at build: the layout reads (getComputedStyle) and DOM queries
-  // below are far too expensive to repeat on every scan.
-  if (btn.dataset.xpNavOk === '1') return false;
-  if (!btn.querySelector('svg') || !btn.querySelector('div[dir]')) return true;
-  // Cloned from active Home → bold label; rebuild from an inactive template.
-  const weight = navLabelWeight(btn);
-  if (weight != null && weight >= 600) return true;
-  btn.dataset.xpNavOk = '1';
-  return false;
 }
 
 /** Remove our row (feature switched off). */
@@ -192,7 +158,7 @@ export function ensureNavButton() {
     const existing = nav.querySelector(`[${NAV_ATTR}]`);
 
     // Fast path: our row is healthy — no template search, no style reads.
-    if (existing && !navButtonNeedsRebuild(existing)) {
+    if (existing && !navRowNeedsRebuild(existing)) {
       syncNavButtonLabels(existing);
       bindNavHoverChrome(existing);
       continue;

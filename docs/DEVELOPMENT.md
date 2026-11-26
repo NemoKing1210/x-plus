@@ -182,7 +182,9 @@ caret and the permalink; `dom.getAuthorHeader` rebuilds it by climbing from the
 display-name link and stopping before the post text. The permalink carries no
 `<time>` element (`dom.getTimeLink` matches `/status/<id>` on the article's own
 link), and the hover container around the article is the surface that cards
-style.
+style. A menu row wraps its icon and label in a pill (`span.outline-focus …`),
+so the injected X Plus row writes its label to the inner text span: writing to
+the pill itself drops the icon.
 
 
 ## Localized READMEs

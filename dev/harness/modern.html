@@ -20,9 +20,11 @@
   .logo-spacer a:hover { background: rgba(231,233,234,.1); }
   .logo-spacer svg { width: 30px; height: 30px; fill: currentColor; }
   nav[aria-label="Primary"] { display: flex; flex-direction: column; gap: 4px; padding: 8px; box-sizing: border-box; }
-  nav[aria-label="Primary"] a, nav[aria-label="Primary"] button { display: flex; align-items: center; gap: 16px; padding: 10px 12px; border: 0; border-radius: 999px; background: none; color: inherit; cursor: pointer; width: 100%; text-align: left; }
-  nav[aria-label="Primary"] a:hover, nav[aria-label="Primary"] button:hover { background: rgba(231,233,234,.1); }
-  nav[aria-label="Primary"] a[aria-current] { font-weight: 700; }
+  nav[aria-label="Primary"] a, nav[aria-label="Primary"] button { display: flex; align-items: center; border: 0; background: none; color: inherit; cursor: pointer; width: 100%; text-align: left; }
+  nav[aria-label="Primary"] .pill { display: flex; align-items: center; gap: 16px; padding: 10px 12px; border-radius: 999px; width: 100%; box-sizing: border-box; }
+  nav[aria-label="Primary"] .pill:hover { background: rgba(231,233,234,.1); }
+  nav[aria-label="Primary"] a[aria-current] .label { font-weight: 700; }
+  nav[aria-label="Primary"] .icon { display: flex; width: 26px; height: 26px; flex: none; }
   nav[aria-label="Primary"] svg { width: 26px; height: 26px; fill: currentColor; }
   nav[aria-label="Primary"] img { width: 26px; height: 26px; border-radius: 50%; }
 
@@ -95,15 +97,15 @@
   <a href="/home" aria-label="X"><svg data-icon="icon-logo-x" viewBox="0 0 24 24"><path d="M18.9 1.2h3.7l-8.1 9.3L24 22.8h-7.5l-5.9-7.7-6.7 7.7H.2l8.7-9.9L0 1.2h7.7l5.3 7 5.9-7z"/></svg></a>
 </div>
 <nav aria-label="Primary" data-top-chrome>
-  <a href="/home" aria-current="page"><svg data-icon="icon-home" viewBox="0 0 24 24"><path d="M12 1.7L.6 8.8l1 1.7L3 9.7V19.5C3 20.9 4.1 22 5.5 22h13c1.4 0 2.5-1.1 2.5-2.5V9.7l1.3.8 1-1.7L12 1.7z"/></svg><span>Home</span></a>
-  <a href="/explore"><svg data-icon="icon-search" viewBox="0 0 24 24"><path d="M10.3 3.8a6.5 6.5 0 100 13 6.5 6.5 0 000-13z"/></svg><span>Explore</span></a>
-  <a href="/notifications"><svg data-icon="icon-bell" viewBox="0 0 24 24"><path d="M12 2a6 6 0 00-6 6v4l-2 4h16l-2-4V8a6 6 0 00-6-6z"/></svg><span>Notifications</span></a>
-  <a href="/i/grok"><svg data-icon="icon-grok" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg><span>Grok</span></a>
+  <a href="/home" aria-current="page"><span class="pill"><span class="icon"><svg data-icon="icon-home" viewBox="0 0 24 24"><path d="M12 1.7L.6 8.8l1 1.7L3 9.7V19.5C3 20.9 4.1 22 5.5 22h13c1.4 0 2.5-1.1 2.5-2.5V9.7l1.3.8 1-1.7L12 1.7z"/></svg></span><span class="label"><span>Home</span></span></span></a>
+  <a href="/explore"><span class="pill"><span class="icon"><svg data-icon="icon-search" viewBox="0 0 24 24"><path d="M10.3 3.8a6.5 6.5 0 100 13 6.5 6.5 0 000-13z"/></svg></span><span class="label"><span>Explore</span></span></span></a>
+  <a href="/notifications"><span class="pill"><span class="icon"><svg data-icon="icon-bell" viewBox="0 0 24 24"><path d="M12 2a6 6 0 00-6 6v4l-2 4h16l-2-4V8a6 6 0 00-6-6z"/></svg></span><span class="label"><span>Notifications</span></span></span></a>
+  <a href="/i/grok"><span class="pill"><span class="icon"><svg data-icon="icon-grok" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg></span><span class="label"><span>Grok</span></span></span></a>
   <a href="/someone" aria-label="Profile"><img src="/pbs.twimg.com/profile_images/me.jpg?name=small" alt="@someone"></a>
-  <button aria-label="More"><svg data-icon="icon-more-dots-hor-circle" viewBox="0 0 24 24"><path d="M3 12a2 2 0 104 0 2 2 0 00-4 0zm7 0a2 2 0 104 0 2 2 0 00-4 0zm7 0a2 2 0 104 0 2 2 0 00-4 0z"/></svg><span>More</span></button>
-  <a href="/compose/post" aria-label="Post"><svg data-icon="icon-compose" viewBox="0 0 24 24"><path d="M4 4h10v2H6v12h12v-8h2v10H4z"/></svg><span>Post</span></a>
+  <button aria-label="More"><span class="pill"><span class="icon"><svg data-icon="icon-more-dots-hor-circle" viewBox="0 0 24 24"><path d="M3 12a2 2 0 104 0 2 2 0 00-4 0zm7 0a2 2 0 104 0 2 2 0 00-4 0zm7 0a2 2 0 104 0 2 2 0 00-4 0z"/></svg></span><span class="label"><span>More</span></span></span></button>
+  <a href="/compose/post" aria-label="Post"><span class="pill"><span class="icon"><svg data-icon="icon-compose" viewBox="0 0 24 24"><path d="M4 4h10v2H6v12h12v-8h2v10H4z"/></svg></span><span class="label"><span>Post</span></span></span></a>
   <button aria-label="Account menu"><img src="/pbs.twimg.com/profile_images/me.jpg?name=small" alt=""><span>Account</span></button>
-  <a href="/settings" aria-label="Settings"><svg data-icon="icon-settings" viewBox="0 0 24 24"><path d="M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg><span>Settings</span></a>
+  <a href="/settings" aria-label="Settings"><span class="pill"><span class="icon"><svg data-icon="icon-settings" viewBox="0 0 24 24"><path d="M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg></span><span class="label"><span>Settings</span></span></span></a>
 </nav>
 </div>
 

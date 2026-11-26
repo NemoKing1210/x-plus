@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Media downloads and screenshot names on the new design resolve the post from its permalink, which no longer carries a `<time>` element
 - Post cards, dividers, padding and spacing apply to the block X rounds and colours on the new design, not the narrower article inside it
 - “Discover more” under a post’s replies and the “Who to follow” module in the feed are hidden again when the section heading has no `role` and shares a cell with the first recommended post
+- The X Plus row in the left menu keeps its icon and hover pill on the new design instead of showing a bare label
 
 ## [0.16.0] - 2026-11-22
 
