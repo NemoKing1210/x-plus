@@ -7,7 +7,7 @@
  * gone, so every lookup stays inside the passed article and its own quote
  * frame boundary.
  *
- * See docs/superpowers/specs/2026-11-26-dom-compatibility-design.md §7.2.
+ * See `DOM generations` in docs/DEVELOPMENT.md.
  */
 
 import {
@@ -27,6 +27,9 @@ const LINK_CARD = '[data-testid="card.wrapper"]';
 const POLL = '[data-testid="card.poll"], [role="radiogroup"]';
 const ARTICLE_COVER = '[data-testid="article-cover-image"], a[href*="/i/article/"] img';
 const VERIFIED = 'svg[data-icon*="verified"], [data-testid="icon-verified"]';
+/** Last resort when X renames the icon: the accessibility label still says "verified". */
+const VERIFIED_LABEL = '[aria-label*="erified" i], [aria-label*="ерифи" i]';
+const MEDIA_PHOTO = 'img[src*="pbs.twimg.com/media/"]';
 const MENU = '[role="menu"][data-slot="xds-menu-content"]';
 const SIDEBAR_BLOCK = 'section, div[role="complementary"], aside, [role="region"], nav, [data-who-to-follow]';
 const ARTICLE_BODY = '[data-testid="twitterArticleRichTextView"], .x-article-body';
@@ -52,6 +55,12 @@ const NAV_HREFS = {
 function matchesNavHref(actual, base) {
   const path = String(actual || '').split('?')[0];
   return path === base || path.startsWith(`${base}/`) || path.startsWith(`${base}_`);
+}
+
+/** Whether `pathname` is the home timeline: the only place the feed tabs exist. */
+function isHomeTimeline(pathname) {
+  const path = String(pathname || '').replace(/\/+$/, '') || '/';
+  return path === '/' || path === '/home' || path.startsWith('/home/');
 }
 
 /** Nearest `position: sticky` ancestor below `stop` (the feed tabs float there). */
@@ -155,7 +164,8 @@ const api = {
   },
 
   getPostCells(root) {
-    return [...root.querySelectorAll('li[data-index]')];
+    const cells = [...root.querySelectorAll('li[data-index]')];
+    return cells.length ? cells : [...root.querySelectorAll('[data-index]')];
   },
 
   getPostText(article) {
@@ -353,6 +363,12 @@ const api = {
       if (hosts.some((host) => host.el.contains(video))) continue;
       push(video, 'video');
     }
+    // Last resort: a photo block that lost its engagement wrapper still carries
+    // a post image, and the `pbs.twimg.com/media/` host keeps avatars out.
+    for (const img of article.querySelectorAll(MEDIA_PHOTO)) {
+      if (hosts.some((host) => host.el.contains?.(img))) continue;
+      push(img, 'photo');
+    }
     return hosts;
   },
 
@@ -393,6 +409,9 @@ const api = {
     if (!article) return null;
     for (const badge of article.querySelectorAll(VERIFIED)) {
       if (badge.closest?.('article') === article) return badge;
+    }
+    for (const label of article.querySelectorAll(VERIFIED_LABEL)) {
+      if (label.closest?.('article') === article) return label;
     }
     return null;
   },
@@ -443,6 +462,9 @@ const api = {
 
   getNav(root) {
     for (const nav of root.querySelectorAll('nav')) {
+      // The legacy menu also has a Home row but lives inside the banner: that
+      // column is the legacy profile's answer.
+      if (nav.closest?.('header[role="banner"]')) continue;
       if (nav.querySelector?.('a[href="/home"]')) return nav;
     }
     return null;
@@ -521,9 +543,12 @@ const api = {
 
   getSidebar(root) {
     for (const aside of root.querySelectorAll('aside')) {
+      if (aside.closest?.('[role="dialog"]')) continue;
       if (aside.querySelector('[data-who-to-follow], section, nav[aria-label]')) return aside;
     }
-    return null;
+    // Fallback for a sidebar that is not an <aside> on the current build.
+    const marker = root.querySelector?.('[data-who-to-follow]');
+    return marker?.parentElement || null;
   },
 
   getSidebarBlock(node) {
@@ -573,21 +598,33 @@ const api = {
   },
 
   getFeedTabs(root) {
-    return [...root.querySelectorAll('main [role="tablist"]')];
+    // The profile pages have their own tab list inside the identity header; the
+    // "feed tabs" rules must not touch that header, so answer on the home
+    // timeline only (`/home`, its Following tab and the bare root).
+    const pathname = typeof location === 'undefined' ? '' : location.pathname;
+    if (!isHomeTimeline(pathname)) return [];
+    return [...root.querySelectorAll('main [role="tablist"]')].filter(
+      (list) => !list.closest?.('[role="dialog"]'),
+    );
   },
 
   getFeedTabsBlock(list) {
     if (!list) return null;
     const sticky = stickyAncestor(list, list.closest('main'));
-    if (sticky) return sticky;
     let block = list;
-    for (let i = 0; i < 4; i += 1) {
-      const parent = block.parentElement;
-      if (!parent || parent.children.length !== 1) break;
-      if (parent.querySelector('article') || parent.matches('li[data-index]')) break;
-      block = parent;
+    if (sticky) {
+      // Hide the block inside the floating wrapper, not the wrapper: it also
+      // holds the profile identity on other pages and the "new posts" pill here.
+      while (block.parentElement && block.parentElement !== sticky) block = block.parentElement;
+    } else {
+      for (let i = 0; i < 4; i += 1) {
+        const parent = block.parentElement;
+        if (!parent || parent.children.length !== 1) break;
+        if (parent.querySelector('article') || parent.matches('li[data-index]')) break;
+        block = parent;
+      }
     }
-    return block;
+    return block.querySelector('article, li[data-index]') ? null : block;
   },
 
   getArticleBody(root) {
@@ -614,8 +651,11 @@ const api = {
 
   getViewerImages(root) {
     const layer = api.getViewerLayer(root);
-    if (!layer) return [];
-    return [...layer.querySelectorAll('img[src*="pbs.twimg.com/media/"]')].filter(
+    // Fall back to the marker of the media X has open, never to the whole page:
+    // that would hand the feed's photos to the viewer.
+    const scope = layer || root.querySelector('[data-active-media-holder]');
+    if (!scope) return [];
+    return [...scope.querySelectorAll('img[src*="pbs.twimg.com/media/"]')].filter(
       (img) => !img.closest(`[${UI_ATTR}]`),
     );
   },
@@ -635,7 +675,13 @@ const api = {
   },
 
   getPrimaryColumn(root) {
-    return root.querySelector('main');
+    const main = root.querySelector('main');
+    if (!main) return null;
+    // The legacy <main> wraps every column; its primary column is a descendant.
+    // Answering with that row would resize the whole layout, so let the legacy
+    // profile own it instead.
+    if (main.querySelector?.('[data-testid="primaryColumn"]')) return null;
+    return main;
   },
 
   getSidebarColumn(root) {
@@ -731,8 +777,12 @@ export default {
     // Bare `main`, `aside` and `nav[aria-label]` also exist on the legacy build (the
     // legacy <main> wraps both columns), so each fragment excludes that markup.
     primaryColumn: 'main:not(:has([data-testid="primaryColumn"]))',
-    sidebarColumn: 'aside:not([data-testid="sidebarColumn"] *)',
-    leftNav: 'nav[aria-label]:has(a[href="/home"])',
+    // No wrapper fragment: the modern column is the `main` element itself, and the
+    // row centres it with `justify-content`. A rule that grew the element around
+    // `main` would absorb the free space and pull the feed out of the centre, so
+    // the layout styles keep their wrapper rule legacy-only.
+    sidebarColumn: 'aside:not([data-testid="sidebarColumn"] *):not([role="dialog"] *)',
+    leftNav: 'nav[aria-label]:has(a[href="/home"]):not(header[role="banner"] *)',
     avatar: '[data-post-avatar]',
     userCell: '[data-who-to-follow]',
     verified: '[data-icon*="verified"]',
@@ -741,7 +791,7 @@ export default {
     grokDrawer: '[data-slot="xds-dock-window"]:has(svg[data-icon="icon-logo-grok"])',
     chatDrawer: '[data-slot="xds-dock-window"]:has(svg[data-icon="icon-chat"])',
     // The modern nav is the column itself, not a list inside a wrapper.
-    navCenter: 'nav[aria-label]:has(a[href="/home"]):not([data-testid])',
+    navCenter: 'nav[aria-label]:has(a[href="/home"]):not([data-testid]):not(header[role="banner"] *)',
     // One trend in the sidebar trends module: the new build marks nothing, but each
     // trend links to its search query.
     trend: '[data-trend], a[href*="/search?q="]',

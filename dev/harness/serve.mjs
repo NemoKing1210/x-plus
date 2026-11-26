@@ -34,7 +34,14 @@ const server = createServer(async (req, res) => {
     res.end(readFileSync(join(here, 'index.html')));
     return;
   }
-  if (url.pathname === '/modern' || url.pathname === '/modern.html') {
+  if (
+    url.pathname === '/modern' ||
+    url.pathname === '/modern.html' ||
+    // The modern fixture is the home timeline: serve it on the real path too, so
+    // the rules that are home-only (`feed tabs`) can be exercised.
+    url.pathname === '/home' ||
+    url.pathname.startsWith('/home/')
+  ) {
     res.setHeader('content-type', 'text/html; charset=utf-8');
     res.end(readFileSync(join(here, 'modern.html')));
     return;

@@ -836,6 +836,10 @@ export default {
     actionReply: '[data-testid="reply"]',
     actionGroup: '[role="group"]:has(> div > [data-testid="reply"])',
     primaryColumn: '[data-testid="primaryColumn"]',
+    // Wrappers around the column, used by the layout rules. Kept as fragments so
+    // the modern profile can describe its own structure without nesting :has().
+    primaryColumnWrapper: 'div:has(> [data-testid="primaryColumn"])',
+    primaryColumnWrapperDeep: 'div:has(> div > [data-testid="primaryColumn"])',
     sidebarColumn: '[data-testid="sidebarColumn"]',
     leftNav: 'header[role="banner"]',
     avatar: '[data-testid^="UserAvatar-Container"]',
@@ -858,5 +862,8 @@ export default {
     // Floating panels in the bottom-right corner (Grok, chat) and their roots.
     grokDrawer: '[data-testid="GrokDrawer"]',
     chatDrawer: '[data-testid="chat-drawer-root"]',
+    // The wrapper X slides in around each drawer; hidden with it so no gap stays.
+    grokDrawerWrapper: 'div:has(> div > [data-testid="GrokDrawer"])',
+    chatDrawerWrapper: 'div:has(> div > [data-testid="chat-drawer-root"])',
   },
 };

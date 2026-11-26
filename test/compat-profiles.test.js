@@ -13,6 +13,18 @@ function recordingRoot() {
   };
 }
 
+function withPath(pathname, run) {
+  const had = 'location' in globalThis;
+  const previous = globalThis.location;
+  globalThis.location = { pathname };
+  try {
+    return run();
+  } finally {
+    if (had) globalThis.location = previous;
+    else delete globalThis.location;
+  }
+}
+
 test('legacy getArticles uses the legacy article selector', () => {
   const root = recordingRoot();
   legacy.api.getArticles(root);
@@ -151,9 +163,21 @@ test('modern layout fragments do not also match the legacy markup', () => {
   // A legacy page's <main> wraps both columns: matching it would resize the whole row.
   assert.equal(modern.css.primaryColumn, 'main:not(:has([data-testid="primaryColumn"]))');
   // The legacy sidebar modules are <aside>s inside sidebarColumn: matching them pins each card.
-  assert.equal(modern.css.sidebarColumn, 'aside:not([data-testid="sidebarColumn"] *)');
+  // A dialog can hold an <aside> too, and pinning that would freeze the photo viewer.
+  assert.equal(
+    modern.css.sidebarColumn,
+    'aside:not([data-testid="sidebarColumn"] *):not([role="dialog"] *)',
+  );
   // The sidebar footer nav also carries aria-label: only the nav with the Home row is the menu.
-  assert.equal(modern.css.leftNav, 'nav[aria-label]:has(a[href="/home"])');
+  // The legacy menu is inside the banner and has that row too, so the banner is excluded.
+  assert.equal(
+    modern.css.leftNav,
+    'nav[aria-label]:has(a[href="/home"]):not(header[role="banner"] *)',
+  );
+  assert.equal(
+    modern.css.navCenter,
+    'nav[aria-label]:has(a[href="/home"]):not([data-testid]):not(header[role="banner"] *)',
+  );
 });
 
 test('modern getSidebarBlock never widens a module to the whole sidebar', () => {
@@ -194,7 +218,10 @@ test('modern css marks the Grok and chat dock windows', () => {
 });
 
 test('modern css centres the left nav column', () => {
-  assert.equal(modern.css.navCenter, 'nav[aria-label]:has(a[href="/home"]):not([data-testid])');
+  assert.equal(
+    modern.css.navCenter,
+    'nav[aria-label]:has(a[href="/home"]):not([data-testid]):not(header[role="banner"] *)',
+  );
 });
 
 test('modern getArticles excludes nested quote articles', () => {
@@ -339,7 +366,7 @@ test('modern getNavTemplate still prefers a settings row', () => {
 
 test('modern getFeedTabs, getUserCells and getComposer pin the current markers', () => {
   const tabs = recordingRoot();
-  modern.api.getFeedTabs(tabs);
+  withPath('/home', () => modern.api.getFeedTabs(tabs));
   assert.ok(tabs.calls.some((selector) => selector.includes('tablist')));
 
   const cells = recordingRoot();
@@ -553,4 +580,145 @@ test('css marks where the gap sits on each generation', () => {
   assert.equal(modern.css.postGapMargin, 'li[data-index] > div:has(article)');
   assert.equal(legacy.css.postGapMargin, undefined);
   assert.equal(modern.css.postGapPad, undefined);
+});
+
+/* ------------------------------------------------------------------ */
+/* Column / nav fragments never match the legacy build                 */
+/* ------------------------------------------------------------------ */
+
+test('modern column and nav fragments exclude the legacy markup', () => {
+  // The legacy <main> wraps every column and the legacy nav lives in the banner,
+  // so a bare fragment would also match the old build and change it.
+  for (const key of ['primaryColumn', 'sidebarColumn', 'leftNav', 'navCenter']) {
+    assert.match(modern.css[key], /data-testid|role="banner"/, `${key} must exclude the legacy markup`);
+  }
+  assert.match(modern.css.sidebarColumn, /:not\(\[role="dialog"\] \*\)/);
+});
+
+test('the modern profile defines no column wrapper', () => {
+  // The modern column is `main` itself and its row centres it with
+  // `justify-content`: a wrapper rule would grow the box around the column,
+  // absorb the free space and pull the feed out of the centre.
+  assert.equal(modern.css.primaryColumnWrapper, undefined);
+  assert.equal(modern.css.primaryColumnWrapperDeep, undefined);
+});
+
+/* ------------------------------------------------------------------ */
+/* Feed tabs                                                           */
+/* ------------------------------------------------------------------ */
+
+test('modern getFeedTabs only answers on the home timeline', () => {
+  const root = recordingRoot();
+  withPath('/somebody', () => {
+    assert.deepEqual(modern.api.getFeedTabs(root), []);
+    assert.deepEqual(root.calls, []);
+  });
+});
+
+test('modern getFeedTabs answers on every home-timeline path', () => {
+  // The Following tab and the bare root are still the home timeline; a strict
+  // `/home` check silently dropped the rule there.
+  for (const pathname of ['/home', '/home/', '/home/following', '/']) {
+    const root = recordingRoot();
+    withPath(pathname, () => {
+      modern.api.getFeedTabs(root);
+      assert.deepEqual(root.calls, ['main [role="tablist"]'], pathname);
+    });
+  }
+});
+
+test('modern getFeedTabs skips tab lists inside a dialog', () => {
+  const dialog = {};
+  const list = { closest: (selector) => (selector === '[role="dialog"]' ? dialog : null) };
+  const root = { querySelectorAll: () => [list] };
+  withPath('/home', () => assert.deepEqual(modern.api.getFeedTabs(root), []));
+});
+
+test('modern getFeedTabsBlock returns the block inside the sticky wrapper', () => {
+  const main = {};
+  const sticky = { parentElement: main };
+  const list = { closest: (selector) => (selector === 'main' ? main : null) };
+  const block = { parentElement: sticky, children: [list], querySelector: () => null, matches: () => false };
+  list.parentElement = block;
+  const previous = globalThis.getComputedStyle;
+  globalThis.getComputedStyle = (node) => ({ position: node === sticky ? 'sticky' : 'static' });
+  try {
+    assert.equal(modern.api.getFeedTabsBlock(list), block);
+  } finally {
+    globalThis.getComputedStyle = previous;
+  }
+});
+
+/* ------------------------------------------------------------------ */
+/* Generation-specific lookups                                         */
+/* ------------------------------------------------------------------ */
+
+test('modern getPrimaryColumn ignores the legacy wrapper main', () => {
+  const primary = {};
+  const legacyMain = { querySelector: (selector) => (selector === '[data-testid="primaryColumn"]' ? primary : null) };
+  const root = { querySelector: () => legacyMain };
+  assert.equal(modern.api.getPrimaryColumn(root), null);
+});
+
+test('modern getNav ignores the legacy banner nav', () => {
+  const legacyNav = {
+    closest: (selector) => (selector === 'header[role="banner"]' ? {} : null),
+    querySelector: (selector) => (selector === 'a[href="/home"]' ? {} : null),
+    querySelectorAll: () => [],
+  };
+  const root = { querySelectorAll: (selector) => (selector === 'nav' ? [legacyNav] : []) };
+  assert.equal(modern.api.getNav(root), null);
+});
+
+/* ------------------------------------------------------------------ */
+/* Documented fallbacks                                                */
+/* ------------------------------------------------------------------ */
+
+test('modern getPostCells falls back to bare data-index cells', () => {
+  const cell = { id: 'cell' };
+  const root = {
+    querySelectorAll: (selector) => (selector === '[data-index]' ? [cell] : []),
+  };
+  assert.deepEqual(modern.api.getPostCells(root), [cell]);
+});
+
+test('modern getVerifiedBadge falls back to a verification aria-label', () => {
+  const badge = { closest: (selector) => (selector === 'article' ? article : null) };
+  const article = {
+    querySelectorAll: (selector) => (selector.includes('aria-label') ? [badge] : []),
+  };
+  assert.equal(modern.api.getVerifiedBadge(article), badge);
+});
+
+test('modern getMediaHosts falls back to post photos without a media action', () => {
+  const img = {
+    matches: () => false,
+    querySelector: () => null,
+    closest: (selector) => (selector === 'article' ? article : null),
+  };
+  const article = {
+    querySelectorAll: (selector) =>
+      selector === 'img[src*="pbs.twimg.com/media/"]' ? [img] : [],
+    closest: (selector) => (selector === 'article' ? article : null),
+  };
+  assert.deepEqual(modern.api.getMediaHosts(article), [{ el: img, kind: 'photo', owner: 'main' }]);
+});
+
+test('modern getViewerImages falls back to the active media holder', () => {
+  const img = { closest: () => null };
+  const holder = { querySelectorAll: () => [img] };
+  const root = {
+    querySelector: (selector) => (selector === '[data-active-media-holder]' ? holder : null),
+  };
+  assert.deepEqual(modern.api.getViewerImages(root), [img]);
+});
+
+test('modern getSidebar falls back to the parent of the who-to-follow module', () => {
+  const sidebar = {};
+  const marker = { parentElement: sidebar };
+  const root = {
+    querySelectorAll: () => [],
+    querySelector: (selector) => (selector === '[data-who-to-follow]' ? marker : null),
+  };
+  assert.equal(modern.api.getSidebar(root), sidebar);
 });
