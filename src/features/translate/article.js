@@ -1,5 +1,5 @@
 import { dom } from '../../core/compat/index.js';
-import { SEL, UI_ATTR } from '../../core/constants.js';
+import { UI_ATTR } from '../../core/constants.js';
 import { Codes, logWarn } from '../../core/debug.js';
 import { getLocale, resolveTargetLang } from '../../i18n/index.js';
 import { fmt } from '../../utils/format.js';
@@ -236,18 +236,20 @@ function setProgress(state, text) {
 
 /** The tweet article that owns the page header (avatar, name, Grok, ⋮) of this article. */
 function findHostArticle(root) {
-  const own = root.closest(SEL.article);
+  const own = dom.getPostArticle(root);
   if (own) return own;
   let scope = root;
   for (let depth = 0; depth < 8; depth += 1) {
     scope = scope.parentElement;
     if (!scope) return null;
-    const host = [...scope.querySelectorAll(SEL.article)].find(
-      (candidate) =>
-        !root.contains(candidate) &&
-        // the header precedes the article body in the document
-        candidate.compareDocumentPosition(root) & Node.DOCUMENT_POSITION_FOLLOWING,
-    );
+    const host = dom
+      .getArticles(scope)
+      .find(
+        (candidate) =>
+          !root.contains(candidate) &&
+          // the header precedes the article body in the document
+          candidate.compareDocumentPosition(root) & Node.DOCUMENT_POSITION_FOLLOWING,
+      );
     if (host) return host;
   }
   return null;

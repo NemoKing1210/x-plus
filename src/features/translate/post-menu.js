@@ -42,7 +42,7 @@ function isTweetActionMenu(menu) {
   if (!(menu instanceof Element)) return false;
   if (menu.querySelector(`[${ATTR.menu}]`)) return true;
 
-  const items = menu.querySelectorAll('[role="menuitem"], [data-testid]');
+  const items = menu.querySelectorAll('[role="menuitem"]');
   if (!items.length) return false;
 
   const text = (menu.textContent || '').toLowerCase();
@@ -137,7 +137,7 @@ function injectIntoMenu(menu, handle) {
 
   if (cfg().translateMode === 'auto') {
     if (!existingAuto) {
-      const first = menu.querySelector('[role="menuitem"]') || menu.querySelector('[data-testid]');
+      const first = menu.querySelector('[role="menuitem"]');
       const item = buildAutoMenuItem(handle);
       if (first?.parentElement) first.parentElement.insertBefore(item, first);
       else host.appendChild(item);
