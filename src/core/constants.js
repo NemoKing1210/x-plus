@@ -56,16 +56,3 @@ export const SCAN_DEBOUNCE_MS = 350;
 export const NAVIGATION_POLL_MS = 500;
 /** Soft advisory budget for the settings cache meter. */
 export const CACHE_SOFT_LIMIT_BYTES = 10 * 1024 * 1024;
-
-/* ------------------------------------------------------------------ */
-/* X web client selectors                                              */
-/*                                                                     */
-/* Moved to the compat legacy profile; re-exported while features      */
-/* migrate. Feature code should use `dom` from core/compat instead.    */
-/* ------------------------------------------------------------------ */
-
-export {
-  NATIVE_AUTO_TRANSLATE_ICON_PATH,
-  QUOTE_HEADER_ROW_SELECTOR,
-  SEL,
-} from './compat/profiles/legacy.js';

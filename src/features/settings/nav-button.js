@@ -1,5 +1,4 @@
-import { dom, getGeneration } from '../../core/compat/index.js';
-import { navLabelWeight, navUsesHoverClass } from '../../core/compat/profiles/shared.js';
+import { dom, getGeneration, navLabelWeight, navUsesHoverClass } from '../../core/compat/index.js';
 import { UI_ATTR } from '../../core/constants.js';
 import { getFeatureSettings } from '../../core/settings.js';
 import { t } from '../../i18n/index.js';

@@ -116,3 +116,9 @@ export function getGeneration() {
 export function compatReport() {
   return report.snapshot();
 }
+
+/**
+ * Build-time helpers for the parts of the page no capability covers.
+ * Re-exported here so features depend on the public API only.
+ */
+export { navLabelWeight, navUsesHoverClass } from './profiles/shared.js';
