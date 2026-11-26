@@ -9,6 +9,7 @@ import './styles/filter.css';
 import './styles/motion.css';
 
 import { emit, on } from './core/bus.js';
+import { getGeneration, initCompat, refreshCompat } from './core/compat/index.js';
 import { ROOT_ATTR } from './core/constants.js';
 import { getFeatures, runFeatureHook, runHook } from './core/features.js';
 import { startNavigationWatch, startScanning, scanNow } from './core/scan.js';
@@ -37,6 +38,7 @@ function boot() {
   if (root.hasAttribute(ROOT_ATTR)) return;
   root.setAttribute(ROOT_ATTR, '1');
 
+  initCompat();
   loadSettings();
   observePageTheme(() => emit('theme'));
 
@@ -46,6 +48,11 @@ function boot() {
 }
 
 function applyFeatures() {
+  // Refresh the DOM generation before feature hooks see a navigation or a
+  // first scan that arrived after boot.
+  on('navigate', () => refreshCompat(document, { navigation: true }));
+  on('scan', () => { if (getGeneration() === 'unknown') refreshCompat(); });
+
   // Feature by feature: one-time init, then the initial apply. `general`
   // (order 0) therefore configures the UI language before anything renders.
   for (const feature of getFeatures()) {
@@ -73,6 +80,7 @@ function applyFeatures() {
 // paint, inject the declarative "hide" CSS, and boot the rest of the UI once
 // the DOM is ready (the veil lifts when the applied page is ready).
 loadSettings();
+initCompat();
 setBootIntroEnabled(getFeatureSettings('general').bootIntro);
 startBootVeil();
 if (document.documentElement) applyRuleStyles();

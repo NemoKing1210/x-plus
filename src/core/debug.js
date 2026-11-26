@@ -32,6 +32,14 @@ export const Codes = {
   DECLUTTER_RULE: 'XP-1401',
   /** A post screenshot could not be rendered or delivered. */
   SCREENSHOT_FAILED: 'XP-1501',
+  /** The compatibility layer could not recognize X's DOM generation. */
+  COMPAT_GENERATION: 'XP-3001',
+  /** A single capability was not answered by any profile. */
+  COMPAT_MISS: 'XP-3002',
+  /** A compatibility profile threw while resolving a capability. */
+  COMPAT_PROFILE: 'XP-3003',
+  /** A capability was answered by a non-active profile (debug only). */
+  COMPAT_FALLBACK: 'XP-3004',
 };
 
 const BADGE_STYLE =
