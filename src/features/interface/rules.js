@@ -52,20 +52,27 @@ const onFragment = (key, build) => {
   return fragment ? build(fragment) : () => [];
 };
 
+/** Whether `:has()` may wrap this fragment: it must not carry one of its own. */
+const canWrap = (selector) => Boolean(selector) && !selector.includes(':has(');
+
 /** The wrapper X slides in around floating page chrome; empty when no profile knows it. */
 const slidIn = (key, inner) => {
   const marker = cssFor(key);
-  return marker ? `div:has(> div > ${inner(marker)})` : '';
+  if (!marker) return '';
+  const target = inner(marker);
+  return canWrap(target) ? `div:has(> div > ${target})` : target;
 };
 
 /**
  * A floating drawer: on the legacy build the marker sits inside the wrapper X
  * slides in (hide the wrapper too, so no gap stays behind); on the modern build
- * the dock window is the thing to hide.
+ * the dock window is the thing to hide. The wrapper is a profile fragment, so
+ * a `:has()`-carrying marker is never nested inside another `:has()`.
  */
-const drawerCss = (key) => {
+export const drawerCss = (key) => {
   const marker = cssFor(key);
-  return marker ? `div:has(> div > ${marker}),${marker}` : '';
+  const wrapper = cssFor(`${key}Wrapper`);
+  return [wrapper, marker].filter(Boolean);
 };
 
 /** Sidebar cards around the first block that contains a `selector` match. */
@@ -179,7 +186,8 @@ function avatarColumns(article) {
  * What makes an ancestor too big to be "just the media": it also holds the text
  * or the actions of a post (a quote's own text stops the climb inside the quote).
  */
-const POST_PARTS = `${cssFor('tweetText')}, [role="group"]`;
+const POST_TEXT = cssFor('tweetText');
+const POST_PARTS = [POST_TEXT, '[role="group"]'].filter(Boolean).join(', ');
 
 /**
  * Media blocks of a post (photos, videos, GIFs; also inside quotes). Each block is the largest
@@ -344,19 +352,31 @@ function nativeTranslateBars(article) {
   return bars.filter(Boolean);
 }
 
-/** The reply / repost / like row, as `:is(legacy, modern)` selectors. */
-const ACTION_GROUP = cssFor('actionGroup');
-const ACTION_BAR_CSS = [
-  `${cssFor('article')} ${ACTION_GROUP}`,
-  `${cssFor('article')} div:has(> ${ACTION_GROUP}:only-child)`,
-  `${cssFor('article')} div:has(> div:only-child > ${ACTION_GROUP}:only-child)`,
+/**
+ * The reply / repost / like row, plus its single-child wrappers so no gap stays
+ * behind. Built from the reply *leaf*: the group fragment already carries
+ * `:has()`, and nesting it inside the wrapper `:has()` is invalid CSS — the
+ * browser drops that branch and the rule silently stops matching.
+ */
+const ARTICLE = cssFor('article');
+const REPLY = cssFor('actionReply');
+export const ACTION_BAR_CSS = [
+  `${ARTICLE} [role="group"]:has(${REPLY})`,
+  // Modern: the reply action is a direct child of the group.
+  `${ARTICLE} div:has(> [role="group"]:only-child > ${REPLY})`,
+  // Legacy: the group wraps its actions in one more div.
+  `${ARTICLE} div:has(> [role="group"]:only-child > div > ${REPLY})`,
+  `${ARTICLE} div:has(> div:only-child > [role="group"]:only-child > ${REPLY})`,
+  `${ARTICLE} div:has(> div:only-child > [role="group"]:only-child > div > ${REPLY})`,
 ];
 
 /** @type {Rule[]} */
 export const RULES = [
   /* Posts */
   { group: 'posts', key: 'feedTabs', hint: true, find: feedTabs },
-  { group: 'posts', key: 'showPosts', hint: true, find: showPostsRows },
+  // The modern build has no "Show N posts" marker yet: hide the switch there
+  // instead of leaving a control that does nothing. The stored value is kept.
+  { group: 'posts', key: 'showPosts', hint: true, generations: { modern: false }, find: showPostsRows },
   {
     group: 'posts',
     key: 'newPostsPill',

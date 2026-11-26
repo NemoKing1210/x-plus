@@ -1,10 +1,22 @@
 import { Codes, logWarn } from '../../core/debug.js';
-import { cssFor, dom, getGeneration } from '../../core/compat/index.js';
+import { dom, getGeneration } from '../../core/compat/index.js';
 import { UI_ATTR } from '../../core/constants.js';
 import { getFeatureSettings } from '../../core/settings.js';
 import { POSTS_PEEK_ATTR, postsCss } from './posts.js';
 import { ruleApplies } from './rule-applies.js';
 import { RULES, findStickyFeedHeaders, ruleId } from './rules.js';
+import {
+  CENTER_CSS,
+  FEED_TABS_STATIC_CSS,
+  MENU_CENTER_CSS,
+  MENU_HIDE_CSS,
+  MENU_LEFT_CSS,
+  PEEK_ATTR,
+  SIDEBAR_HIDE_CSS,
+  SIDEBAR_RIGHT_CSS,
+  STICKY_ATTR,
+  contentWidthCss,
+} from './layout-css.js';
 
 /**
  * Applies the enabled rules: one generated stylesheet hides everything. Rules
@@ -23,8 +35,6 @@ import { RULES, findStickyFeedHeaders, ruleId } from './rules.js';
 const STYLE_ID = 'xp-interface-style';
 const MARK_ATTR = 'data-xp-hide';
 const HIDE = '{display:none!important}';
-const STICKY_ATTR = 'data-xp-sticky';
-const PEEK_ATTR = 'data-xp-peek';
 const PEEK_STYLE_ID = 'xp-interface-peek-style';
 /** Most time one observer callback may spend on posts before it yields to the next frame. */
 const BUDGET_MS = 8;
@@ -46,71 +56,6 @@ function ensureStyle() {
   }
   return style;
 }
-
-/** Widen the central column (and the wrappers that cap it) to `width` px. */
-function contentWidthCss(width) {
-  if (!width) return '';
-  const column = cssFor('primaryColumn');
-  // X caps inner feed blocks with an atomic class; only the legacy profile knows it.
-  const cap = cssFor('contentCap');
-  return [
-    `${column}{width:${width}px!important;max-width:100vw!important;flex:none!important}`,
-    cap ? `${column} ${cap}{max-width:none!important}` : '',
-    `div:has(> ${column}),div:has(> div > ${column}){width:auto!important;max-width:none!important;flex-grow:1}`,
-  ].filter(Boolean).join('\n');
-}
-
-/** Column / chrome selectors as `:is(legacy, modern)` unions. */
-const LEFT_NAV = cssFor('leftNav');
-const SIDEBAR = cssFor('sidebarColumn');
-const PRIMARY = cssFor('primaryColumn');
-
-/** Pin the left navigation to the screen edge instead of next to the feed. */
-const MENU_LEFT_CSS = [
-  `${LEFT_NAV}{align-items:flex-start!important}`,
-  `${LEFT_NAV} > div{align-items:flex-start!important}`,
-].join('\n');
-
-/**
- * Centre the menu items (logo, links, post button) vertically: every wrapper
- * on the way down to the nav grows to the full height and the one that holds
- * the nav centres its children.
- */
-const NAV_LIST = cssFor('leftNavList');
-/** The modern nav is itself the column: its rows are the flex children to centre. */
-const NAV_CENTER = cssFor('navCenter');
-const MENU_CENTER_CSS = [
-  NAV_LIST ? `${LEFT_NAV} div:has(${NAV_LIST}){flex:1 1 auto!important;min-height:0}` : '',
-  NAV_LIST ? `${LEFT_NAV} div:has(> ${NAV_LIST}){display:flex!important;flex-direction:column!important;justify-content:center!important}` : '',
-  NAV_CENTER ? `${NAV_CENTER}{justify-content:center!important}` : '',
-].filter(Boolean).join('\n');
-
-/** Remove the whole left menu from the page. */
-const MENU_HIDE_CSS = `${LEFT_NAV}:not([${PEEK_ATTR}]){display:none!important}`;
-
-/** Remove the whole right column from the page. */
-const SIDEBAR_HIDE_CSS = `${SIDEBAR}:not([${PEEK_ATTR}]){display:none!important}`;
-
-/** Let the feed tabs scroll away with the page instead of floating at the top. */
-const FEED_TABS_STATIC_CSS = `[${STICKY_ATTR}]{position:static!important}`;
-
-/** Pin the right column (search, trends, who to follow) to the screen edge. */
-const SIDEBAR_RIGHT_CSS = `${SIDEBAR}{position:fixed!important;top:0;right:0;bottom:0;width:350px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}`;
-
-/**
- * Centre the feed on the screen: both side columns leave the layout (menu
- * pinned left, right column pinned right) and the feed wrapper centres itself.
- * The wrapper fills its parent row with `100%`, not `100vw`: viewport units
- * include the vertical scrollbar, which would add a horizontal scrollbar.
- */
-const CENTER_ROW = cssFor('mainRow');
-const CENTER_CSS = [
-  `${LEFT_NAV}{position:fixed!important;top:0;bottom:0;left:0;z-index:2;width:auto!important;flex-grow:0!important}`,
-  SIDEBAR_RIGHT_CSS,
-  CENTER_ROW ? `${CENTER_ROW}{flex:none!important;display:flex!important;flex-direction:row!important;justify-content:center!important;align-items:flex-start!important;width:100%!important;max-width:none!important}` : '',
-  CENTER_ROW ? `${CENTER_ROW} > div,${CENTER_ROW} > div > div{flex:0 1 auto!important;width:auto!important;max-width:none!important;margin:0!important}` : '',
-  `div:has(> ${PRIMARY}){width:auto!important;max-width:none!important;flex-grow:0!important}`,
-].filter(Boolean).join('\n');
 
 /**
  * Selectors that hide a rule: its own CSS, or the marker its JS finder sets.

@@ -12,6 +12,14 @@ test('a legacy-only rule is skipped on modern', () => {
   assert.equal(ruleApplies({ key: 'all' }, 'modern'), true);
 });
 
+test('a rule with no modern target is marked legacy-only', () => {
+  // The "Show N posts" marker only exists on the legacy build. Without the
+  // marker the switch would be visible and do nothing, so it must be hidden.
+  const rule = RULES.find((entry) => entry.key === 'showPosts');
+  assert.equal(ruleApplies(rule, 'modern'), false);
+  assert.equal(ruleApplies(rule, 'legacy'), true);
+});
+
 test('an unknown generation keeps every rule on', () => {
   const rule = { key: 'legacyThing', generations: { modern: false } };
   assert.equal(ruleApplies(rule, 'unknown'), true);
