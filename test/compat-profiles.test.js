@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import legacy from '../src/core/compat/profiles/legacy.js';
+import modern from '../src/core/compat/profiles/modern.js';
 import { KINDS } from '../src/core/compat/kinds.js';
 
 function recordingRoot() {
@@ -132,4 +133,17 @@ test('legacy hasNativeAutoTranslate is false without a bar', () => {
 test('legacy css exposes the article and cell fragments', () => {
   assert.equal(legacy.css.article, 'article[data-testid="tweet"]');
   assert.equal(legacy.css.cell, '[data-testid="cellInnerDiv"]');
+});
+
+test('modern getArticles excludes nested quote articles', () => {
+  const outer = { nodeType: 1, closest: () => null, parentElement: null, matches: () => false };
+  const inner = { nodeType: 1, closest: (sel) => (sel === 'article' ? outer : null), parentElement: { closest: () => outer }, matches: () => false };
+  const root = { querySelectorAll: () => [outer, inner] };
+  assert.deepEqual(modern.api.getArticles(root), [outer]);
+});
+
+test('modern getTextRoots uses the whitespace-pre-wrap text root', () => {
+  const root = recordingRoot();
+  modern.api.getTextRoots(root);
+  assert.ok(root.calls.some((selector) => selector.includes('whitespace-pre-wrap')));
 });
