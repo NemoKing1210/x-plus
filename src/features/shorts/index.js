@@ -5,6 +5,7 @@ import { t } from '../../i18n/index.js';
 import { setAutoPaused } from './autoplay.js';
 import { syncShortsSwitch } from './dock-switch.js';
 import { syncShorts } from './engine.js';
+import { STEP_KEY } from './keys.js';
 
 /**
  * Shorts mode: browse the feed one post at a time, like YouTube Shorts. The
@@ -85,7 +86,7 @@ registerFeature({
               path: 'autoKey',
               labelKey: 'shorts.autoKey',
               hintKey: 'shorts.autoKeyHint',
-              reserved: ['Space', 'ArrowUp', 'ArrowDown', 'KeyJ', 'KeyK'],
+              reserved: ['Space', 'ArrowUp', 'ArrowDown', STEP_KEY.prev, STEP_KEY.next],
               showIf: (s) => s.autoplay,
             },
             {

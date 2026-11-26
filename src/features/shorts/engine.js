@@ -5,6 +5,7 @@ import { isVerbose, logInfo } from '../../core/debug.js';
 import { getFeatureSettings, updateFeatureSettings } from '../../core/settings.js';
 import { isAutoPaused, runAutoplay, setAutoPaused, stopAutoplay } from './autoplay.js';
 import { hideNav, pulseNav, syncNav } from './nav.js';
+import { STEP_KEY } from './keys.js';
 import { startVideos, stopVideos, syncVideos } from './videos.js';
 
 /**
@@ -60,7 +61,7 @@ const SPEED = { slow: 1.7, normal: 1, fast: 0.55, instant: 0 };
 /** Base length of the grow / blur transition, in seconds. */
 const FADE_SECONDS = 0.5;
 
-const KEY_STEP = { ArrowDown: 1, ArrowUp: -1, KeyJ: 1, KeyK: -1 };
+const KEY_STEP = { ArrowDown: 1, ArrowUp: -1, [STEP_KEY.next]: 1, [STEP_KEY.prev]: -1 };
 /** Space keeps its meaning on controls: it presses the focused one. */
 const PRESSABLE_SELECTOR =
   'button, a[href], summary, [role="button"], [role="link"], [role="menuitem"], [role="tab"], [role="switch"], [role="checkbox"], [role="radio"]';

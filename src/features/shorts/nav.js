@@ -5,6 +5,7 @@ import { icon } from '../../ui/icons.js';
 import { el } from '../../utils/dom.js';
 import { keyHint } from '../../utils/keys.js';
 import { ringOffset, ringVisible } from './ring.js';
+import { STEP_KEY } from './keys.js';
 
 /**
  * Controls of Shorts mode: previous / next buttons and an auto-scroll
@@ -141,8 +142,8 @@ export function syncNav(state, handlers) {
   next.disabled = !state.canNext;
   const cfg = getFeatureSettings('shorts');
   for (const [button, key, code] of [
-    [prev, 'shorts.prev', 'KeyK'],
-    [next, 'shorts.next', 'KeyJ'],
+    [prev, 'shorts.prev', STEP_KEY.prev],
+    [next, 'shorts.next', STEP_KEY.next],
   ]) {
     const label = t(key);
     const title = cfg.keys ? keyHint(label, code) : label;

@@ -1,7 +1,9 @@
 /* X Plus — Shorts mode: the current post grows, the others are blurred */
 
-/* Effects sit on the article: X moves the cell itself with transforms. */
-html[data-xp-shorts-on] [data-xp-shorts] :is(article[data-testid='tweet'], article) {
+/* Effects sit on the article: X moves the cell itself with transforms.
+   Only the top-level article: a quote embed nests its own <article>, and
+   matching it would scale the quote twice and inherit the outer origin. */
+html[data-xp-shorts-on] [data-xp-shorts] article:not(article article) {
   position: relative;
   transform-origin: center center;
   transition:
@@ -11,39 +13,39 @@ html[data-xp-shorts-on] [data-xp-shorts] :is(article[data-testid='tweet'], artic
 }
 
 /* Own compositor layer for the three posts that are on screen (not for every post X keeps in the DOM). */
-html[data-xp-shorts-on] [data-xp-shorts='active'] :is(article[data-testid='tweet'], article),
-html[data-xp-shorts-on] [data-xp-shorts='prev'] :is(article[data-testid='tweet'], article),
-html[data-xp-shorts-on] [data-xp-shorts='next'] :is(article[data-testid='tweet'], article) {
+html[data-xp-shorts-on] [data-xp-shorts='active'] article:not(article article),
+html[data-xp-shorts-on] [data-xp-shorts='prev'] article:not(article article),
+html[data-xp-shorts-on] [data-xp-shorts='next'] article:not(article article) {
   will-change: transform, filter, opacity;
 }
 
 /* Posts further away only fade: animating a blur there is wasted work. */
-html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'], article) {
+html[data-xp-shorts-on] [data-xp-shorts='far'] article:not(article article) {
   transition: opacity var(--xp-shorts-time, 0.5s) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-html[data-xp-shorts-on] [data-xp-shorts='active'] :is(article[data-testid='tweet'], article) {
+html[data-xp-shorts-on] [data-xp-shorts='active'] article:not(article article) {
   z-index: 1;
   /* All posts of a thread share one origin (set by the engine), so the joins stay put. */
   transform-origin: 50% var(--xp-shorts-oy, 50%);
   transform: scale(var(--xp-shorts-scale, 1.05));
 }
 
-html[data-xp-shorts-on] [data-xp-shorts='prev'] :is(article[data-testid='tweet'], article),
-html[data-xp-shorts-on] [data-xp-shorts='next'] :is(article[data-testid='tweet'], article),
-html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'], article) {
+html[data-xp-shorts-on] [data-xp-shorts='prev'] article:not(article article),
+html[data-xp-shorts-on] [data-xp-shorts='next'] article:not(article article),
+html[data-xp-shorts-on] [data-xp-shorts='far'] article:not(article article) {
   filter: blur(var(--xp-shorts-blur, 3px));
 }
 
-html[data-xp-shorts-on] [data-xp-shorts='prev'] :is(article[data-testid='tweet'], article) {
+html[data-xp-shorts-on] [data-xp-shorts='prev'] article:not(article article) {
   opacity: var(--xp-shorts-prev-opacity, 0.55);
 }
 
-html[data-xp-shorts-on] [data-xp-shorts='next'] :is(article[data-testid='tweet'], article) {
+html[data-xp-shorts-on] [data-xp-shorts='next'] article:not(article article) {
   opacity: var(--xp-shorts-next-opacity, 0.55);
 }
 
-html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'], article) {
+html[data-xp-shorts-on] [data-xp-shorts='far'] article:not(article article) {
   opacity: var(--xp-shorts-far-opacity, 0.55);
 }
 
@@ -357,7 +359,7 @@ html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'],
     animation: none;
   }
 
-  html[data-xp-shorts-on] [data-xp-shorts] :is(article[data-testid='tweet'], article) {
+  html[data-xp-shorts-on] [data-xp-shorts] article:not(article article) {
     transition-duration: 0.01s;
   }
 }
