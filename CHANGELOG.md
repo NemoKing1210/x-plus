@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Post cards, dividers, padding and spacing apply to the block X rounds and colours on the new design, not the narrower article inside it
 - “Discover more” under a post’s replies and the “Who to follow” module in the feed are hidden again when the section heading has no `role` and shares a cell with the first recommended post
 - The X Plus row in the left menu keeps its icon and hover pill on the new design instead of showing a bare label
+- The account switcher and the profile row in the left menu are hidden / found again on the new design, where the switcher sits below the nav and the profile row shows a glyph instead of your avatar
 
 ## [0.16.0] - 2026-11-22
 

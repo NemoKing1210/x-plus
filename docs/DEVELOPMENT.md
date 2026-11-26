@@ -159,7 +159,7 @@ left hides its whole section. Check the page you are on with
 | `sidebar.trends` | `[data-testid="trend"]` | `[data-trend]`, or a sidebar link to a search query |
 | `sidebar.whoToFollow` | `UserCell` cells | `[data-who-to-follow]` modules |
 | `sidebar.footer` | footer `nav` with a `/tos` link | footer `nav` with a `/tos` link |
-| `nav.*` (logo … account) | links and buttons of the left menu | `dom.getNavItem` on the modern nav |
+| `nav.*` (logo … account) | links and buttons of the left menu | `dom.getNavItem` on the modern nav; the account switcher lives below the nav in the same column and the profile row is matched by the account handle |
 | `nav.logo` | the spacer wrapper around the logo `<h1>` | the logo's `<h1>`, or the bare spacer above the nav on the home column; never the nav column |
 | `nav.xplus` | our entry inside the left column | our entry inside the modern nav |
 | `chrome.grokDrawer` | wrapper of `[data-testid="GrokDrawer"]` | dock window carrying the Grok icon |

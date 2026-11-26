@@ -103,6 +103,29 @@ function quoteHeaderActionsSlot(quote) {
   return row ? { row, before: null } : null;
 }
 
+/**
+ * The sticky left column (`nav` → wrapper → column) that also holds the logo
+ * spacer and the account switcher.
+ */
+function leftColumn(nav, root) {
+  return nav?.parentElement?.parentElement || nav?.parentElement || root;
+}
+
+/** The account switcher below the nav, outside the `<nav>` element itself. */
+function accountButton(nav, root) {
+  const scope = leftColumn(nav, root);
+  if (!scope?.querySelectorAll) return null;
+  return (
+    [...scope.querySelectorAll('button')].find((button) => button.querySelector('img[src*="profile_images"]')) || null
+  );
+}
+
+/** The viewer's handle, as spelled by the account switcher's avatar label. */
+function accountHandle(nav, root) {
+  const alt = accountButton(nav, root)?.querySelector('img[alt^="@"]')?.getAttribute('alt') || '';
+  return alt.startsWith('@') ? alt.slice(1) : '';
+}
+
 const api = {
   getArticles(root) {
     return [...root.querySelectorAll('article')].filter(
@@ -436,16 +459,21 @@ const api = {
       return findLogo(root) || findLogo(nav);
     }
     if (kind === 'profile') {
+      const avatar = [...nav.querySelectorAll('a[href]')].find((link) =>
+        link.querySelector('img[src*="profile_images"]'),
+      );
+      if (avatar) return avatar;
+      // The new nav row carries a glyph, not the avatar: match the account's handle.
+      const handle = accountHandle(nav, root);
+      if (!handle) return null;
+      const href = `/${handle}`.toLowerCase();
       return (
-        [...nav.querySelectorAll('a[href]')].find((link) => link.querySelector('img[src*="profile_images"]')) || null
+        [...nav.querySelectorAll('a[href]')].find(
+          (link) => (link.getAttribute('href') || '').replace(/\/$/, '').toLowerCase() === href,
+        ) || null
       );
     }
-    if (kind === 'account') {
-      return (
-        [...nav.querySelectorAll('button')].find((button) => button.querySelector('img[src*="profile_images"]')) ||
-        null
-      );
-    }
+    if (kind === 'account') return accountButton(nav, root);
     if (kind === 'more') {
       return (
         [...nav.querySelectorAll('button')].find((button) =>

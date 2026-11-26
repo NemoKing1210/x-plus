@@ -514,3 +514,36 @@ test('css marks the post surface X rounds and colours', () => {
   assert.equal(legacy.css.postSurface, '[data-testid="cellInnerDiv"] article[data-testid="tweet"]');
   assert.equal(modern.css.postSurface, 'li[data-index] > div:has(article)');
 });
+
+test('modern getNavItem finds the account switcher below the nav', () => {
+  const avatar = { getAttribute: (name) => (name === 'alt' ? '@jack' : null) };
+  const button = {
+    querySelector: (selector) =>
+      selector === 'img[src*="profile_images"]' || selector === 'img[alt^="@"]' ? avatar : null,
+  };
+  const column = { querySelectorAll: (selector) => (selector === 'button' ? [button] : []) };
+  const nav = {
+    parentElement: { parentElement: column },
+    querySelector: (selector) => (selector === 'a[href="/home"]' ? {} : null),
+    querySelectorAll: () => [],
+  };
+  const root = { querySelectorAll: (selector) => (selector === 'nav' ? [nav] : []) };
+  assert.equal(modern.api.getNavItem(root, 'account'), button);
+});
+
+test('modern getNavItem finds the profile row that links to the account handle', () => {
+  const avatar = { getAttribute: (name) => (name === 'alt' ? '@Jack' : null) };
+  const button = { querySelector: () => avatar };
+  const column = { querySelectorAll: (selector) => (selector === 'button' ? [button] : []) };
+  const profile = {
+    getAttribute: (name) => (name === 'href' ? '/jack/' : null),
+    querySelector: () => null,
+  };
+  const nav = {
+    parentElement: { parentElement: column },
+    querySelector: (selector) => (selector === 'a[href="/home"]' ? {} : null),
+    querySelectorAll: (selector) => (selector === 'a[href]' ? [profile] : []),
+  };
+  const root = { querySelectorAll: (selector) => (selector === 'nav' ? [nav] : []) };
+  assert.equal(modern.api.getNavItem(root, 'profile'), profile);
+});
