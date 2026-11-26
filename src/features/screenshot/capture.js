@@ -1,19 +1,13 @@
 import { domToBlob } from 'modern-screenshot';
-import { SEL, THEME_ATTR, UI_ATTR } from '../../core/constants.js';
+import { dom } from '../../core/compat/index.js';
+import { THEME_ATTR, UI_ATTR } from '../../core/constants.js';
 import { Codes, fail } from '../../core/debug.js';
-import { handleFromHref } from '../../utils/handle.js';
 import { resolveBackground, solidColor } from './background.js';
 import { CAPTURE_TIMEOUT_MS, MAX_CANVAS_SIZE, cfg } from './config.js';
 import { resolveScale } from './naming.js';
 
-/** Post identity selector (the X-specific rule lives at the top of the module). */
-const USER_NAME = '[data-testid="User-Name"]';
-/** X's action row (reply / repost / like / views) is the group holding Reply. */
-const ACTION_GROUP = '[role="group"]';
-
 function postHandle(article) {
-  const link = article.querySelector(`${USER_NAME} a[href^="/"]`);
-  return handleFromHref(link?.getAttribute('href')) || '';
+  return dom.getAuthorHandle(article) || '';
 }
 
 /**
@@ -43,14 +37,7 @@ function pageTheme() {
 
 /** This post's own action row (not a quote card's or a nested article's). */
 function findOwnActionRow(article) {
-  return (
-    [...article.querySelectorAll(ACTION_GROUP)].find(
-      (node) =>
-        node.closest(SEL.article) === article &&
-        Boolean(node.querySelector(SEL.actionReply)) &&
-        !node.closest(SEL.quoteTweet),
-    ) || null
-  );
+  return dom.getActionGroup(article);
 }
 
 /**

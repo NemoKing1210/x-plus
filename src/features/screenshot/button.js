@@ -1,4 +1,5 @@
-import { SEL, UI_ATTR } from '../../core/constants.js';
+import { dom } from '../../core/compat/index.js';
+import { UI_ATTR } from '../../core/constants.js';
 import { isLoading, setButtonLabel } from '../../ui/action-button.js';
 import { el, silencePointerEvents } from '../../utils/dom.js';
 import { findHeaderActionsSlot, mountHeaderButton } from '../translate/placement.js';
@@ -66,15 +67,15 @@ function ensureButton(article) {
 /** Skip our own UI and posts embedded inside another post (X Articles). */
 function isOursOrNested(article) {
   if (article.closest(`[${UI_ATTR}]`)) return true;
-  return Boolean(article.parentElement?.closest?.(SEL.article));
+  return Boolean(article.parentElement?.closest?.('article'));
 }
 
 export function scanButtons() {
   if (!cfg().enabled) return;
-  document.querySelectorAll(SEL.article).forEach((article) => {
-    if (isOursOrNested(article)) return;
+  for (const article of dom.getArticles(document)) {
+    if (isOursOrNested(article)) continue;
     ensureButton(article);
-  });
+  }
 }
 
 export function removeAllButtons() {

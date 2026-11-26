@@ -1,21 +1,15 @@
+import { dom } from '../../core/compat/index.js';
 import { Codes, logWarn } from '../../core/debug.js';
 import { setButtonLabel } from '../../ui/action-button.js';
 import { showToast } from '../../ui/toast.js';
 import { saveBlob } from '../../utils/download.js';
-import { handleFromHref } from '../../utils/handle.js';
 import { capturePost } from './capture.js';
 import { cfg, ss } from './config.js';
 import { postFileName, statusIdFromHref } from './naming.js';
 
-/** Post identity selectors (X-specific rules live at the top of the module). */
-const USER_NAME = '[data-testid="User-Name"]';
-const STATUS_LINK = 'a[href*="/status/"]';
-
 function fileName(article) {
-  const userLink = article.querySelector(`${USER_NAME} a[href^="/"]`);
-  const handle = handleFromHref(userLink?.getAttribute('href')) || '';
-  const statusLink = article.querySelector(STATUS_LINK);
-  const id = statusIdFromHref(statusLink?.getAttribute('href')) || String(Date.now());
+  const handle = dom.getAuthorHandle(article) || '';
+  const id = statusIdFromHref(dom.getTimeLink(article)?.getAttribute('href')) || String(Date.now());
   return postFileName(handle, id);
 }
 
