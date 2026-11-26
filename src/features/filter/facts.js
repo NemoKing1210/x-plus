@@ -1,5 +1,5 @@
 import { dom } from '../../core/compat/index.js';
-import { SEL, UI_ATTR } from '../../core/constants.js';
+import { UI_ATTR } from '../../core/constants.js';
 import { normalizeHandle } from '../../utils/handle.js';
 
 /**
@@ -8,13 +8,11 @@ import { normalizeHandle } from '../../utils/handle.js';
  * the very thing users filter by. `plainText` walks the tree and substitutes
  * those labels without touching X's nodes.
  *
- * Selectors live here: X's markup changes often, keep fixes one line.
+ * X's structure comes from the compat layer; only the reading lives here.
  */
 
-const VERIFIED = '[data-testid="icon-verified"]';
-
 /** Read-only, emoji-aware text; lower-cased and whitespace-collapsed. */
-function plainText(root) {
+export function plainText(root) {
   let out = '';
   const walk = (node) => {
     if (node.nodeType === 3) {
@@ -22,8 +20,8 @@ function plainText(root) {
       return;
     }
     if (node.nodeType !== 1) return;
-    // Badge SVGs carry aria-labels ("Verified account") we do not want in a name.
-    if (node.matches(VERIFIED)) return;
+    // Icons are SVGs (the verified badge among them): their labels are not the author's text.
+    if (String(node.tagName).toLowerCase() === 'svg') return;
     if (node.tagName === 'IMG') {
       out += node.getAttribute('alt') || '';
       return;
@@ -49,7 +47,8 @@ function plainText(root) {
  */
 export function focalArticleFor(doc = document, pathname = location.pathname) {
   if (!pathname.includes('/status/')) return null;
-  return doc.querySelector(`${SEL.primaryColumn} ${SEL.article}`);
+  const primary = dom.getPrimaryColumn(doc);
+  return primary ? dom.getArticles(primary)[0] || null : null;
 }
 
 /**
@@ -63,27 +62,14 @@ export function readPost(article) {
   if (article === focalArticleFor()) return null;
 
   const embedded = dom.getAttachments(article);
-  const quotes = embedded.filter((item) => item.kind === 'quote').map((item) => item.el);
-  const quoted = (node) => quotes.some((card) => card.contains(node));
   const header = dom.getAuthorHeader(article);
 
-  const textNode = [...article.querySelectorAll(SEL.tweetText)].find((node) => !quoted(node)) || null;
+  const textNode = dom.getPostText(article);
   const text = textNode ? plainText(textNode) : '';
   const lang = (textNode?.getAttribute('lang') || '').toLowerCase();
 
-  let authorName = '';
-  let handle = '';
-  if (header) {
-    const anchors = [...header.querySelectorAll('a[href]')];
-    const nameAnchor = anchors.find((anchor) => !plainText(anchor).startsWith('@'));
-    authorName = plainText(nameAnchor || header);
-    const handleNode =
-      anchors.find((anchor) => plainText(anchor).startsWith('@')) ||
-      [...header.querySelectorAll('span')].find((span) => plainText(span).startsWith('@'));
-    handle = normalizeHandle(handleNode ? plainText(handleNode) : '');
-  } else {
-    authorName = plainText(article);
-  }
+  const authorName = dom.getAuthorName(article) || (header ? plainText(header) : plainText(article));
+  const handle = normalizeHandle(dom.getAuthorHandle(article));
 
   const media = new Set();
   for (const host of dom.getMediaHosts(article)) {

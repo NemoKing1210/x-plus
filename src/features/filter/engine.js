@@ -1,4 +1,5 @@
-import { SEL, UI_ATTR } from '../../core/constants.js';
+import { dom } from '../../core/compat/index.js';
+import { UI_ATTR } from '../../core/constants.js';
 import { readPost } from './facts.js';
 import { compileRules, postMatches } from './match.js';
 
@@ -51,7 +52,7 @@ function clearMarks() {
 /** Recompute one post; X reuses cells, so a mark that no longer applies is removed. */
 function process(article) {
   if (!article.isConnected) return;
-  const cell = article.closest(SEL.cell) || article;
+  const cell = dom.getPostCell(article) || article;
   const facts = readPost(article);
   const hit = facts ? postMatches(rules, facts) : false;
   const previous = marked.get(article);
@@ -81,14 +82,14 @@ function onMutations(records) {
   for (const record of records) {
     for (const node of record.addedNodes) {
       if (node.nodeType !== 1) continue;
-      const owner = node.closest?.(SEL.article);
+      const owner = dom.getPostArticle(node);
       if (owner) {
         // The added node may be our own UI inside a post: ignore it, but not
         // the article that happens to contain it.
         if (!node.closest(`[${UI_ATTR}]`)) dirty.add(owner);
         continue;
       }
-      for (const article of node.querySelectorAll?.(SEL.article) ?? []) {
+      for (const article of dom.getArticles(node)) {
         if (!article.closest(`[${UI_ATTR}]`)) dirty.add(article);
       }
     }
@@ -123,7 +124,7 @@ export function sync(cfg) {
   }
   ensureStyle(STYLE_ID).textContent = HIDE_CSS;
   setObserving(true);
-  for (const article of document.querySelectorAll(SEL.article)) dirty.add(article);
+  for (const article of dom.getArticles(document)) dirty.add(article);
   if (!frame) flush();
   sweep();
 }
@@ -134,9 +135,9 @@ export function sweep() {
   // observer: navigation must not pay for fact extraction.
   if (!rules.length) return;
   for (const cell of document.querySelectorAll(`[${MARK_ATTR}]`)) {
-    if (!cell.querySelector(SEL.article)) cell.removeAttribute(MARK_ATTR);
+    if (!dom.getArticles(cell).length) cell.removeAttribute(MARK_ATTR);
   }
-  for (const article of document.querySelectorAll(SEL.article)) dirty.add(article);
+  for (const article of dom.getArticles(document)) dirty.add(article);
   if (!frame) flush();
 }
 
@@ -168,10 +169,12 @@ export function previewRule(rule) {
   clearPreview();
   const compiled = compileRules({ enabled: true, rules: [{ ...rule, enabled: true }] });
   let count = 0;
-  for (const article of document.querySelectorAll(`${SEL.primaryColumn} ${SEL.article}`)) {
+  const primary = dom.getPrimaryColumn(document);
+  if (!primary) return 0;
+  for (const article of dom.getArticles(primary)) {
     const facts = readPost(article);
     if (!facts || !postMatches(compiled, facts)) continue;
-    const cell = article.closest(SEL.cell) || article;
+    const cell = dom.getPostCell(article) || article;
     cell.setAttribute(PEEK_ATTR, '');
     if (isOnScreen(cell)) count += 1;
   }
