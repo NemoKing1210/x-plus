@@ -777,6 +777,9 @@ export default {
     // Bare `main`, `aside` and `nav[aria-label]` also exist on the legacy build (the
     // legacy <main> wraps both columns), so each fragment excludes that markup.
     primaryColumn: 'main:not(:has([data-testid="primaryColumn"]))',
+    // X caps the timeline inside the column with its own width variable, so
+    // widening `main` alone leaves posts at the default 600px.
+    contentCap: '[class*="x-timeline-max-width"]',
     // No wrapper fragment: the modern column is the `main` element itself, and the
     // row centres it with `justify-content`. A rule that grew the element around
     // `main` would absorb the free space and pull the feed out of the centre, so

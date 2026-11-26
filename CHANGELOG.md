@@ -34,6 +34,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The “Show N posts” switch is hidden on the new design instead of staying on and doing nothing
 - “Scroll the feed tabs with the page” no longer dims and blurs the whole timeline on the new design until the next scroll: the un-stuck page header keeps its position for X’s frosted backdrop
 
+## [0.16.2] - 2026-11-27
+
+### Fixed
+
+- Content width widens the posts on the new X design too: the setting removed the column's own limit but left X's 600px timeline cap in place, so a wide column still showed a narrow feed
+
 ## [0.16.1] - 2026-11-27
 
 ### Changed
@@ -219,7 +225,8 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.16.1...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.16.2...HEAD
+[0.16.2]: https://github.com/NemoKing1210/x-plus/compare/v0.16.1...v0.16.2
 [0.16.1]: https://github.com/NemoKing1210/x-plus/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/NemoKing1210/x-plus/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/NemoKing1210/x-plus/compare/v0.14.0...v0.15.0

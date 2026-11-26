@@ -61,6 +61,13 @@ test('content width sizes the modern column but never grows its parent', () => {
   assert.match(css, /div:has\(> \[data-testid="primaryColumn"\]\)\{width:auto/);
 });
 
+test('content width removes the cap inside the modern column too', () => {
+  // X wraps the feed in a container capped by `--x-timeline-max-width` (600px);
+  // widening `main` alone leaves the posts at that width.
+  const css = contentWidthCss(750);
+  assert.match(css, /:is\(\[class\*="x-timeline-max-width"\], \.r-1ye8kvj\)\{max-width:none!important\}/);
+});
+
 test('centring leaves the box around the modern column alone as well', () => {
   assert.doesNotMatch(CENTER_CSS, /:has\(> main\)/);
   assert.match(CENTER_CSS, /div:has\(> \[data-testid="primaryColumn"\]\)\{width:auto[^}]*flex-grow:0/);

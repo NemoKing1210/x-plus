@@ -18,7 +18,8 @@ export const STICKY_ATTR = 'data-xp-sticky';
 export function contentWidthCss(width) {
   if (!width) return '';
   const column = cssFor('primaryColumn');
-  // X caps inner feed blocks with an atomic class; only the legacy profile knows it.
+  // X caps inner feed blocks with its own container: an atomic class on the
+  // legacy build, the timeline-width variable on the modern one.
   const cap = cssFor('contentCap');
   // The wrapper fragments are legacy-only: the modern column is the `main`
   // element itself, centred by the row, so growing the box around it would

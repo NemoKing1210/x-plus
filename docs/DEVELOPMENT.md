@@ -170,7 +170,10 @@ left hides its whole section. Check the page you are on with
 Layout options follow the same split: `menuLeft`, `menuCenter`, `contentWidth`,
 `centerContent` and the column show/hide rules use the layout fragments
 (`leftNav`, `leftNavList` / `navCenter`, `primaryColumn`, `sidebarColumn`), and
-a modern fragment must never also match legacy markup. Rules that need to wrap
+a modern fragment must never also match legacy markup. `contentWidth` widens
+the column and removes the timeline cap inside it (the legacy atomic class, the
+modern `--x-timeline-max-width` wrapper); without that, the posts stay at X's
+default 600px however wide the column gets. Rules that need to wrap
 a column in `:has()` use the dedicated wrapper fragments
 (`primaryColumnWrapper`, `primaryColumnWrapperDeep`, `grokDrawerWrapper`, …),
 because CSS forbids nesting `:has()` inside another `:has()` and silently drops

@@ -35,6 +35,11 @@ you are about to work on here.
 
 ### Done ✓
 
+- [x] Fix Content width leaving X's 600px timeline cap on the new design ~0.5h #interface @NemoKing1210 2026-11-27
+  - [x] The column grew to the chosen width, but the posts stayed inside X's `max-w-[var(--x-timeline-max-width,600px)]` wrapper, so 750px looked like ~550px
+  - [x] The modern profile now exposes that wrapper as `contentCap`, so `contentWidthCss` drops its max-width like the legacy atomic cap
+  - [x] Verified live at 750px: `main` 750px, timeline wrapper 748px, article 716px, no horizontal scroll
+  - [x] Unit tests pin the fragment and the generated rule; docs and changelog updated, released as 0.16.2
 - [x] Ship user-visible fixes as patch releases ~0.5h #chore @NemoKing1210 2026-11-27
   - [x] `AGENTS.md`, `CONTRIBUTING.md` and `docs/DEVELOPMENT.md`: a `fix` / `perf` change moves the patch version with the change, a feature waits in `[Unreleased]` for the next minor
   - [x] The Shorts smoothness fix is the first one shipped this way (`0.16.1`, README badges and root artifacts rebuilt)

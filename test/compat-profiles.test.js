@@ -217,6 +217,12 @@ test('modern css marks the Grok and chat dock windows', () => {
   assert.equal(modern.css.chatDrawer, '[data-slot="xds-dock-window"]:has(svg[data-icon="icon-chat"])');
 });
 
+test('modern css marks the timeline width cap', () => {
+  // X wraps the feed in `max-w-[var(--x-timeline-max-width,600px)]`; without
+  // removing that cap, widening `main` leaves the posts at 600px.
+  assert.equal(modern.css.contentCap, '[class*="x-timeline-max-width"]');
+});
+
 test('modern css centres the left nav column', () => {
   assert.equal(
     modern.css.navCenter,
