@@ -20,6 +20,7 @@ export const KINDS = Object.freeze({
 
   // page-single: active profile first, then the others; first non-empty.
   getNav: 'page-single',
+  getNavItem: 'page-single',
   getSidebar: 'page-single',
   getComposer: 'page-single',
   getInlineComposer: 'page-single',

@@ -1,4 +1,5 @@
-import { SEL, UI_ATTR } from '../../core/constants.js';
+import { dom } from '../../core/compat/index.js';
+import { UI_ATTR } from '../../core/constants.js';
 import { onMutation } from '../../core/scan.js';
 import { showToast } from '../../ui/toast.js';
 import { icon } from '../../ui/icons.js';
@@ -15,8 +16,6 @@ import { isAccountBlocked, toggleAccountBlocklistHandle } from './filters.js';
  * ⋮ menu of a post. X portals that menu to the document root, so we watch
  * for it with a low-latency mutation subscriber.
  */
-
-const CARET_OPEN = `${SEL.article} ${SEL.caret}[aria-expanded="true"]`;
 
 /** Words that identify a tweet action menu (any UI language we know of). */
 const MENU_SIGNALS = [
@@ -49,8 +48,11 @@ function isTweetActionMenu(menu) {
   const text = (menu.textContent || '').toLowerCase();
   if (MENU_SIGNALS.some((signal) => text.includes(signal))) return true;
 
-  // Fallback: a caret was expanded nearby.
-  return Boolean(document.querySelector(CARET_OPEN));
+  // Fallback: a post's ⋮ button was expanded nearby.
+  return dom.getArticles(document).some((article) => {
+    const trigger = dom.getPostMenuTrigger(article);
+    return Boolean(trigger && dom.isMenuOpen(trigger));
+  });
 }
 
 function buildMenuShell(kind, label, iconName, onClick) {
@@ -113,23 +115,25 @@ function buildBlockMenuItem(handle) {
   );
 }
 
+/**
+ * The ⋮ button that opened the portaled menu. Prefer an expanded one; fall back
+ * to the first post that has a menu button at all (X sometimes omits the state).
+ */
 function findOpenDropdownTrigger() {
-  return (
-    document.querySelector(CARET_OPEN) ||
-    document.querySelector(`${SEL.article} ${SEL.caret}[aria-pressed="true"]`) ||
-    document.querySelector(`${SEL.article} ${SEL.caret}`)
-  );
-}
-
-function menuItemHost(menu) {
-  const first = menu.querySelector('[role="menuitem"]') || menu.querySelector('[data-testid]');
-  return first?.parentElement || menu;
+  let fallback = null;
+  for (const article of dom.getArticles(document)) {
+    const trigger = dom.getPostMenuTrigger(article);
+    if (!trigger) continue;
+    if (dom.isMenuOpen(trigger)) return trigger;
+    fallback ??= trigger;
+  }
+  return fallback;
 }
 
 function injectIntoMenu(menu, handle) {
   const existingAuto = menu.querySelector(`[${ATTR.menu}="auto"]`);
   const existingBlock = menu.querySelector(`[${ATTR.menu}="block"]`);
-  const host = menuItemHost(menu);
+  const host = dom.getMenuItemHost(menu) || menu;
 
   if (cfg().translateMode === 'auto') {
     if (!existingAuto) {
@@ -161,7 +165,7 @@ export function scanPostMenus() {
   }
   // Runs on a 40 ms debounce for every DOM change: bail out before the
   // expensive trigger / author lookups when no menu is open (the common case).
-  const menus = document.querySelectorAll('[role="menu"]');
+  const menus = dom.getMenus(document);
   if (!menus.length) return;
 
   const trigger = findOpenDropdownTrigger();

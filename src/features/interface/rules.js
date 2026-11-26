@@ -41,74 +41,42 @@ import { NATIVE_AUTO_TRANSLATE_ICON_PATH, SEL } from '../../core/constants.js';
 /** Promoted posts, detected by the DOM profile. */
 export const isPromotedArticle = (article) => dom.isPromotedArticle(article);
 
-/**
- * Smallest sidebar block that contains `node`: X renders each sidebar module
- * (Who to follow, Trends, Premium card, …) as an `aside` / `section`.
- */
-function sidebarBlock(node) {
-  const sidebar = node.closest(SEL.sidebar);
-  if (!sidebar) return null;
-  const block = node.closest('aside, section, [role="complementary"], [role="region"]');
-  return block && sidebar.contains(block) ? block : null;
-}
-
-/**
- * The bordered "card" X draws around a sidebar module. Hiding only the inner
- * `aside` / `section` would leave an empty frame, so climb through wrappers
- * that hold nothing else (at most `limit` levels, never past the sidebar).
- */
-function sidebarCard(node, limit = 3) {
-  let card = node;
-  for (let i = 0; i < limit; i += 1) {
-    const parent = card.parentElement;
-    if (!parent || parent.children.length !== 1 || parent.matches(SEL.sidebar)) break;
-    if (parent.querySelector('form[role="search"]') && !card.querySelector('form[role="search"]')) break;
-    card = parent;
-  }
-  return card;
-}
-
+/** Sidebar cards around the first block that contains a `selector` match. */
 const blocksContaining = (selector) => (root) => {
+  const sidebar = dom.getSidebar(root);
+  if (!sidebar) return [];
   const found = new Set();
-  root.querySelectorAll(`${SEL.sidebar} ${selector}`).forEach((node) => {
-    const block = sidebarBlock(node);
-    if (block) found.add(sidebarCard(block));
+  sidebar.querySelectorAll(selector).forEach((node) => {
+    const block = dom.getSidebarBlock(node);
+    if (block) found.add(dom.getSidebarCard(block));
   });
   return [...found];
 };
 
-/** Left-navigation links whose path matches. */
-const navLinks = (pattern) => (root) =>
-  [...root.querySelectorAll('header[role="banner"] a[href]')].filter((a) =>
-    pattern.test(a.getAttribute('href') || ''),
-  );
+/** Cards of the "Who to follow" modules (list cells with an account suggestion). */
+const sidebarUserCells = (root) => {
+  const sidebar = dom.getSidebar(root);
+  if (!sidebar) return [];
+  const found = new Set();
+  for (const cell of dom.getUserCells(sidebar)) {
+    const block = dom.getSidebarBlock(cell);
+    if (block) found.add(dom.getSidebarCard(block));
+  }
+  return [...found];
+};
 
-/** Left-navigation entries matched by selector (profile link, "More" button). */
-const navItems = (selector) => (root) => [
-  ...root.querySelectorAll(`header[role="banner"] ${selector}`),
-];
+/** Left-navigation entries resolved by the DOM profile. */
+const navItem = (kind) => (root) => [dom.getNavItem(root, kind)].filter(Boolean);
+
+/** Left-navigation entries whose hidden target is a wrapper of the row itself. */
+const navItemMapped = (kind, map) => (root) => {
+  const node = dom.getNavItem(root, kind);
+  return node ? [map(node)] : [];
+};
 
 /* ------------------------------------------------------------------ */
 /* Rules                                                               */
 /* ------------------------------------------------------------------ */
-
-/**
- * The "What is happening?" composer above the timeline: the smallest block
- * (plus its wrapper) that holds the progress bar and the inline Post button.
- * The compose dialog is left alone.
- */
-function inlineComposers(root) {
-  const found = new Set();
-  root.querySelectorAll(`${SEL.primaryColumn} [data-testid="tweetTextarea_0"]`).forEach((input) => {
-    if (input.closest('[role="dialog"]')) return;
-    let block = input.parentElement;
-    while (block && !block.querySelector('[role="progressbar"]')) block = block.parentElement;
-    if (!block || block.closest('article')) return;
-    const outer = block.parentElement;
-    found.add(outer && !outer.querySelector(`${SEL.cell}, article`) ? outer : block);
-  });
-  return [...found];
-}
 
 /**
  * The "Show N posts" row X puts at the top of a timeline after a refresh: a
@@ -270,32 +238,6 @@ function moreFromX(root) {
   return header < 0 ? [] : cells.slice(header).filter((cell) => root === document || root.contains(cell) || cell.contains(root));
 }
 
-/** Feed tabs (For you / Following / …) exist on the home timeline only. */
-function feedTabLists(root) {
-  if (location.pathname !== '/home') return [];
-  return [...root.querySelectorAll(`${SEL.primaryColumn} [role="tablist"][data-testid="ScrollSnap-List"]`)].filter(
-    (list) => list.querySelector('[role="tab"]') && !list.closest('[role="dialog"]'),
-  );
-}
-
-/**
- * The whole tabs block (tabs plus the "manage feeds" button): the child of the
- * floating wrapper that holds the tab list. The "new posts" pill, a sibling of
- * that block, stays.
- */
-function feedTabsBlock(list) {
-  const sticky = stickyAncestor(list);
-  let block = list;
-  if (sticky) {
-    while (block.parentElement && block.parentElement !== sticky) block = block.parentElement;
-  } else {
-    while (block.parentElement && block.parentElement.children.length === 1 && !block.parentElement.matches(SEL.primaryColumn)) {
-      block = block.parentElement;
-    }
-  }
-  return block.querySelector(`article, ${SEL.cell}`) ? null : block;
-}
-
 /**
  * The "Who to follow" module X inserts into a timeline. It is rendered as list
  * cells: a cell that holds only a heading, followed by cells with account
@@ -331,7 +273,7 @@ function feedSuggestions(root) {
 }
 
 /** Hide rule target: the tabs block (the "new posts" pill next to it stays). */
-const feedTabs = (root) => feedTabLists(root).map(feedTabsBlock).filter(Boolean);
+const feedTabs = (root) => dom.getFeedTabs(root).map((list) => dom.getFeedTabsBlock(list)).filter(Boolean);
 
 /** Floating wrapper of the feed tabs: the closest `position: sticky` ancestor. */
 function stickyAncestor(list) {
@@ -344,7 +286,7 @@ function stickyAncestor(list) {
   return null;
 }
 
-export const findStickyFeedHeaders = (root) => feedTabLists(root).map(stickyAncestor).filter(Boolean);
+export const findStickyFeedHeaders = (root) => dom.getFeedTabs(root).map(stickyAncestor).filter(Boolean);
 
 /** @type {Rule[]} */
 export const RULES = [
@@ -358,7 +300,7 @@ export const RULES = [
     // The slid-in wrapper of the "N new posts" pill above the timeline.
     css: 'div:has(> div > [role="status"] [data-testid="pillLabel"])',
   },
-  { group: 'posts', key: 'composer', hint: true, find: inlineComposers },
+  { group: 'posts', key: 'composer', hint: true, find: (root) => [dom.getInlineComposer(root)].filter(Boolean) },
   { group: 'posts', key: 'moreFromX', hint: true, find: moreFromX },
   {
     group: 'posts',
@@ -430,8 +372,11 @@ export const RULES = [
   {
     group: 'sidebar',
     key: 'search',
-    find: (root) =>
-      [...root.querySelectorAll(`${SEL.sidebar} form[role="search"]`)].map((form) => sidebarCard(form, 8)),
+    find: (root) => {
+      const sidebar = dom.getSidebar(root);
+      if (!sidebar) return [];
+      return [...sidebar.querySelectorAll('form[role="search"]')].map((form) => dom.getSidebarCard(form, 8));
+    },
   },
   {
     group: 'sidebar',
@@ -450,18 +395,21 @@ export const RULES = [
     group: 'sidebar',
     key: 'whoToFollow',
     hint: true,
-    find: blocksContaining(SEL.userCell),
+    find: sidebarUserCells,
   },
   {
     group: 'sidebar',
     key: 'footer',
     hint: true,
     // Links are absolute (https://x.com/tos), so match the path suffix.
-    find: (root) =>
-      [...root.querySelectorAll(`${SEL.sidebar} nav[role="navigation"] a[href$="/tos"]`)]
+    find: (root) => {
+      const sidebar = dom.getSidebar(root);
+      if (!sidebar) return [];
+      return [...sidebar.querySelectorAll('nav[role="navigation"] a[href$="/tos"]')]
         .map((link) => link.closest('nav'))
         .filter(Boolean)
-        .map((nav) => sidebarCard(nav)),
+        .map((nav) => dom.getSidebarCard(nav));
+    },
   },
 
   /* Navigation (left menu) */
@@ -469,43 +417,37 @@ export const RULES = [
     group: 'nav',
     key: 'logo',
     // The wrapper around the <h1> too, so no empty gap stays above the menu.
-    find: (root) =>
-      navItems('h1 a[href="/home"]')(root).map((link) => {
-        const heading = link.closest('h1');
-        return heading?.parentElement || heading || link;
-      }),
+    find: navItemMapped('logo', (link) => link.closest('h1')?.parentElement || link.closest('h1') || link),
   },
-  { group: 'nav', key: 'home', find: navItems('[data-testid="AppTabBar_Home_Link"]') },
-  { group: 'nav', key: 'explore', find: navLinks(/^\/explore/) },
-  { group: 'nav', key: 'notifications', find: navLinks(/^\/notifications/) },
-  { group: 'nav', key: 'chat', find: navLinks(/^\/i\/chat/) },
-  { group: 'nav', key: 'calls', find: navLinks(/^\/i\/calls/) },
-  { group: 'nav', key: 'grok', find: navLinks(/^\/i\/grok/) },
-  { group: 'nav', key: 'history', find: navLinks(/^\/i\/history/) },
-  { group: 'nav', key: 'creatorStudio', find: navLinks(/^\/i\/jf\/creators/) },
-  { group: 'nav', key: 'premium', find: navLinks(/^\/i\/premium/) },
-  { group: 'nav', key: 'followerRequests', find: navLinks(/^\/follower_requests/) },
+  { group: 'nav', key: 'home', find: navItem('home') },
+  { group: 'nav', key: 'explore', find: navItem('explore') },
+  { group: 'nav', key: 'notifications', find: navItem('notifications') },
+  { group: 'nav', key: 'chat', find: navItem('chat') },
+  { group: 'nav', key: 'calls', find: navItem('calls') },
+  { group: 'nav', key: 'grok', find: navItem('grok') },
+  { group: 'nav', key: 'history', find: navItem('history') },
+  { group: 'nav', key: 'creatorStudio', find: navItem('creatorStudio') },
+  { group: 'nav', key: 'premium', find: navItem('premium') },
+  { group: 'nav', key: 'followerRequests', find: navItem('followerRequests') },
   // Our own entry (nav-button.js); General → "Sidebar button" removes it for good.
   { group: 'nav', key: 'xplus', css: 'header[role="banner"] [data-xp-nav]' },
-  { group: 'nav', key: 'profile', find: navItems('[data-testid="AppTabBar_Profile_Link"]') },
-  { group: 'nav', key: 'more', find: navItems('[data-testid="AppTabBar_More_Menu"]') },
+  { group: 'nav', key: 'profile', find: navItem('profile') },
+  { group: 'nav', key: 'more', find: navItem('more') },
   {
     group: 'nav',
     key: 'post',
     // Hide the button's wrapper too, so no empty gap stays in the menu.
-    find: (root) =>
-      navItems('[data-testid="SideNav_NewTweet_Button"]')(root).map((button) => button.parentElement || button),
+    find: navItemMapped('post', (button) => button.parentElement || button),
   },
   {
     group: 'nav',
     key: 'account',
     // Account switcher at the bottom: hide its wrappers too, but never the nav.
-    find: (root) =>
-      navItems('[data-testid="SideNav_AccountSwitcher_Button"]')(root).map((button) => {
-        const outer = button.parentElement?.parentElement;
-        if (outer && !outer.querySelector('nav')) return outer;
-        return button.parentElement || button;
-      }),
+    find: navItemMapped('account', (button) => {
+      const outer = button.parentElement?.parentElement;
+      if (outer && !outer.querySelector('nav')) return outer;
+      return button.parentElement || button;
+    }),
   },
 
   /* Floating panels (bottom right) */

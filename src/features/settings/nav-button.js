@@ -1,3 +1,5 @@
+import { dom } from '../../core/compat/index.js';
+import { navLabelWeight } from '../../core/compat/profiles/shared.js';
 import { UI_ATTR } from '../../core/constants.js';
 import { getFeatureSettings } from '../../core/settings.js';
 import { t } from '../../i18n/index.js';
@@ -19,34 +21,12 @@ export function setNavButtonHandler(fn) {
   openHandler = fn;
 }
 
+/** The sidebar X renders for the current breakpoint (a single `<nav>`). */
 function findSideNavs() {
-  const bars = [
-    ...document.querySelectorAll('[data-testid="AppTabBar"]'),
-    ...document.querySelectorAll('nav[role="navigation"]'),
-  ];
-  const seen = new Set();
-  return bars.filter((nav) => {
-    if (seen.has(nav)) return false;
-    seen.add(nav);
-    return Boolean(
-      nav.querySelector('[data-testid="AppTabBar_More_Menu"]') ||
-        nav.querySelector('a[href="/settings"]') ||
-        nav.querySelector('a[href*="/settings"]') ||
-        nav.querySelector('a[data-testid="AppTabBar_Home_Link"]'),
-    );
-  });
+  const nav = dom.getNav(document);
+  return nav ? [nav] : [];
 }
 
-function navLabelWeight(node) {
-  const label = node?.querySelector?.('div[dir]');
-  if (!label) return null;
-  const raw = getComputedStyle(label).fontWeight;
-  const n = Number.parseInt(raw, 10);
-  if (Number.isFinite(n)) return n;
-  if (raw === 'bold') return 700;
-  if (raw === 'normal') return 400;
-  return null;
-}
 
 /** Learn the live hover class from native rows (X renames r-* hashes over time). */
 function observeNativeNavHoverClass(nav) {
@@ -103,42 +83,6 @@ function bindNavHoverChrome(btn) {
     if (event.relatedTarget instanceof Node && btn.contains(event.relatedTarget)) return;
     setHover(false);
   });
-}
-
-/**
- * Clone an *inactive* native row so we get normal weight + hover pill.
- * Prefer More (never a selected route); never prefer Home — often active/bold.
- */
-function findNavTemplate(nav) {
-  const more = nav.querySelector('[data-testid="AppTabBar_More_Menu"]');
-  if (more?.querySelector('svg') && more.querySelector('div[dir]')) return more;
-
-  const links = [...nav.querySelectorAll('a[role="link"], a[href]')].filter(
-    (a) => !a.hasAttribute(NAV_ATTR) && a.querySelector('svg') && a.querySelector('div[dir]'),
-  );
-
-  const inactive = links.find((a) => {
-    if (a.getAttribute('aria-current') === 'page') return false;
-    const weight = navLabelWeight(a);
-    return weight == null || weight < 600;
-  });
-  if (inactive) return inactive;
-
-  return (
-    nav.querySelector('a[data-testid="AppTabBar_Explore_Link"]') ||
-    nav.querySelector('a[data-testid="AppTabBar_Profile_Link"]') ||
-    links[0] ||
-    null
-  );
-}
-
-function findNavInsertBefore(nav) {
-  return (
-    nav.querySelector('[data-testid="AppTabBar_More_Menu"]') ||
-    nav.querySelector('a[href="/settings"]') ||
-    nav.querySelector('a[href*="/settings"]') ||
-    null
-  );
 }
 
 function syncNavButtonLabels(btn) {
@@ -255,20 +199,19 @@ export function ensureNavButton() {
       continue;
     }
 
-    const template = findNavTemplate(nav);
-    if (!template) continue;
+    const slot = dom.getNavTemplate(nav);
+    if (!slot) continue;
 
     if (existing) {
-      existing.replaceWith(buildNavButton(template));
+      existing.replaceWith(buildNavButton(slot.template));
       continue;
     }
 
-    const insertBefore = findNavInsertBefore(nav);
-    const btn = buildNavButton(template);
-    if (insertBefore) {
-      insertBefore.insertAdjacentElement('beforebegin', btn);
-    } else if (template.parentElement === nav) {
-      template.insertAdjacentElement('beforebegin', btn);
+    const btn = buildNavButton(slot.template);
+    if (slot.before) {
+      slot.before.insertAdjacentElement('beforebegin', btn);
+    } else if (slot.template.parentElement === nav) {
+      slot.template.insertAdjacentElement('beforebegin', btn);
     } else {
       nav.appendChild(btn);
     }

@@ -64,3 +64,39 @@ test('legacy getSocialContext reads the post cell', () => {
   assert.equal(legacy.api.getSocialContext(root), null);
   assert.ok(calls.includes('[data-testid="socialContext"]'));
 });
+
+test('legacy getNav uses AppTabBar', () => {
+  const root = recordingRoot();
+  legacy.api.getNav(root);
+  assert.ok(root.calls.some((selector) => selector.includes('AppTabBar')));
+});
+
+test('legacy getNavItem maps the home row', () => {
+  const root = recordingRoot();
+  legacy.api.getNavItem(root, 'home');
+  assert.ok(root.calls.includes('[data-testid="AppTabBar_Home_Link"]'));
+});
+
+test('legacy getMenus queries role=menu', () => {
+  const root = recordingRoot();
+  legacy.api.getMenus(root);
+  assert.ok(root.calls.includes('[role="menu"]'));
+});
+
+test('legacy getSidebar uses sidebarColumn', () => {
+  const root = recordingRoot();
+  legacy.api.getSidebar(root);
+  assert.ok(root.calls.includes('[data-testid="sidebarColumn"]'));
+});
+
+test('legacy getUserCells uses UserCell', () => {
+  const root = recordingRoot();
+  legacy.api.getUserCells(root);
+  assert.ok(root.calls.includes('[data-testid="UserCell"]'));
+});
+
+test('legacy getComposer uses the inline textarea', () => {
+  const root = recordingRoot();
+  legacy.api.getComposer(root);
+  assert.ok(root.calls.includes('[data-testid="tweetTextarea_0"]'));
+});

@@ -1,4 +1,5 @@
 import pkg from '../../package.json' with { type: 'json' };
+import { UI_ATTR } from './compat/profiles/shared.js';
 
 /* ------------------------------------------------------------------ */
 /* Identity                                                            */
@@ -28,7 +29,7 @@ export const SHORTS_PAUSED_KEY = 'xp_shorts_paused_v1';
 /* ------------------------------------------------------------------ */
 
 /** Marks the root of every element we inject (excluded from DOM scans). */
-export const UI_ATTR = 'data-xp-ui';
+export { UI_ATTR };
 /** Elements that are ours, or live inside a post we already enhanced (never rescanned). */
 export const OWN_SELECTOR = `[${UI_ATTR}], [data-xp-post]`;
 /** Set on <html> once the script booted (guards double injection). */

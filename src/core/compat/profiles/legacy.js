@@ -6,7 +6,7 @@
  * modules. Features call the capabilities through `core/compat/index.js`.
  */
 
-import { normalizeHandleText } from './shared.js';
+import { navLabelWeight, normalizeHandleText, UI_ATTR } from './shared.js';
 
 export const SEL = Object.freeze({
   article: 'article[data-testid="tweet"]',
@@ -74,6 +74,121 @@ const AD_LABELS = new Set([
 
 /** Path prefix of the "Ad" rectangle glyph X draws next to promoted posts. */
 const AD_ICON_PATH_PREFIX = 'M19.498 3h-15c-1.381';
+
+/** Left-navigation rows found by a stable test id. */
+const NAV_ITEM_SELECTORS = {
+  logo: 'h1 a[href="/home"]',
+  home: '[data-testid="AppTabBar_Home_Link"]',
+  profile: '[data-testid="AppTabBar_Profile_Link"]',
+  more: '[data-testid="AppTabBar_More_Menu"]',
+  post: '[data-testid="SideNav_NewTweet_Button"]',
+  account: '[data-testid="SideNav_AccountSwitcher_Button"]',
+};
+
+/** Left-navigation rows found by their destination. */
+const NAV_ITEM_PATTERNS = {
+  explore: /^\/explore/,
+  notifications: /^\/notifications/,
+  chat: /^\/i\/chat/,
+  calls: /^\/i\/calls/,
+  grok: /^\/i\/grok/,
+  history: /^\/i\/history/,
+  creatorStudio: /^\/i\/jf\/creators/,
+  premium: /^\/i\/premium/,
+  followerRequests: /^\/follower_requests/,
+};
+
+/**
+ * Clone an *inactive* native row so we get normal weight + hover pill.
+ * Prefer More (never a selected route); never prefer Home — often active/bold.
+ * Our own injected row is never a template.
+ */
+function findNavTemplate(nav) {
+  const more = nav.querySelector('[data-testid="AppTabBar_More_Menu"]');
+  if (more?.querySelector('svg') && more.querySelector('div[dir]')) return more;
+
+  const links = [...nav.querySelectorAll('a[role="link"], a[href]')].filter(
+    (a) => !a.hasAttribute(UI_ATTR) && a.querySelector('svg') && a.querySelector('div[dir]'),
+  );
+
+  const inactive = links.find((a) => {
+    if (a.getAttribute('aria-current') === 'page') return false;
+    const weight = navLabelWeight(a);
+    return weight == null || weight < 600;
+  });
+  if (inactive) return inactive;
+
+  return (
+    nav.querySelector('a[data-testid="AppTabBar_Explore_Link"]') ||
+    nav.querySelector('a[data-testid="AppTabBar_Profile_Link"]') ||
+    links[0] ||
+    null
+  );
+}
+
+function findNavInsertBefore(nav) {
+  return (
+    nav.querySelector('[data-testid="AppTabBar_More_Menu"]') ||
+    nav.querySelector('a[href="/settings"]') ||
+    nav.querySelector('a[href*="/settings"]') ||
+    null
+  );
+}
+
+/** Floating wrapper of the feed tabs: the closest `position: sticky` ancestor. */
+function stickyAncestor(list) {
+  const known = list.closest('[data-xp-sticky]');
+  if (known) return known;
+  for (let node = list.parentElement; node && !node.matches(SEL.primaryColumn); node = node.parentElement) {
+    // `data-xp-sticky` remembers a wrapper that was already un-stuck by us.
+    if (node.hasAttribute('data-xp-sticky') || getComputedStyle(node).position === 'sticky') return node;
+  }
+  return null;
+}
+
+/** Feed tabs (For you / Following / …) exist on the home timeline only. */
+function feedTabLists(root) {
+  if (location.pathname !== '/home') return [];
+  return [...root.querySelectorAll(`${SEL.primaryColumn} [role="tablist"][data-testid="ScrollSnap-List"]`)].filter(
+    (list) => list.querySelector('[role="tab"]') && !list.closest('[role="dialog"]'),
+  );
+}
+
+/**
+ * The whole tabs block (tabs plus the "manage feeds" button): the child of the
+ * floating wrapper that holds the tab list. The "new posts" pill, a sibling of
+ * that block, stays.
+ */
+function feedTabsBlock(list) {
+  const sticky = stickyAncestor(list);
+  let block = list;
+  if (sticky) {
+    while (block.parentElement && block.parentElement !== sticky) block = block.parentElement;
+  } else {
+    while (block.parentElement && block.parentElement.children.length === 1 && !block.parentElement.matches(SEL.primaryColumn)) {
+      block = block.parentElement;
+    }
+  }
+  return block.querySelector(`article, ${SEL.cell}`) ? null : block;
+}
+
+/**
+ * The "What is happening?" composer above the timeline: the smallest block
+ * (plus its wrapper) that holds the progress bar and the inline Post button.
+ * The compose dialog is left alone.
+ */
+function inlineComposers(root) {
+  const found = new Set();
+  root.querySelectorAll(`${SEL.primaryColumn} [data-testid="tweetTextarea_0"]`).forEach((input) => {
+    if (input.closest('[role="dialog"]')) return;
+    let block = input.parentElement;
+    while (block && !block.querySelector('[role="progressbar"]')) block = block.parentElement;
+    if (!block || block.closest('article')) return;
+    const outer = block.parentElement;
+    found.add(outer && !outer.querySelector(`${SEL.cell}, article`) ? outer : block);
+  });
+  return [...found];
+}
 
 /** True when `el` sits inside a quote card that belongs to `article`. */
 function outsideQuote(el, article) {
@@ -393,6 +508,117 @@ const api = {
   getSocialContext(article) {
     const cell = article?.closest?.(SEL.cell);
     return cell?.querySelector?.(SOCIAL_CONTEXT) || null;
+  },
+
+  getNav(root) {
+    return (
+      root.querySelector('[data-testid="AppTabBar"]') ||
+      root.querySelector('header[role="banner"] nav[role="navigation"]') ||
+      null
+    );
+  },
+
+  getNavItem(root, kind) {
+    const scope = root.querySelector?.('header[role="banner"]') || root;
+    const selector = NAV_ITEM_SELECTORS[kind];
+    if (selector) return scope.querySelector(selector) || null;
+
+    const pattern = NAV_ITEM_PATTERNS[kind];
+    if (!pattern) return null;
+    for (const link of scope.querySelectorAll('a[href]')) {
+      if (pattern.test(link.getAttribute('href') || '')) return link;
+    }
+    return null;
+  },
+
+  getNavTemplate(nav) {
+    const template = findNavTemplate(nav);
+    if (!template) return null;
+    return { template, before: findNavInsertBefore(nav) };
+  },
+
+  getSidebar(root) {
+    return root.querySelector(SEL.sidebar);
+  },
+
+  /**
+   * Smallest sidebar block that contains `node`: X renders each sidebar module
+   * (Who to follow, Trends, Premium card, …) as an `aside` / `section`.
+   */
+  getSidebarBlock(node) {
+    if (!node) return null;
+    const sidebar = node.closest?.(SEL.sidebar);
+    if (!sidebar) return null;
+    const block = node.closest('aside, section, [role="complementary"], [role="region"]');
+    return block && sidebar.contains(block) ? block : null;
+  },
+
+  /**
+   * The bordered "card" X draws around a sidebar module. Hiding only the inner
+   * `aside` / `section` would leave an empty frame, so climb through wrappers
+   * that hold nothing else (at most `limit` levels, never past the sidebar).
+   */
+  getSidebarCard(node, limit = 3) {
+    if (!node) return null;
+    let card = node;
+    for (let i = 0; i < limit; i += 1) {
+      const parent = card.parentElement;
+      if (!parent || parent.children.length !== 1 || parent.matches(SEL.sidebar)) break;
+      if (parent.querySelector('form[role="search"]') && !card.querySelector('form[role="search"]')) break;
+      card = parent;
+    }
+    return card;
+  },
+
+  getUserCells(root) {
+    return [...root.querySelectorAll(SEL.userCell)];
+  },
+
+  getMenus(root) {
+    return [...root.querySelectorAll('[role="menu"]')];
+  },
+
+  /** The ⋮ (caret) button of `article` itself, not of a post nested inside it. */
+  getPostMenuTrigger(article) {
+    if (!article) return null;
+    for (const caret of article.querySelectorAll(SEL.caret)) {
+      if (caret.closest(SEL.article) === article) return caret;
+    }
+    return null;
+  },
+
+  isMenuOpen(trigger) {
+    if (!trigger?.getAttribute) return false;
+    // X marks the open caret with `aria-expanded`; some builds only flip `aria-pressed`.
+    return (
+      trigger.getAttribute('aria-expanded') === 'true' || trigger.getAttribute('aria-pressed') === 'true'
+    );
+  },
+
+  getMenuItemHost(menu) {
+    const first = menu?.querySelector?.('[role="menuitem"], [data-testid]');
+    return first?.parentElement || null;
+  },
+
+  getComposer(root) {
+    const inline = root.querySelector('[data-testid="tweetTextarea_0"]');
+    if (inline) return inline;
+    for (const node of root.querySelectorAll('[contenteditable="true"], [role="textbox"]')) {
+      if (!node.closest('[role="dialog"]')) return node;
+    }
+    return null;
+  },
+
+  getInlineComposer(root) {
+    return inlineComposers(root)[0] || null;
+  },
+
+  getFeedTabs(root) {
+    return feedTabLists(root);
+  },
+
+  getFeedTabsBlock(list) {
+    return feedTabsBlock(list);
   },
 
   isPromotedArticle(article) {
