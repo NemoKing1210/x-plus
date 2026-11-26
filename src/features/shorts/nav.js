@@ -3,7 +3,7 @@ import { getFeatureSettings } from '../../core/settings.js';
 import { t } from '../../i18n/index.js';
 import { icon } from '../../ui/icons.js';
 import { el } from '../../utils/dom.js';
-import { keyLabel } from '../../utils/keys.js';
+import { keyHint } from '../../utils/keys.js';
 
 /**
  * Controls of Shorts mode: previous / next buttons and an auto-scroll
@@ -19,15 +19,16 @@ import { keyLabel } from '../../utils/keys.js';
 
 /** Length of the press animation (styles/shorts.css), plus a little. */
 const PRESS_MS = 380;
-const SIZE = 44;
+/** Width of the toolbar pill: 40px button + 4px padding + 1px border on each side. */
+const SIZE = 50;
 const GAP = 16;
 const MARGIN = 8;
-/** Circumference of the ring (r = 25), matches stroke-dasharray in the CSS. */
-const RING_LENGTH = 2 * Math.PI * 25;
+/** Circumference of the ring (r = 21), matches stroke-dasharray in the CSS. */
+const RING_LENGTH = 2 * Math.PI * 21;
 
-const RING_SVG = `<svg class="xp-shorts-ring" viewBox="0 0 56 56" aria-hidden="true" focusable="false">
-  <circle class="xp-shorts-ring__track" cx="28" cy="28" r="25"/>
-  <circle class="xp-shorts-ring__arc" cx="28" cy="28" r="25"/>
+const RING_SVG = `<svg class="xp-shorts-ring" viewBox="0 0 46 46" aria-hidden="true" focusable="false">
+  <circle class="xp-shorts-ring__track" cx="23" cy="23" r="21"/>
+  <circle class="xp-shorts-ring__arc" cx="23" cy="23" r="21"/>
 </svg>`;
 
 let box = null;
@@ -112,9 +113,8 @@ function syncAutoButton(mode) {
     auto.classList.toggle('is-paused', mode === 'paused');
   }
   const cfg = getFeatureSettings('shorts');
-  const key = mode !== 'off' && cfg.autoKey ? ` (${keyLabel(cfg.autoKey)})` : '';
   const label = t(mode === 'running' ? 'shorts.autoPause' : mode === 'paused' ? 'shorts.autoResume' : 'shorts.autoPlay');
-  const title = `${label}${key}`;
+  const title = mode !== 'off' ? keyHint(label, cfg.autoKey) : label;
   if (autoTitle !== title) {
     auto.title = title;
     auto.setAttribute('aria-label', label);
@@ -140,10 +140,15 @@ export function syncNav(state, handlers) {
   place();
   prev.disabled = !state.canPrev;
   next.disabled = !state.canNext;
-  for (const [button, key] of [[prev, 'shorts.prev'], [next, 'shorts.next']]) {
+  const cfg = getFeatureSettings('shorts');
+  for (const [button, key, code] of [
+    [prev, 'shorts.prev', 'KeyK'],
+    [next, 'shorts.next', 'KeyJ'],
+  ]) {
     const label = t(key);
-    if (button.title === label) continue;
-    button.title = label;
+    const title = cfg.keys ? keyHint(label, code) : label;
+    if (button.title === title) continue;
+    button.title = title;
     button.setAttribute('aria-label', label);
   }
   syncAutoButton(state.auto);

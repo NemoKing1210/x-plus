@@ -47,14 +47,23 @@ html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'],
   opacity: var(--xp-shorts-far-opacity, 0.55);
 }
 
-/* Previous / next buttons beside the current post */
+/* Previous / next buttons beside the current post: one glass toolbar so the
+   three controls read as a single group and are easy to hit. */
 .xp-shorts-nav {
   position: fixed;
   top: 50%;
   z-index: 2147481000;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid color-mix(in srgb, var(--xp-fg-muted) 38%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--xp-elevated) 90%, transparent);
+  box-shadow: var(--xp-shadow);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
   transform: translateY(-50%);
 }
 
@@ -66,33 +75,34 @@ html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'],
   appearance: none;
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   margin: 0;
   padding: 0;
-  border: 1px solid var(--xp-border);
-  border-radius: 50%;
-  background: var(--xp-elevated);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
   color: var(--xp-fg);
-  box-shadow: var(--xp-shadow);
   cursor: pointer;
   transition:
     background-color 0.15s ease,
+    color 0.15s ease,
     opacity 0.2s ease,
     transform 0.15s ease;
 }
 
 .xp-shorts-nav__btn .xp-icon {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
 }
 
 .xp-shorts-nav__btn:hover:not(:disabled) {
-  background: var(--xp-hover);
+  background: color-mix(in srgb, var(--xp-accent) 14%, transparent);
+  color: var(--xp-accent);
 }
 
 .xp-shorts-nav__btn:active:not(:disabled) {
-  transform: scale(0.92);
+  transform: scale(0.9);
 }
 
 .xp-shorts-nav__btn:focus-visible {
@@ -112,22 +122,14 @@ html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'],
 @keyframes xp-shorts-press {
   0% {
     transform: scale(1);
-    box-shadow:
-      var(--xp-shadow),
-      0 0 0 0 rgba(29, 155, 240, 0.5);
   }
   30% {
-    transform: scale(0.86);
-    background: var(--xp-hover);
-    box-shadow:
-      var(--xp-shadow),
-      0 0 0 3px rgba(29, 155, 240, 0.5);
+    transform: scale(0.88);
+    background: color-mix(in srgb, var(--xp-accent) 22%, transparent);
+    color: var(--xp-accent);
   }
   100% {
     transform: scale(1);
-    box-shadow:
-      var(--xp-shadow),
-      0 0 0 12px rgba(29, 155, 240, 0);
   }
 }
 
@@ -137,21 +139,31 @@ html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'],
   }
 }
 
-/* Auto-scroll: play / pause under the arrows */
+/* Auto-scroll: play / pause under the arrows, set off by a hairline divider */
 .xp-shorts-nav__btn--auto {
-  align-self: center;
-  width: 36px;
-  height: 36px;
-  margin-top: 2px;
+  position: relative;
+  color: var(--xp-fg-muted);
+}
+
+.xp-shorts-nav__btn--auto::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  width: 18px;
+  height: 1px;
+  background: color-mix(in srgb, var(--xp-fg-muted) 45%, transparent);
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .xp-shorts-nav__btn--auto .xp-icon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
 .xp-shorts-nav__btn--auto.is-on {
-  border-color: var(--xp-accent);
+  background: color-mix(in srgb, var(--xp-accent) 14%, transparent);
   color: var(--xp-accent);
 }
 
@@ -162,10 +174,10 @@ html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'],
 
 .xp-shorts-ring {
   position: absolute;
-  top: -7px;
-  left: -7px;
-  width: 56px;
-  height: 56px;
+  top: -3px;
+  left: -3px;
+  width: 46px;
+  height: 46px;
   overflow: visible;
   opacity: 0;
   pointer-events: none;
@@ -183,14 +195,14 @@ html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'],
 }
 
 .xp-shorts-ring__track {
-  stroke: var(--xp-border);
+  stroke: color-mix(in srgb, var(--xp-fg-muted) 30%, transparent);
 }
 
 .xp-shorts-ring__arc {
   stroke: var(--xp-accent);
   stroke-linecap: round;
-  stroke-dasharray: 157.08;
-  stroke-dashoffset: 157.08;
+  stroke-dasharray: 131.95;
+  stroke-dashoffset: 131.95;
   filter: drop-shadow(0 0 3px rgba(29, 155, 240, 0.65));
   transition:
     opacity 0.2s ease,
@@ -282,11 +294,12 @@ html[data-xp-shorts-on] [data-xp-shorts='far'] :is(article[data-testid='tweet'],
 }
 
 .xp-shorts-nav__btn--auto.is-paused {
-  border-color: var(--xp-fg-muted);
+  background: var(--xp-hover);
+  color: var(--xp-fg);
 }
 
 .xp-shorts-nav__btn:disabled {
-  opacity: 0.35;
+  opacity: 0.3;
   cursor: default;
 }
 

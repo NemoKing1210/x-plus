@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Works with the new X design, with backward compatibility for the previous one: every feature detects which build of the site is running and adapts, so translation, media, screenshots, Shorts, filtering, clean-up and the settings entry keep working through the roll-out
 
+### Changed
+
+- Shorts: the previous / next / auto-scroll controls are one glass toolbar with equal hit targets, the auto-scroll ring fits inside it, and the tooltips show the hotkeys; a key press flashes the matching button in place
+
 ### Fixed
 
 - On the new X design, the floating Grok and chat panels, the “What is happening?” composer and the vertically centred left menu are hidden / placed by their switches again
