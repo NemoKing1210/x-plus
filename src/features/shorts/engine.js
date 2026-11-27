@@ -6,6 +6,7 @@ import { getFeatureSettings, updateFeatureSettings } from '../../core/settings.j
 import { isAutoPaused, runAutoplay, setAutoPaused, stopAutoplay } from './autoplay.js';
 import { hideNav, pulseNav, syncNav } from './nav.js';
 import { STEP_KEY } from './keys.js';
+import { cellPosts } from './units.js';
 import { startVideos, stopVideos, syncVideos } from './videos.js';
 
 /**
@@ -134,10 +135,41 @@ function inChrome(node) {
 /* ------------------------------------------------------------------ */
 
 /**
- * Whether the post in `cell` continues a thread above it / goes on below it:
- * X draws that as a thin vertical line in the avatar column. Found by shape, not
- * by class, so a renamed atomic class does not break it: a thin empty bar in
- * the avatar column that ends at the avatar (line above) or starts from it (below).
+ * Whether a thread line of `article` runs above / below its avatar: X draws
+ * that as a thin vertical line in the avatar column. Found by shape, not by
+ * class, so a renamed atomic class does not break it: a thin empty bar in the
+ * avatar column that ends at the avatar (line above) or starts from it (below).
+ */
+function threadLinesOf(article) {
+  const found = { above: false, below: false, bars: [] };
+  const avatar = dom.getAuthorAvatar(article);
+  const a = avatar?.getBoundingClientRect();
+  if (!a?.width) return found;
+  const axis = a.left + a.width / 2;
+
+  // The avatar column: the avatar's ancestor just below the place where the
+  // post's text column joins it. It holds the avatar and nothing but the
+  // thread lines, so any thin empty bar in it is one.
+  const column = dom.getAvatarColumn(article);
+  if (!column) return found;
+  for (const node of dom.getThreadLineCandidates(article)) {
+    if (node.childElementCount || avatar.contains(node) || node.contains(avatar)) continue;
+    const r = node.getBoundingClientRect();
+    if (r.width <= 0 || r.width > LINE_MAX_WIDTH || r.height < 2) continue;
+    if (Math.abs(r.left + r.width / 2 - axis) > LINE_AXIS_SLACK) continue;
+    found.bars.push({ top: Math.round(r.top - a.top), bottom: Math.round(r.bottom - a.bottom), width: r.width });
+    if (r.bottom <= a.top + 6) found.above = true;
+    else if (r.top >= a.bottom - 6) found.below = true;
+  }
+  return found;
+}
+
+/**
+ * Whether the cell continues a thread above it / goes on below it. Only the
+ * cell's first post can carry a line above and only its last post a line
+ * below: X may draw a whole thread inside one cell (a post and its reply in
+ * the 2026 modern build), and that inner join must not link the cell to its
+ * neighbours — otherwise the next, unrelated post is pulled into the unit.
  */
 function threadLines(cell, rect) {
   const now = performance.now();
@@ -149,29 +181,23 @@ function threadLines(cell, rect) {
   const margin = window.innerHeight * LINES_RANGE;
   if (rect.bottom < -margin || rect.top > window.innerHeight + margin) return lines;
   linesCache.set(cell, lines);
-  const article = dom.getArticles(cell)[0];
-  const avatar = article ? dom.getAuthorAvatar(article) : null;
-  const a = avatar?.getBoundingClientRect();
-  if (!a?.width) return lines;
-  const axis = a.left + a.width / 2;
 
-  // The avatar column: the avatar's ancestor just below the place where the
-  // post's text column joins it. It holds the avatar and nothing but the
-  // thread lines, so any thin empty bar in it is one.
-  const column = dom.getAvatarColumn(article);
-  if (!column) return lines;
-  const seen = verbose() ? [] : null;
-  for (const node of dom.getThreadLineCandidates(article)) {
-    if (node.childElementCount || avatar.contains(node) || node.contains(avatar)) continue;
-    const r = node.getBoundingClientRect();
-    if (r.width <= 0 || r.width > LINE_MAX_WIDTH || r.height < 2) continue;
-    if (Math.abs(r.left + r.width / 2 - axis) > LINE_AXIS_SLACK) continue;
-    seen?.push({ top: Math.round(r.top - a.top), bottom: Math.round(r.bottom - a.bottom), width: r.width });
-    if (r.bottom <= a.top + 6) lines.above = true;
-    else if (r.top >= a.bottom - 6) lines.below = true;
-  }
+  const posts = cellPosts(dom.getArticles(cell));
+  if (!posts.length) return lines;
+  const top = threadLinesOf(posts[0]);
+  const bottom = posts.length === 1 ? top : threadLinesOf(posts[posts.length - 1]);
+  lines.above = top.above;
+  lines.below = bottom.below;
   if (lines.above || lines.below) lines.until = now + LINES_TTL * (0.75 + Math.random() * 0.5);
-  if (seen) logInfo('shorts', 'thread lines', { above: lines.above, below: lines.below, bars: seen, column: column.className });
+  if (verbose()) {
+    logInfo('shorts', 'thread lines', {
+      above: lines.above,
+      below: lines.below,
+      posts: posts.length,
+      bars: bottom === top ? top.bars : [...top.bars, ...bottom.bars],
+      column: dom.getAvatarColumn(posts[0])?.className,
+    });
+  }
   return lines;
 }
 

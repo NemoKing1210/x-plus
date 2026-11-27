@@ -35,6 +35,11 @@ you are about to work on here.
 
 ### Done ✓
 
+- [x] Fix Shorts pulling the next post into a post-and-reply card ~1h #shorts @NemoKing1210 2026-11-27
+  - [x] X's 2026 build draws a post and its reply inside one cell; `threadLines()` read the first post's inner line below as a link to the next cell, so the unrelated post after the card became part of the unit and was highlighted with it
+  - [x] Only the cell's first post can carry a line above and only its last post a line below; `shorts/units.js` drops quote embeds, so the inner join no longer links neighbours
+  - [x] Unit test pins the cell-post selection; ARCHITECTURE updated; released as 0.16.3
+  - [x] Verified on the live modern Following feed (no multi-cell units; a card with two posts stays one unit) and in the harness with a grouped card injected: the post after it stays `next`
 - [x] Fix Content width leaving X's 600px timeline cap on the new design ~0.5h #interface @NemoKing1210 2026-11-27
   - [x] The column grew to the chosen width, but the posts stayed inside X's `max-w-[var(--x-timeline-max-width,600px)]` wrapper, so 750px looked like ~550px
   - [x] The modern profile now exposes that wrapper as `contentCap`, so `contentWidthCss` drops its max-width like the legacy atomic cap
