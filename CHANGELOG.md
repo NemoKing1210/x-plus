@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Screenshot capture menu: the camera button now opens a popover to copy the post as an image, save it as PNG or JPEG, copy its text or link, and change the background, scale and action row on the spot; a “Screenshot settings…” shortcut opens the full tab
+- Screenshot capture menu: the camera button now opens a popover to copy the post as an image, preview it in the photo gallery, save it as PNG or JPEG, copy its text or link, and change the background, scale and action row on the spot; a “Screenshot settings…” shortcut opens the full tab
 - A “Profile hover card” clean-up switch hides the mini profile card X opens when a name or avatar is hovered
 - Works with the new X design, with backward compatibility for the previous one: every feature detects which build of the site is running and adapts, so translation, media, screenshots, Shorts, filtering, clean-up and the settings entry keep working through the roll-out
 

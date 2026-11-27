@@ -3,6 +3,7 @@ import { icon } from '../../ui/icons.js';
 import { lockPageScroll, unlockPageScroll } from '../../ui/scroll-lock.js';
 import { showToast } from '../../ui/toast.js';
 import { el } from '../../utils/dom.js';
+import { saveBlob } from '../../utils/download.js';
 import { formatBytes, sanitizeFileName } from '../../utils/format.js';
 import { cfg, tm } from './config.js';
 import { mediaHostAt, postContext } from './context.js';
@@ -44,7 +45,7 @@ const VIEW_SIZE = 'large';
 const FULL_SIZE = 'orig';
 
 let installed = false;
-/** @type {{ destroy: () => void } | null} */
+/** @type {{ destroy: () => void, external?: boolean } | null} */
 let view = null;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -139,7 +140,7 @@ function iconButton(className, iconName, label, onActivate) {
   return node;
 }
 
-function createView({ slides, index, post }) {
+function createView({ slides, index, post, label = '', onClose = null }) {
   const state = {
     slides,
     index,
@@ -163,7 +164,7 @@ function createView({ slides, index, post }) {
   const root = el('div', 'xp-gallery');
   root.setAttribute('role', 'dialog');
   root.setAttribute('aria-modal', 'true');
-  root.setAttribute('aria-label', tm('gallery'));
+  root.setAttribute('aria-label', label || tm('gallery'));
   root.tabIndex = -1;
   root.classList.toggle('has-strip', slides.length > 1);
 
@@ -422,6 +423,7 @@ function createView({ slides, index, post }) {
   let copyFlash = 0;
 
   function fileNameFor(slide) {
+    if (slide.fileName) return slide.fileName;
     const base = buildFileName(cfg().fileTemplate, {
       user: state.post.user,
       id: state.post.id,
@@ -451,11 +453,18 @@ function createView({ slides, index, post }) {
     save.classList.add('is-loading');
     const toast = showToast(fileName, { title: tm('downloading'), duration: 0 });
     try {
-      const bytes = await downloadFile({
-        url: slide.full,
-        fileName,
-        onProgress: (ratio) => toast.update({ progress: ratio == null ? 0 : ratio }),
-      });
+      let bytes;
+      if (slide.blob) {
+        // A locally rendered image (the screenshot preview) is already in memory.
+        saveBlob(slide.blob, fileName);
+        bytes = slide.blob.size;
+      } else {
+        bytes = await downloadFile({
+          url: slide.full,
+          fileName,
+          onProgress: (ratio) => toast.update({ progress: ratio == null ? 0 : ratio }),
+        });
+      }
       toast.update({
         type: 'success',
         title: tm('saved'),
@@ -485,6 +494,7 @@ function createView({ slides, index, post }) {
       // the clipboard API requires.
       const bytes = await copyImage({
         url: slide.full,
+        blob: slide.blob,
         onProgress: (ratio, loaded) =>
           toast.update({
             message: `${fileName}${
@@ -716,6 +726,7 @@ function createView({ slides, index, post }) {
       unlockPageScroll();
       const { opener } = state;
       if (opener instanceof HTMLElement && opener.isConnected) opener.focus({ preventScroll: true });
+      onClose?.();
     },
   };
 }
@@ -729,6 +740,25 @@ export function closeGallery() {
   const current = view;
   view = null;
   current.destroy();
+}
+
+/**
+ * Open the same full-screen viewer for images that are not post photos — the
+ * screenshot preview renders a post to a blob and shows it here before saving.
+ *
+ * Slides accept an extra `blob` (already in memory, saved/copied without a
+ * fetch) and `fileName` (a ready download name). `label` replaces the dialog's
+ * accessible name, and `onClose` releases object URLs owned by the caller.
+ *
+ * @param {{ slides: object[], index?: number, post?: object, label?: string, onClose?: () => void }} options
+ */
+export function openGalleryView({ slides, index = 0, post = {}, label = '', onClose = null }) {
+  if (view) closeGallery();
+  view = createView({ slides, index, post, label, onClose });
+  // The media feature owns its own viewer and may close it when photos are off;
+  // an externally opened preview must survive those settings passes.
+  view.external = true;
+  return view;
 }
 
 /** Primary click on a post photo → our gallery instead of X's photo page. */
@@ -768,5 +798,5 @@ export function syncGallery() {
     installed = false;
     document.removeEventListener('click', onClick, true);
   }
-  if (!on) closeGallery();
+  if (!on && view && !view.external) closeGallery();
 }

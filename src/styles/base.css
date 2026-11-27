@@ -252,7 +252,7 @@ html:not([data-xp-theme]) .xp-toast--warning .xp-toast__icon {
   width: 320px;
   min-width: 0;
   max-width: min(340px, calc(100vw - 16px));
-  max-height: min(86vh, 620px);
+  max-height: min(88vh, 680px);
   padding: 0;
   overflow: auto;
   border-radius: 16px;

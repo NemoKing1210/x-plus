@@ -264,7 +264,7 @@ in `api.js`, add its host to `@connect` in `vite.config.js`.
 
 `viewer.js` is independent of downloads: delegated capture-phase listeners (wheel, pointer, dblclick, keys) apply a CSS transform to the `<img>` of X's full-screen photo view (`dom.getViewerImages` / `dom.getViewerStage`) and swap in `name=orig` while zoomed.
 
-`gallery.js` (setting `photoGallery`, off by default) intercepts a primary click on a post photo in the capture phase (a media host of an article; Ctrl / Cmd / Shift / Alt clicks and buttons on the photo are left alone), collects the photos of that post / quote from the DOM (`getMediaHosts`) and shows them in its own full-screen overlay (`styles/gallery.css`) — no route change, no extra requests besides the images (`name=large`, `orig` once zoomed). It owns its keys (`Esc`, `←` `→`, `+` `-` `0`) and closes on navigation.
+`gallery.js` (setting `photoGallery`, off by default) intercepts a primary click on a post photo in the capture phase (a media host of an article; Ctrl / Cmd / Shift / Alt clicks and buttons on the photo are left alone), collects the photos of that post / quote from the DOM (`getMediaHosts`) and shows them in its own full-screen overlay (`styles/gallery.css`) — no route change, no extra requests besides the images (`name=large`, `orig` once zoomed). It owns its keys (`Esc`, `←` `→`, `+` `-` `0`) and closes on navigation. `openGalleryView({ slides, label, onClose })` exposes the same overlay to other features; a slide may carry a ready `blob` and `fileName`, so the screenshot preview is saved and copied from memory without fetching its `blob:` URL, and the view is marked external so media settings passes do not close it.
 
 ```
 click → getTweetId(article)
@@ -391,6 +391,7 @@ honouring `save`.
 ```
 click → openCaptureMenu(article, btn)         # anchored panel, ui/popup.js content mode
       → Copy image       → deliver('copy')     # ClipboardItem inside the menu click
+      → Preview          → deliver('preview')  # render → openGalleryView(blob)
       → Save PNG / JPEG  → deliver('save', { format })
       → Copy text / link → navigator.clipboard.writeText
       → quick options    → updateFeatureSettings('screenshot', …)
@@ -402,7 +403,7 @@ placement, outside-click / Escape / scroll dismissal and initial focus, so the
 X-handler suppression stays in one place. Option changes persist immediately
 and keep the panel open; action rows close it first and then capture, which
 keeps the clipboard write inside the user gesture. The panel shows the post
-handle, the current scale / background, five actions, background swatches
+handle, the current scale / background, six actions, background swatches
 (including an `<input type="color">`), a scale segmented control and an
 action-row switch.
 
@@ -415,9 +416,11 @@ capturePost(article, overrides)               # modern-screenshot
 
 `copy.js`'s `deliver(article, btn, action, options)` is the single action
 runner: `copy` starts `ClipboardItem({ 'image/png': blobPromise })` inside the
-click and falls back to a download; `save` downloads the chosen format; `text`
-and `link` use `navigator.clipboard.writeText`. File names follow the format
-(`.png` / `.jpg`).
+click and falls back to a download; `preview` renders a PNG and opens it in the
+photo gallery (`openGalleryView`) so the result can be checked, zoomed, saved
+or copied before anything leaves the page; `save` downloads the chosen format;
+`text` and `link` use `navigator.clipboard.writeText`. File names follow the
+format (`.png` / `.jpg`).
 
 `modern-screenshot` clones the article and renders it through an SVG
 `foreignObject`. X's CDNs send `access-control-allow-origin: *` and x.com's CSP
@@ -448,6 +451,7 @@ never mutated.
 | `capture.js` | Clone preparation and `domToBlob` options |
 | `background.js` | Pure background color parsing / fallbacks (unit-tested) |
 | `copy.js` | Action runner: clipboard, download, text / link, toasts, file naming |
+| `preview.js` | Render → full-screen gallery preview (`openGalleryView`, blob in memory) |
 | `naming.js` | Pure scale / format / file-name rules (unit-tested) |
 | `config.js` | Settings access, scoped `t()`, DOM markers, limits |
 

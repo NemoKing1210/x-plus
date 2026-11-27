@@ -59,10 +59,11 @@ async function toPng(blob) {
  * Put the image at `url` on the clipboard as PNG. Call it synchronously from a
  * click handler so the browser still sees the user gesture.
  *
- * @param {{ url: string, onProgress?: (ratio: number | null, loaded: number) => void }} options
+ * @param {{ url: string, blob?: Blob, onProgress?: (ratio: number | null, loaded: number) => void }} options
+ *   `blob` skips the fetch when the image is already in memory (screenshot preview).
  * @returns {Promise<number>} copied size in bytes
  */
-export function copyImage({ url, onProgress }) {
+export function copyImage({ url, blob, onProgress }) {
   if (!canCopyImages()) {
     return Promise.reject(fail(Codes.MEDIA_COPY, 'clipboard images unsupported', { url }));
   }
@@ -70,22 +71,24 @@ export function copyImage({ url, onProgress }) {
   let bytes = 0;
   let fetchError = null;
   const png = (async () => {
-    let blob;
-    try {
-      blob = await gmRequest({
-        url,
-        responseType: 'blob',
-        anonymous: true,
-        timeout: 15 * 60 * 1000,
-        onProgress: ({ loaded, total }) => onProgress?.(total > 0 ? loaded / total : null, loaded),
-      });
-    } catch (error) {
-      throw fail(Codes.MEDIA_COPY, 'copy request failed', { url }, error);
+    let source = blob;
+    if (!source) {
+      try {
+        source = await gmRequest({
+          url,
+          responseType: 'blob',
+          anonymous: true,
+          timeout: 15 * 60 * 1000,
+          onProgress: ({ loaded, total }) => onProgress?.(total > 0 ? loaded / total : null, loaded),
+        });
+      } catch (error) {
+        throw fail(Codes.MEDIA_COPY, 'copy request failed', { url }, error);
+      }
     }
-    if (!(blob instanceof Blob) || blob.size === 0) {
+    if (!(source instanceof Blob) || source.size === 0) {
       throw fail(Codes.MEDIA_COPY, 'copy returned no data', { url });
     }
-    const converted = await toPng(blob);
+    const converted = await toPng(source);
     bytes = converted.size;
     return converted;
   })().catch((error) => {

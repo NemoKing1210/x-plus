@@ -36,7 +36,8 @@ you are about to work on here.
 ### Done ✓
 
 - [x] Turn the screenshot button into a capture menu ~6h #screenshot @NemoKing1210 2026-11-27
-  - [x] The camera click now opens an anchored popover instead of capturing at once: copy image, save PNG, save JPEG (quality 0.92, transparent falls back to the theme colour), copy post text and copy post link
+  - [x] The camera click now opens an anchored popover instead of capturing at once: copy image, preview in the photo gallery, save PNG, save JPEG (quality 0.92, transparent falls back to the theme colour), copy post text and copy post link
+  - [x] Preview renders the post to a PNG and opens it in the full-screen gallery (`openGalleryView`), where the in-memory blob can be zoomed, saved or copied without re-fetching; the view is marked external so media settings scans do not close it
   - [x] Quick appearance options persist immediately while the menu stays open — background (theme / white / black / transparent / custom colour) and scale (auto / 1× / 2× / 3×) — plus the action-row switch and a shortcut into Settings → Screenshot
   - [x] `ui/popup.js` gained a custom-content mode (`content`, `className`, `role="dialog"`, first-control focus) on top of the existing placement, outside-click, Escape, scroll and X-handler dismissal; the media menu is unchanged
   - [x] New `screenshot/menu.js`; `copy.js` reduced to one `deliver(article, btn, action, { format })` runner that keeps the clipboard write inside the click gesture; `capture.js` accepts per-action overrides

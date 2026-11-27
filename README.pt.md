@@ -88,6 +88,8 @@ O mesmo motor do [x-translator](https://github.com/NemoKing1210/x-translator):
 - **Copiar imagem** coloca o post — como aparece na página, incluindo o tema
   atual, o texto traduzido, a mídia, a citação e a linha de ações — na área de
   transferência como PNG
+- **Pré-visualizar** abre o resultado primeiro na galeria integrada — aproxime e
+  depois salve ou copie por lá
 - **Salvar imagem** baixa o post como PNG ou JPEG (JPEG é mais leve; um fundo
   transparente vira a cor do tema)
 - **Copiar texto** e **Copiar link** pegam o texto ou o link permanente

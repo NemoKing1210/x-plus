@@ -12,10 +12,10 @@ import { SCALE_MODES } from './naming.js';
 /**
  * The capture menu: a compact popover opened from the post's camera button.
  *
- * Layout: five actions (copy / save PNG / save JPEG / copy text / copy link),
- * then quick appearance options that persist immediately, then a link to the
- * full settings tab. Action rows close the menu; option rows keep it open so
- * several choices can be made in one visit.
+ * Layout: six actions (copy / preview / save PNG / save JPEG / copy text /
+ * copy link), then quick appearance options that persist immediately, then a
+ * link to the full settings tab. Action rows close the menu; option rows keep
+ * it open so several choices can be made in one visit.
  */
 
 function action({ id, name, label, hint, primary = false, onSelect }) {
@@ -235,6 +235,13 @@ export function openCaptureMenu(article, btn) {
       hint: ss('menuCopyHint'),
       primary: true,
       onSelect: () => run('copy'),
+    }),
+    action({
+      id: 'preview',
+      name: 'eye',
+      label: ss('menuPreview'),
+      hint: ss('menuPreviewHint'),
+      onSelect: () => run('preview'),
     }),
     action({
       id: 'save-png',

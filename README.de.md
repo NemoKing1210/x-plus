@@ -93,6 +93,8 @@ Dieselbe Engine wie in [x-translator](https://github.com/NemoKing1210/x-translat
 - **Bild kopieren** legt den Beitrag — so wie er auf der Seite aussieht,
   inklusive aktuellem Thema, übersetztem Text, Medien, Zitat und Aktionsleiste —
   als PNG in die Zwischenablage
+- **Vorschau** öffnet das Ergebnis zuerst in der eingebauten Galerie — hineinzoomen
+  und von dort speichern oder kopieren
 - **Bild speichern** lädt den Beitrag als PNG oder JPEG herunter (JPEG ist
   kleiner; ein transparenter Hintergrund wird zur Theme-Farbe)
 - **Text kopieren** und **Link kopieren** übernehmen den Beitragstext oder den

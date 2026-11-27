@@ -82,6 +82,8 @@ Same engine as [x-translator](https://github.com/NemoKing1210/x-translator):
 - Camera button next to **Translate** in the post header opens a capture menu
 - **Copy image** puts the post — as it appears on the page, including the current
   theme, translated text, media, quote and action row — on the clipboard as a PNG
+- **Preview** opens the result in the built-in photo gallery first — zoom in,
+  then save or copy from there
 - **Save image** downloads the post as PNG or JPEG (JPEG is lighter; a
   transparent background becomes the theme color)
 - **Copy text** and **Copy link** grab the post’s text or permalink

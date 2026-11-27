@@ -89,6 +89,8 @@ El mismo motor que [x-translator](https://github.com/NemoKing1210/x-translator):
 - **Copiar imagen** pone la publicación —tal como se ve en la página, incluidos el
   tema actual, el texto traducido, los medios, la cita y la fila de acciones— en
   el portapapeles como PNG
+- **Vista previa** abre primero el resultado en la galería integrada: amplía y
+  luego guarda o copia desde allí
 - **Guardar imagen** descarga la publicación como PNG o JPEG (JPEG pesa menos; un
   fondo transparente pasa a ser el color del tema)
 - **Copiar texto** y **Copiar enlace** toman el texto o el enlace permanente

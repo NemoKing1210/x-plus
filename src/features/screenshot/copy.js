@@ -6,6 +6,7 @@ import { saveBlob } from '../../utils/download.js';
 import { capturePost } from './capture.js';
 import { cfg, ss } from './config.js';
 import { formatExtension, postFileName, statusIdFromHref } from './naming.js';
+import { showPreview } from './preview.js';
 
 function fileName(article, format = 'png') {
   const handle = dom.getAuthorHandle(article) || '';
@@ -71,14 +72,13 @@ async function copyImage(article) {
  *
  * @param {Element} article
  * @param {Element} [btn]   button that shows the spinner
- * @param {'copy'|'save'|'text'|'link'} action
+ * @param {'copy'|'save'|'preview'|'text'|'link'} action
  * @param {{ format?: 'png'|'jpeg' }} [options]
  */
 export async function deliver(article, btn, action, { format = 'png' } = {}) {
   if (btn) {
-    setButtonLabel(btn, action === 'save' ? ss('saving') : ss('copying'), {
-      loading: true,
-    });
+    const busy = action === 'save' ? ss('saving') : action === 'preview' ? ss('previewing') : ss('copying');
+    setButtonLabel(btn, busy, { loading: true });
   }
   try {
     if (action === 'text') {
@@ -110,10 +110,16 @@ export async function deliver(article, btn, action, { format = 'png' } = {}) {
       return;
     }
 
+    if (action === 'preview') {
+      const blob = await capturePost(article, { format: 'png' });
+      showPreview(article, blob);
+      return;
+    }
+
     await copyImage(article);
   } catch (error) {
     logWarn(Codes.SCREENSHOT_FAILED, 'post screenshot failed', { action, error });
-    const captureAction = action === 'copy' || action === 'save';
+    const captureAction = action === 'copy' || action === 'save' || action === 'preview';
     if (captureAction) {
       showToast(ss('captureFailed'), { type: 'error', force: true });
     } else {

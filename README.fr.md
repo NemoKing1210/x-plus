@@ -90,6 +90,8 @@ Le même moteur que [x-translator](https://github.com/NemoKing1210/x-translator)
 - **Copier l’image** place le post — tel qu’il apparaît sur la page, thème actuel,
   texte traduit, médias, citation et barre d’actions compris — dans le
   presse-papiers au format PNG
+- **Aperçu** ouvre d’abord le résultat dans la galerie intégrée — zoomez, puis
+  enregistrez ou copiez depuis celle-ci
 - **Enregistrer l’image** télécharge le post en PNG ou JPEG (le JPEG est plus
   léger ; un fond transparent devient la couleur du thème)
 - **Copier le texte** et **Copier le lien** récupèrent le texte ou le permalien
