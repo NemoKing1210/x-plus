@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.16.4-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.16.5-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 **English** · [Русский](https://github.com/NemoKing1210/x-plus/blob/main/README.ru.md) · [中文](https://github.com/NemoKing1210/x-plus/blob/main/README.zh.md) · [Español](https://github.com/NemoKing1210/x-plus/blob/main/README.es.md) · [Português](https://github.com/NemoKing1210/x-plus/blob/main/README.pt.md) · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · [Français](https://github.com/NemoKing1210/x-plus/blob/main/README.fr.md) · [日本語](https://github.com/NemoKing1210/x-plus/blob/main/README.ja.md)
 <!-- /xp:readme -->
@@ -79,13 +79,17 @@ Same engine as [x-translator](https://github.com/NemoKing1210/x-translator):
 
 ### Screenshots
 
-- Camera button next to **Translate** in the post header: one click copies the
-  post — as it appears on the page, including the current theme, translated
-  text, media, quote and action row — to the clipboard as a PNG
-- Background is configurable: the page theme (default, so the PNG is never
-  transparent), white, black, transparent, or any CSS color
-- Image scale (auto, 1×, 2×, 3×), keep or trim the action row, and copy to the
-  clipboard or save the file
+- Camera button next to **Translate** in the post header opens a capture menu
+- **Copy image** puts the post — as it appears on the page, including the current
+  theme, translated text, media, quote and action row — on the clipboard as a PNG
+- **Save image** downloads the post as PNG or JPEG (JPEG is lighter; a
+  transparent background becomes the theme color)
+- **Copy text** and **Copy link** grab the post’s text or permalink
+- Quick options right in the menu: background (page theme, white, black,
+  transparent or any color), image scale (auto, 1×, 2×, 3×) and the action row;
+  changes persist
+- **Screenshot settings…** opens the full tab; the menu itself can be turned off,
+  so one click copies straight away (and *Save as a file* downloads the PNG)
 - Videos and GIFs are captured as their poster frame
 - When the browser cannot put images on the clipboard (Firefox), the PNG is
   saved as a file instead

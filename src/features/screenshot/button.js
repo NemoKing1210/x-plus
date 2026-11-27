@@ -5,6 +5,7 @@ import { el, silencePointerEvents } from '../../utils/dom.js';
 import { findHeaderActionsSlot, mountHeaderButton } from '../translate/placement.js';
 import { ATTR, cfg, ss } from './config.js';
 import { copyPost } from './copy.js';
+import { openCaptureMenu } from './menu.js';
 
 /**
  * The screenshot control: one camera button in every post's header actions
@@ -30,7 +31,8 @@ function bindButton(btn, article) {
       event.preventDefault();
       event.stopPropagation();
       if (isLoading(btn)) return;
-      copyPost(article, btn);
+      if (cfg().menu) openCaptureMenu(article, btn);
+      else copyPost(article, btn);
     },
     true,
   );

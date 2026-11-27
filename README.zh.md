@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![安装用户脚本](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![许可证：MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![版本](https://img.shields.io/badge/version-0.16.4-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![版本](https://img.shields.io/badge/version-0.16.5-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 [English](https://github.com/NemoKing1210/x-plus/blob/main/README.md) · [Русский](https://github.com/NemoKing1210/x-plus/blob/main/README.ru.md) · **中文** · [Español](https://github.com/NemoKing1210/x-plus/blob/main/README.es.md) · [Português](https://github.com/NemoKing1210/x-plus/blob/main/README.pt.md) · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · [Français](https://github.com/NemoKing1210/x-plus/blob/main/README.fr.md) · [日本語](https://github.com/NemoKing1210/x-plus/blob/main/README.ja.md)
 <!-- /xp:readme -->
@@ -74,11 +74,15 @@ https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js
 
 ### 截图
 
-- 帖子标题栏中**翻译**按钮旁的相机按钮：点击一次即可把帖子——按页面上的
-  样子，包括当前主题、译文、媒体、引用和操作栏——作为 PNG 复制到剪贴板
-- 背景可配置：页面主题（默认，因此 PNG 永远不会透明）、白色、黑色、透明或
-  任意 CSS 颜色
-- 图片缩放（自动、1×、2×、3×），保留或裁掉操作栏，复制到剪贴板或保存文件
+- 帖子标题栏中**翻译**按钮旁的相机按钮会打开截图菜单
+- **复制图片**把帖子——按页面上的样子，包括当前主题、译文、媒体、引用和
+  操作栏——作为 PNG 复制到剪贴板
+- **保存图片**把帖子下载为 PNG 或 JPEG（JPEG 更小；透明背景会换成主题色）
+- **复制文字**和**复制链接**可获取帖子文字或永久链接
+- 菜单内的快捷设置：背景（页面主题、白色、黑色、透明或任意颜色）、图片缩放
+  （自动、1×、2×、3×）和操作栏；更改会保存
+- **截图设置…**打开完整标签页；菜单本身可以关闭，关闭后点击即直接复制
+  （而*保存为文件*会下载 PNG）
 - 视频和 GIF 以其封面帧截取
 - 当浏览器无法把图片放入剪贴板时（Firefox），PNG 会改为保存为文件
 - 默认关闭

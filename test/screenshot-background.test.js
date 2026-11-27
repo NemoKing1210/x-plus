@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  ensureOpaque,
   resolveBackground,
   solidColor,
   THEME_BACKGROUNDS,
+  toHexColor,
 } from '../src/features/screenshot/background.js';
 
 test('solidColor accepts opaque CSS colors only', () => {
@@ -72,4 +74,21 @@ test('theme map matches X colors', () => {
     dim: '#15202b',
     dark: '#000000',
   });
+});
+
+test('ensureOpaque replaces a transparent background for JPEG', () => {
+  assert.equal(ensureOpaque(null, 'light'), '#ffffff');
+  assert.equal(ensureOpaque(null, 'dim'), '#15202b');
+  assert.equal(ensureOpaque(null, 'dark'), '#000000');
+  assert.equal(ensureOpaque('', 'unknown'), '#000000');
+  assert.equal(ensureOpaque('#123456', 'light'), '#123456');
+});
+
+test('toHexColor feeds a color input', () => {
+  assert.equal(toHexColor('#15202b'), '#15202b');
+  assert.equal(toHexColor('#FFF'), '#ffffff');
+  assert.equal(toHexColor('rgb(21, 32, 43)'), '#15202b');
+  assert.equal(toHexColor('rgba(0, 0, 0, 1)'), '#000000');
+  assert.equal(toHexColor('transparent'), '#000000');
+  assert.equal(toHexColor('nonsense'), '#000000');
 });

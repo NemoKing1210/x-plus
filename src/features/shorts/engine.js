@@ -50,6 +50,8 @@ const LINES_RANGE = 1.5;
 const UPDATE_EVERY_MS = 100;
 /** The overlay check (selector scan + computed style) is reused this long, in ms. */
 const OVERLAY_TTL = 200;
+/** While an overlay is open, its close is looked for this often, in ms (X may hide it in place). */
+const OVERLAY_RECHECK_MS = 500;
 /** While scrolling to a post the target is re-measured every this many frames. */
 const REMEASURE_FRAMES = 4;
 /** After arriving, the post is re-centred once if the layout moved under it (images, buttons), after this long, in ms. */
@@ -95,6 +97,7 @@ let recentreBudget = 0;
 let lastInputAt = 0;
 let overlayAt = 0;
 let overlayOpenNow = false;
+let overlayTimer = 0;
 /** First cell of the unit whose settle timer runs / has run, that timer, and whether it fired. */
 let settleTarget = null;
 let settleTimer = 0;
@@ -123,6 +126,27 @@ function overlayOpen() {
     }
   }
   return overlayOpenNow;
+}
+
+/**
+ * X opens a dialog or menu by adding nodes, so a scan hides the controls. It may
+ * close it in place (a style or attribute change), which adds no node and fires
+ * no scan: while an overlay is open, look again until it is gone.
+ */
+function recheckOverlay() {
+  if (overlayTimer) return;
+  overlayTimer = setTimeout(() => {
+    overlayTimer = 0;
+    if (!active) return;
+    overlayAt = 0; // drop the cached "open" answer
+    schedule();
+  }, OVERLAY_RECHECK_MS);
+}
+
+function clearOverlayRecheck() {
+  if (!overlayTimer) return;
+  clearTimeout(overlayTimer);
+  overlayTimer = 0;
 }
 
 /** The sidebar / left navigation: the wheel over them scrolls natively. */
@@ -352,15 +376,20 @@ function update(units = null) {
 
   // Place the controls before writing cell attributes: `place()` reads layout,
   // and interleaving reads after writes forces a synchronous reflow.
+  const overlay = overlayOpen();
   syncNav(
     {
-      visible: Boolean(current) && cfg.buttons && !overlayOpen(),
+      visible: Boolean(current) && cfg.buttons && !overlay,
       canPrev: at > 0 || window.scrollY > 4,
       canNext: true,
       auto: !cfg.autoplay ? 'off' : isAutoPaused() ? 'paused' : 'running',
     },
     NAV_ACTIONS,
   );
+  // Keep looking while an overlay is open: the close may add no node, so no scan
+  // would bring the controls back (the share sheet closes this way).
+  if (overlay && cfg.buttons) recheckOverlay();
+  else clearOverlayRecheck();
 
   const seen = new Set();
   list.forEach((unit, index) => {
@@ -691,6 +720,7 @@ function stop() {
   clearMarks();
   clearSettled();
   stopAutoplay();
+  clearOverlayRecheck();
   hideNav();
 }
 

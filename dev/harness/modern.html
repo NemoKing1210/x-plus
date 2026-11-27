@@ -393,6 +393,18 @@
   <div role="menuitem" data-slot="xds-menu-item" style="padding:12px">Block @jack</div>
 </div>
 
+<!-- Share sheet: X mounts the dialog when Share is pressed and closes it in
+     place, so the close adds no node (the Shorts toolbar must still come back). -->
+<template id="modern-share-template">
+  <div role="dialog" aria-modal="true" aria-label="Share post" class="modern-share"
+    style="position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,0.6);z-index:1200">
+    <div style="background:#16181c;color:#e7e9ea;padding:24px;border-radius:16px;min-width:280px">
+      <h2 style="margin:0 0 12px;font-size:18px">Share post</h2>
+      <button type="button" data-share-close>Close</button>
+    </div>
+  </div>
+</template>
+
 <section id="compat" aria-label="Compat report">
   <h2>Compat report</h2>
   <button type="button">Refresh report</button>
@@ -422,6 +434,19 @@
       document.querySelectorAll('[aria-haspopup="menu"]').forEach((node) => node.setAttribute('aria-expanded', 'false'));
       menu.style.display = 'none';
     }
+  });
+</script>
+<script>
+  // Open the share sheet like X does (a modal dialog), and close it by hiding
+  // the mounted dialog: the close adds no node, so no scan follows it.
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('[data-engagement-action="share"]')) {
+      document.querySelector('.modern-share')?.remove();
+      document.body.append(document.getElementById('modern-share-template').content.firstElementChild.cloneNode(true));
+      return;
+    }
+    const close = event.target.closest('[data-share-close]');
+    if (close) close.closest('.modern-share').style.display = 'none';
   });
 </script>
 <script src="/x-plus.user.js"></script>

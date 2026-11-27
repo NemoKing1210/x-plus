@@ -1,5 +1,6 @@
 import './styles/tokens.css';
 import './styles/base.css';
+import './styles/screenshot.css';
 import './styles/translate.css';
 import './styles/media.css';
 import './styles/gallery.css';

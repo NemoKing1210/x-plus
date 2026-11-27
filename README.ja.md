@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![ユーザースクリプトをインストール](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![ライセンス: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![バージョン](https://img.shields.io/badge/version-0.16.4-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![バージョン](https://img.shields.io/badge/version-0.16.5-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 [English](https://github.com/NemoKing1210/x-plus/blob/main/README.md) · [Русский](https://github.com/NemoKing1210/x-plus/blob/main/README.ru.md) · [中文](https://github.com/NemoKing1210/x-plus/blob/main/README.zh.md) · [Español](https://github.com/NemoKing1210/x-plus/blob/main/README.es.md) · [Português](https://github.com/NemoKing1210/x-plus/blob/main/README.pt.md) · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · [Français](https://github.com/NemoKing1210/x-plus/blob/main/README.fr.md) · **日本語**
 <!-- /xp:readme -->
@@ -80,13 +80,16 @@ https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js
 
 ### スクリーンショット
 
-- 投稿ヘッダーの**翻訳**の隣にあるカメラボタン：クリック 1 回で、ページ上の
-  見た目（現在のテーマ、訳文、メディア、引用、アクション行を含む）を PNG として
-  クリップボードにコピーします
-- 背景は設定可能：ページのテーマ（既定。PNG が透明にならないように）、白、
-  黒、透明、任意の CSS カラー
-- 画像の拡大率（自動、1×、2×、3×）、アクション行を残す / 切り取る、クリップ
-  ボードにコピーする / ファイルとして保存する
+- 投稿ヘッダーの**翻訳**の隣にあるカメラボタンでキャプチャメニューを開きます
+- **画像をコピー**：ページ上の見た目（現在のテーマ、訳文、メディア、引用、
+  アクション行を含む）を PNG としてクリップボードにコピーします
+- **画像を保存**：投稿を PNG または JPEG でダウンロードします（JPEG は軽量。
+  透明な背景はテーマ色になります）
+- **テキストをコピー**と**リンクをコピー**で投稿の本文や固定リンクを取得できます
+- メニュー内のクイック設定：背景（ページテーマ、白、黒、透明、任意の色）、
+  画像の拡大率（自動、1×、2×、3×）、アクション行。変更は保存されます
+- **スクリーンショット設定…**でタブ全体を開きます。メニュー自体をオフにすると
+  ワンクリックでコピーします（*ファイルとして保存*は PNG をダウンロード）
 - 動画と GIF はポスター画像としてキャプチャされます
 - ブラウザーが画像をクリップボードに置けない場合（Firefox）、PNG はファイルと
   して保存されます

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   captureScale,
+  formatExtension,
   postFileName,
   resolveScale,
   statusIdFromHref,
@@ -43,4 +44,14 @@ test('postFileName builds a safe file name', () => {
   assert.equal(postFileName('', '20'), 'x-plus-post-post-20.png');
   assert.equal(postFileName('A/B', '20'), 'x-plus-post-ab-20.png');
   assert.equal(postFileName('jack', ''), 'x-plus-post-jack-post.png');
+  assert.equal(postFileName('jack', '20', 'jpg'), 'x-plus-post-jack-20.jpg');
+  assert.equal(postFileName('jack', '20', '../x'), 'x-plus-post-jack-20.png');
+});
+
+test('formatExtension maps formats to file extensions', () => {
+  assert.equal(formatExtension('jpeg'), 'jpg');
+  assert.equal(formatExtension('JPEG'), 'jpg');
+  assert.equal(formatExtension('png'), 'png');
+  assert.equal(formatExtension(''), 'png');
+  assert.equal(formatExtension(undefined), 'png');
 });

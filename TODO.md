@@ -35,6 +35,19 @@ you are about to work on here.
 
 ### Done ✓
 
+- [x] Turn the screenshot button into a capture menu ~6h #screenshot @NemoKing1210 2026-11-27
+  - [x] The camera click now opens an anchored popover instead of capturing at once: copy image, save PNG, save JPEG (quality 0.92, transparent falls back to the theme colour), copy post text and copy post link
+  - [x] Quick appearance options persist immediately while the menu stays open — background (theme / white / black / transparent / custom colour) and scale (auto / 1× / 2× / 3×) — plus the action-row switch and a shortcut into Settings → Screenshot
+  - [x] `ui/popup.js` gained a custom-content mode (`content`, `className`, `role="dialog"`, first-control focus) on top of the existing placement, outside-click, Escape, scroll and X-handler dismissal; the media menu is unchanged
+  - [x] New `screenshot/menu.js`; `copy.js` reduced to one `deliver(article, btn, action, { format })` runner that keeps the clipboard write inside the click gesture; `capture.js` accepts per-action overrides
+  - [x] New “Open the capture menu on click” switch (default on); turning it off restores one-click capture and shows the existing “Save as a file” switch
+  - [x] `naming.js` resolves `.jpg`/`.png`; unit tests cover the extension helper, `ensureOpaque` and `toHexColor`
+  - [x] Strings in all eight locales, READMEs, `CHANGELOG.md` `[Unreleased]` and `docs/ARCHITECTURE.md` updated; `npm run ci` green; harness checked on legacy and `/modern` (all actions, persistence, dismissal, keyboard, three themes, narrow width)
+- [x] Bring the Shorts toolbar back after a post's Share sheet closes ~0.5h #shorts @NemoKing1210 2026-11-27
+  - [x] Opening the Share sheet puts a dialog on screen, so `update()` hides the toolbar by design; X closes the sheet in place, which adds no node, so the shared scan never ran and the buttons stayed hidden until the next scroll
+  - [x] While an overlay is open, the engine now re-reads it every 500 ms (dropping the 200 ms cache) and updates, so the controls return whether the sheet was hidden or removed; the poll stops once no overlay is open
+  - [x] The harness now mounts a Share dialog from the share button and closes it in place; checked there: the toolbar hides on open and returns after both an in-place close and a removed sheet, and the next button still steps
+  - [x] Changelog, version, README badges and the root artifacts updated to 0.16.5
 - [x] Give the post header buttons breathing room ~0.25h #interface @NemoKing1210 2026-11-27
   - [x] The Translate and Screenshot wrappers (`.xp-header-action`) sat edge to edge — 20px buttons with 34px hover discs — so the icons nearly touched
   - [x] `translate.css` spaces adjacent header wrappers by 8px, the smallest gap that keeps a hover disc off the neighbouring button

@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![Installer le userscript](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![Licence : MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.16.4-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.16.5-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 [English](https://github.com/NemoKing1210/x-plus/blob/main/README.md) · [Русский](https://github.com/NemoKing1210/x-plus/blob/main/README.ru.md) · [中文](https://github.com/NemoKing1210/x-plus/blob/main/README.zh.md) · [Español](https://github.com/NemoKing1210/x-plus/blob/main/README.es.md) · [Português](https://github.com/NemoKing1210/x-plus/blob/main/README.pt.md) · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · **Français** · [日本語](https://github.com/NemoKing1210/x-plus/blob/main/README.ja.md)
 <!-- /xp:readme -->
@@ -85,15 +85,19 @@ Le même moteur que [x-translator](https://github.com/NemoKing1210/x-translator)
 
 ### Captures
 
-- Bouton appareil photo à côté de **Traduire** dans l’en-tête du post : un clic
-  copie le post — tel qu’il apparaît sur la page, thème actuel, texte traduit,
-  médias, citation et barre d’actions compris — dans le presse-papiers au format
-  PNG
-- Le fond est configurable : le thème de la page (par défaut, pour que le PNG ne
-  soit jamais transparent), blanc, noir, transparent ou n’importe quelle couleur
-  CSS
-- Échelle de l’image (automatique, 1×, 2×, 3×), conserver ou rogner la barre
-  d’actions, et copier dans le presse-papiers ou enregistrer le fichier
+- Bouton appareil photo à côté de **Traduire** dans l’en-tête du post : ouvre un
+  menu de capture
+- **Copier l’image** place le post — tel qu’il apparaît sur la page, thème actuel,
+  texte traduit, médias, citation et barre d’actions compris — dans le
+  presse-papiers au format PNG
+- **Enregistrer l’image** télécharge le post en PNG ou JPEG (le JPEG est plus
+  léger ; un fond transparent devient la couleur du thème)
+- **Copier le texte** et **Copier le lien** récupèrent le texte ou le permalien
+- Options rapides dans le menu : arrière-plan (thème de la page, blanc, noir,
+  transparent ou n’importe quelle couleur), échelle de l’image (automatique, 1×,
+  2×, 3×) et barre d’actions ; les changements sont conservés
+- **Réglages des captures…** ouvre l’onglet complet ; le menu peut être désactivé
+  pour copier en un clic (et *Enregistrer dans un fichier* télécharge le PNG)
 - Les vidéos et GIF sont capturés sur leur image de couverture
 - Quand le navigateur ne peut pas placer d’image dans le presse-papiers
   (Firefox), le PNG est enregistré comme fichier

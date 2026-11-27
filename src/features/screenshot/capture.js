@@ -2,8 +2,13 @@ import { domToBlob } from 'modern-screenshot';
 import { dom } from '../../core/compat/index.js';
 import { THEME_ATTR, UI_ATTR } from '../../core/constants.js';
 import { Codes, fail } from '../../core/debug.js';
-import { resolveBackground, solidColor } from './background.js';
-import { CAPTURE_TIMEOUT_MS, MAX_CANVAS_SIZE, cfg } from './config.js';
+import { ensureOpaque, resolveBackground, solidColor } from './background.js';
+import {
+  CAPTURE_TIMEOUT_MS,
+  JPEG_QUALITY,
+  MAX_CANVAS_SIZE,
+  cfg,
+} from './config.js';
 import { resolveScale } from './naming.js';
 
 function postHandle(article) {
@@ -63,19 +68,33 @@ function shouldSkip(node, hiddenRow) {
   return node instanceof HTMLVideoElement && !node.poster;
 }
 
-/** Render one post article to a PNG blob, as it appears on the page. */
-export async function capturePost(article) {
-  const settings = cfg();
+/**
+ * Render one post article to an image blob, as it appears on the page.
+ *
+ * `overrides` lets the capture menu use a background / scale / action-row
+ * choice for a single action without waiting for the settings round-trip.
+ *
+ * @param {Element} article
+ * @param {{ format?: 'png'|'jpeg', background?: string, customBackground?: string, scale?: string, actions?: boolean }} [overrides]
+ */
+export async function capturePost(article, overrides = {}) {
+  const settings = { ...cfg(), ...overrides };
+  const format = settings.format === 'jpeg' ? 'jpeg' : 'png';
   const hiddenRow = settings.actions ? null : findOwnActionRow(article);
   const height = hiddenRow ? trimmedHeight(article, hiddenRow) : 0;
-  const background = resolveBackground(
+  const theme = pageTheme();
+  const resolved = resolveBackground(
     settings.background,
     settings.customBackground,
     pageBackground(article),
-    pageTheme(),
+    theme,
   );
+  // JPEG has no alpha: a transparent choice becomes the theme color.
+  const background = format === 'jpeg' ? ensureOpaque(resolved, theme) : resolved;
 
   const options = {
+    type: format === 'jpeg' ? 'image/jpeg' : 'image/png',
+    ...(format === 'jpeg' ? { quality: JPEG_QUALITY } : {}),
     scale: resolveScale(settings.scale, window.devicePixelRatio),
     maximumCanvasSize: MAX_CANVAS_SIZE,
     timeout: CAPTURE_TIMEOUT_MS,

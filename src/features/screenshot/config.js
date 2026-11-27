@@ -14,6 +14,8 @@ export const ATTR = Object.freeze({
 });
 
 /** Capture scale bounds (the pure rules live in `naming.js`). */
-export { SCALE_MAX, SCALE_MIN } from './naming.js';
+export { FORMATS, SCALE_MAX, SCALE_MIN, SCALE_MODES } from './naming.js';
 export const CAPTURE_TIMEOUT_MS = 15_000;
 export const MAX_CANVAS_SIZE = 16_384;
+/** JPEG quality for saved screenshots (PNG stays lossless). */
+export const JPEG_QUALITY = 0.92;

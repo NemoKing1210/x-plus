@@ -9,11 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Screenshot capture menu: the camera button now opens a popover to copy the post as an image, save it as PNG or JPEG, copy its text or link, and change the background, scale and action row on the spot; a “Screenshot settings…” shortcut opens the full tab
 - A “Profile hover card” clean-up switch hides the mini profile card X opens when a name or avatar is hovered
 - Works with the new X design, with backward compatibility for the previous one: every feature detects which build of the site is running and adapts, so translation, media, screenshots, Shorts, filtering, clean-up and the settings entry keep working through the roll-out
 
 ### Changed
 
+- Screenshot: the camera button opens the capture menu by default; the new “Open the capture menu on click” switch restores one-click copying
 - Shorts: the previous / next / auto-scroll controls are one glass toolbar with equal hit targets and roomier spacing, the auto-scroll ring fits inside it, and the tooltips show the hotkeys; the ring disappears while the countdown is paused or off, and a key press flashes the matching button in place
 
 ### Fixed
@@ -34,6 +36,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A native translation notice or media block that X mounts after the post was first read is hidden / gets its download button on the next scan
 - The “Show N posts” switch is hidden on the new design instead of staying on and doing nothing
 - “Scroll the feed tabs with the page” no longer dims and blurs the whole timeline on the new design until the next scroll: the un-stuck page header keeps its position for X’s frosted backdrop
+
+## [0.16.5] - 2026-11-27
+
+### Fixed
+
+- The Shorts toolbar comes back after a post's Share sheet is closed: opening the sheet hid it by design, but X closes the sheet in place without adding a node, so no rescan ran and the buttons stayed hidden until the next scroll
 
 ## [0.16.4] - 2026-11-27
 
@@ -238,7 +246,8 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.16.4...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.16.5...HEAD
+[0.16.5]: https://github.com/NemoKing1210/x-plus/compare/v0.16.4...v0.16.5
 [0.16.4]: https://github.com/NemoKing1210/x-plus/compare/v0.16.3...v0.16.4
 [0.16.3]: https://github.com/NemoKing1210/x-plus/compare/v0.16.2...v0.16.3
 [0.16.2]: https://github.com/NemoKing1210/x-plus/compare/v0.16.1...v0.16.2

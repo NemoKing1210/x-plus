@@ -29,15 +29,24 @@ export function resolveScale(setting, dpr) {
   return captureScale(dpr);
 }
 
+/** Capture formats offered by the screenshot menu. */
+export const FORMATS = Object.freeze(['png', 'jpeg']);
+
 /** Post id from a `/…/status/<id>` link, or `''`. */
 export function statusIdFromHref(href) {
   const match = String(href || '').match(/\/status\/(\d+)/);
   return match ? match[1] : '';
 }
 
-/** `x-plus-post-<handle>-<id>.png`, sanitized for every file system. */
-export function postFileName(handle, id) {
+/** File extension for a format (`jpeg` → `jpg`, anything else → `png`). */
+export function formatExtension(format) {
+  return String(format || '').toLowerCase() === 'jpeg' ? 'jpg' : 'png';
+}
+
+/** `x-plus-post-<handle>-<id>.<ext>`, sanitized for every file system. */
+export function postFileName(handle, id, ext = 'png') {
   const safeHandle = String(handle || '').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'post';
   const safeId = String(id || '').replace(/\D/g, '') || 'post';
-  return `x-plus-post-${safeHandle}-${safeId}.png`;
+  const safeExt = /^[a-z0-9]+$/.test(ext) ? ext : 'png';
+  return `x-plus-post-${safeHandle}-${safeId}.${safeExt}`;
 }

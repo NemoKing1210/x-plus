@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![Установить юзерскрипт](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![Лицензия: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![Версия](https://img.shields.io/badge/version-0.16.4-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![Версия](https://img.shields.io/badge/version-0.16.5-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 [English](https://github.com/NemoKing1210/x-plus/blob/main/README.md) · **Русский** · [中文](https://github.com/NemoKing1210/x-plus/blob/main/README.zh.md) · [Español](https://github.com/NemoKing1210/x-plus/blob/main/README.es.md) · [Português](https://github.com/NemoKing1210/x-plus/blob/main/README.pt.md) · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · [Français](https://github.com/NemoKing1210/x-plus/blob/main/README.fr.md) · [日本語](https://github.com/NemoKing1210/x-plus/blob/main/README.ja.md)
 <!-- /xp:readme -->
@@ -82,13 +82,19 @@ https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js
 
 ### Скриншоты
 
-- Кнопка-камера рядом с **«Перевести»** в шапке поста: одно нажатие копирует
-  пост — как он выглядит на странице, вместе с текущей темой, переведённым
-  текстом, медиа, цитатой и панелью действий — в буфер обмена в виде PNG
-- Фон настраивается: тема страницы (по умолчанию, поэтому PNG никогда не
-  прозрачный), белый, чёрный, прозрачный или любой цвет CSS
-- Масштаб изображения (авто, 1×, 2×, 3×), сохранение или обрезка панели
-  действий, копирование в буфер обмена или сохранение файла
+- Кнопка-камера рядом с **«Перевести»** в шапке поста открывает меню захвата
+- **Копировать изображение** кладёт пост — как он выглядит на странице, вместе с
+  текущей темой, переведённым текстом, медиа, цитатой и панелью действий — в
+  буфер обмена в виде PNG
+- **Сохранить изображение** скачивает пост в PNG или JPEG (JPEG легче; прозрачный
+  фон заменяется цветом темы)
+- **Копировать текст** и **Копировать ссылку** забирают текст поста или постоянную
+  ссылку
+- Быстрые настройки прямо в меню: фон (тема страницы, белый, чёрный, прозрачный
+  или любой цвет), масштаб изображения (авто, 1×, 2×, 3×) и панель действий;
+  изменения сохраняются
+- **Настройки скриншотов…** открывают всю вкладку; само меню можно выключить —
+  тогда одно нажатие сразу копирует (а *«Сохранять в файл»* скачивает PNG)
 - Видео и GIF снимаются по кадру-обложке
 - Если браузер не умеет класть изображения в буфер обмена (Firefox), PNG
   сохраняется как файл

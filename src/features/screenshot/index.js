@@ -11,9 +11,9 @@ const optionsFor = (prefix, values) =>
   values.map((value) => ({ value, labelKey: `screenshot.${prefix}.${value}` }));
 
 /**
- * Post screenshots: a camera button in the post header copies the post, as it
- * appears on the page, to the clipboard as a PNG (or saves it when the browser
- * cannot copy images). Off by default.
+ * Post screenshots: a camera button in the post header opens a capture menu —
+ * copy the post as a PNG, save it as PNG / JPEG, or copy its text and link —
+ * with quick background, scale and action-row options. Off by default.
  */
 registerFeature({
   id: 'screenshot',
@@ -22,6 +22,8 @@ registerFeature({
   fields: {
     /** Master switch for the whole feature. */
     enabled: field.bool(false),
+    /** Click opens the capture menu instead of copying straight away. */
+    menu: field.bool(true),
     /** `theme` follows X's page background; the rest force a color (or none). */
     background: field.enum(BACKGROUND_MODES, 'theme'),
     /** Used when `background` is `custom`; invalid values fall back to the theme. */
@@ -30,7 +32,7 @@ registerFeature({
     scale: field.enum(SCALE_MODES, 'auto'),
     /** Keep the reply / repost / like / views row in the image. */
     actions: field.bool(true),
-    /** Save the PNG instead of copying it. */
+    /** Save the PNG instead of copying it (used when the menu is off). */
     save: field.bool(false),
   },
 
@@ -52,10 +54,17 @@ registerFeature({
             },
             {
               type: 'switch',
+              path: 'menu',
+              labelKey: 'screenshot.menu',
+              hintKey: 'screenshot.menuHint',
+              showIf: (section) => section.enabled,
+            },
+            {
+              type: 'switch',
               path: 'save',
               labelKey: 'screenshot.save',
               hintKey: 'screenshot.saveHint',
-              showIf: (section) => section.enabled,
+              showIf: (section) => section.enabled && !section.menu,
             },
           ],
         },

@@ -247,6 +247,17 @@ html:not([data-xp-theme]) .xp-toast--warning .xp-toast__icon {
   font-size: 15px;
 }
 
+/* Rich-content popover (screenshot capture menu). The content owns its padding. */
+.xp-popup--panel {
+  width: 320px;
+  min-width: 0;
+  max-width: min(340px, calc(100vw - 16px));
+  max-height: min(86vh, 620px);
+  padding: 0;
+  overflow: auto;
+  border-radius: 16px;
+}
+
 .xp-popup__title {
   padding: 8px 16px 6px;
   font-size: 13px;

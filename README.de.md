@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![Userscript installieren](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![Lizenz: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.16.4-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.16.5-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 [English](https://github.com/NemoKing1210/x-plus/blob/main/README.md) · [Русский](https://github.com/NemoKing1210/x-plus/blob/main/README.ru.md) · [中文](https://github.com/NemoKing1210/x-plus/blob/main/README.zh.md) · [Español](https://github.com/NemoKing1210/x-plus/blob/main/README.es.md) · [Português](https://github.com/NemoKing1210/x-plus/blob/main/README.pt.md) · **Deutsch** · [Français](https://github.com/NemoKing1210/x-plus/blob/main/README.fr.md) · [日本語](https://github.com/NemoKing1210/x-plus/blob/main/README.ja.md)
 <!-- /xp:readme -->
@@ -88,14 +88,21 @@ Dieselbe Engine wie in [x-translator](https://github.com/NemoKing1210/x-translat
 
 ### Screenshots
 
-- Kamera-Schaltfläche neben **Übersetzen** in der Kopfzeile des Beitrags: Ein
-  Klick kopiert den Beitrag — so wie er auf der Seite aussieht, inklusive
-  aktuellem Thema, übersetztem Text, Medien, Zitat und Aktionsleiste — als PNG
-  in die Zwischenablage
-- Der Hintergrund ist einstellbar: Seitenthema (Standard, damit das PNG nie
-  transparent ist), Weiß, Schwarz, transparent oder eine beliebige CSS-Farbe
-- Bildskalierung (automatisch, 1×, 2×, 3×), Aktionsleiste behalten oder
-  abschneiden, in die Zwischenablage kopieren oder als Datei speichern
+- Kamera-Schaltfläche neben **Übersetzen** in der Kopfzeile des Beitrags öffnet
+  ein Aufnahmemenü
+- **Bild kopieren** legt den Beitrag — so wie er auf der Seite aussieht,
+  inklusive aktuellem Thema, übersetztem Text, Medien, Zitat und Aktionsleiste —
+  als PNG in die Zwischenablage
+- **Bild speichern** lädt den Beitrag als PNG oder JPEG herunter (JPEG ist
+  kleiner; ein transparenter Hintergrund wird zur Theme-Farbe)
+- **Text kopieren** und **Link kopieren** übernehmen den Beitragstext oder den
+  Permalink
+- Schnelle Optionen im Menü: Hintergrund (Seitenthema, Weiß, Schwarz, transparent
+  oder eine beliebige Farbe), Bildskalierung (automatisch, 1×, 2×, 3×) und die
+  Aktionsleiste; Änderungen bleiben gespeichert
+- **Screenshot-Einstellungen…** öffnet den ganzen Tab; das Menü lässt sich
+  abschalten, dann kopiert ein Klick sofort (und *Als Datei speichern* lädt das
+  PNG herunter)
 - Videos und GIFs werden als Standbild der Vorschau erfasst
 - Wenn der Browser keine Bilder in die Zwischenablage legen kann (Firefox), wird
   das PNG stattdessen als Datei gespeichert

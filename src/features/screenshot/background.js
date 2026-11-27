@@ -79,3 +79,32 @@ export function resolveBackground(mode, custom, detected, theme) {
   // otherwise the theme's own color. Never transparent.
   return solidColor(detected) || themeColor;
 }
+
+/**
+ * JPEG has no alpha channel: a transparent choice must still produce a solid
+ * background, so fall back to the theme color.
+ * @param {string | null} background
+ * @param {string} theme
+ * @returns {string}
+ */
+export function ensureOpaque(background, theme) {
+  return background || THEME_BACKGROUNDS[theme] || THEME_BACKGROUNDS.dark;
+}
+
+/**
+ * A `#rrggbb` value for `<input type="color">`; `#000000` when the input is not
+ * an opaque color the element accepts.
+ * @param {unknown} value
+ * @returns {string}
+ */
+export function toHexColor(value) {
+  const solid = solidColor(value);
+  const short = solid.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i);
+  if (short) return `#${short[1]}${short[1]}${short[2]}${short[2]}${short[3]}${short[3]}`;
+  if (/^#[0-9a-f]{6}$/i.test(solid)) return solid;
+  const match = solid.match(RGB_RE);
+  if (!match) return '#000000';
+  return `#${[match[1], match[2], match[3]]
+    .map((channel) => Number(channel).toString(16).padStart(2, '0'))
+    .join('')}`;
+}

@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![Instalar userscript](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![Licença: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![Versão](https://img.shields.io/badge/version-0.16.4-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/version-0.16.5-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 [English](https://github.com/NemoKing1210/x-plus/blob/main/README.md) · [Русский](https://github.com/NemoKing1210/x-plus/blob/main/README.ru.md) · [中文](https://github.com/NemoKing1210/x-plus/blob/main/README.zh.md) · [Español](https://github.com/NemoKing1210/x-plus/blob/main/README.es.md) · **Português** · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · [Français](https://github.com/NemoKing1210/x-plus/blob/main/README.fr.md) · [日本語](https://github.com/NemoKing1210/x-plus/blob/main/README.ja.md)
 <!-- /xp:readme -->
@@ -83,13 +83,19 @@ O mesmo motor do [x-translator](https://github.com/NemoKing1210/x-translator):
 
 ### Capturas
 
-- Botão de câmera ao lado de **Traduzir** no cabeçalho do post: um clique copia
-  o post — como aparece na página, incluindo o tema atual, o texto traduzido, a
-  mídia, a citação e a linha de ações — para a área de transferência como PNG
-- O fundo é configurável: o tema da página (padrão, para que o PNG nunca seja
-  transparente), branco, preto, transparente ou qualquer cor CSS
-- Escala da imagem (automática, 1×, 2×, 3×), manter ou cortar a linha de ações,
-  e copiar para a área de transferência ou salvar o arquivo
+- Botão de câmera ao lado de **Traduzir** no cabeçalho do post: abre um menu de
+  captura
+- **Copiar imagem** coloca o post — como aparece na página, incluindo o tema
+  atual, o texto traduzido, a mídia, a citação e a linha de ações — na área de
+  transferência como PNG
+- **Salvar imagem** baixa o post como PNG ou JPEG (JPEG é mais leve; um fundo
+  transparente vira a cor do tema)
+- **Copiar texto** e **Copiar link** pegam o texto ou o link permanente
+- Opções rápidas no menu: fundo (tema da página, branco, preto, transparente ou
+  qualquer cor), escala da imagem (automática, 1×, 2×, 3×) e a linha de ações; as
+  mudanças são salvas
+- **Configurações de captura…** abre a aba completa; o menu pode ser desativado
+  para copiar com um clique (e *Salvar como arquivo* baixa o PNG)
 - Vídeos e GIFs são capturados pelo quadro de capa
 - Quando o navegador não consegue colocar imagens na área de transferência
   (Firefox), o PNG é salvo como arquivo

@@ -4,7 +4,7 @@
 [![CI](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/x-plus/actions/workflows/ci.yml)
 [![Instalar userscript](https://img.shields.io/badge/Install-userscript-0f1419?style=for-the-badge&labelColor=1d9bf0)](https://raw.githubusercontent.com/NemoKing1210/x-plus/main/x-plus.user.js)
 [![Licencia: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/LICENSE)
-[![Versión](https://img.shields.io/badge/version-0.16.4-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
+[![Versión](https://img.shields.io/badge/version-0.16.5-green?style=for-the-badge)](https://github.com/NemoKing1210/x-plus/blob/main/CHANGELOG.md)
 
 [English](https://github.com/NemoKing1210/x-plus/blob/main/README.md) · [Русский](https://github.com/NemoKing1210/x-plus/blob/main/README.ru.md) · [中文](https://github.com/NemoKing1210/x-plus/blob/main/README.zh.md) · **Español** · [Português](https://github.com/NemoKing1210/x-plus/blob/main/README.pt.md) · [Deutsch](https://github.com/NemoKing1210/x-plus/blob/main/README.de.md) · [Français](https://github.com/NemoKing1210/x-plus/blob/main/README.fr.md) · [日本語](https://github.com/NemoKing1210/x-plus/blob/main/README.ja.md)
 <!-- /xp:readme -->
@@ -84,14 +84,19 @@ El mismo motor que [x-translator](https://github.com/NemoKing1210/x-translator):
 
 ### Capturas
 
-- Botón de cámara junto a **Traducir** en la cabecera de la publicación: un clic
-  copia la publicación —tal como se ve en la página, incluidos el tema actual,
-  el texto traducido, los medios, la cita y la fila de acciones— al portapapeles
-  como PNG
-- El fondo se configura: el tema de la página (por defecto, para que el PNG nunca
-  sea transparente), blanco, negro, transparente o cualquier color CSS
-- Escala de la imagen (automática, 1×, 2×, 3×), conservar o recortar la fila de
-  acciones, y copiar al portapapeles o guardar el archivo
+- Botón de cámara junto a **Traducir** en la cabecera de la publicación: abre un
+  menú de captura
+- **Copiar imagen** pone la publicación —tal como se ve en la página, incluidos el
+  tema actual, el texto traducido, los medios, la cita y la fila de acciones— en
+  el portapapeles como PNG
+- **Guardar imagen** descarga la publicación como PNG o JPEG (JPEG pesa menos; un
+  fondo transparente pasa a ser el color del tema)
+- **Copiar texto** y **Copiar enlace** toman el texto o el enlace permanente
+- Opciones rápidas en el menú: fondo (tema de la página, blanco, negro,
+  transparente o cualquier color), escala de la imagen (automática, 1×, 2×, 3×) y
+  la fila de acciones; los cambios se guardan
+- **Ajustes de captura…** abre la pestaña completa; el menú se puede desactivar
+  para copiar con un solo clic (y *Guardar como archivo* descarga el PNG)
 - Los vídeos y GIF se capturan con su fotograma de portada
 - Cuando el navegador no puede poner imágenes en el portapapeles (Firefox), el
   PNG se guarda como archivo

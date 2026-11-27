@@ -290,7 +290,7 @@ click → getTweetId(article)
 
 A **unit** is one cell, or the cells of a thread merged by `collect()`: `threadLines()` looks (by shape, not by class) in the avatar column for a thin empty bar that ends at the avatar (line above) or starts from it (line below); two post cells with no other cell between them (a "show more replies" cell breaks the chain) belong to one unit when the upper one has a line below **or** the lower one a line above. Only the cell's own posts count (`units.js` drops quote embeds, which nest their own `article`), and only its **first** post can carry a line above and its **last** post a line below: X may draw a whole thread inside one cell (a post and its reply in the 2026 modern build), and that inner join must not link the cell to its neighbours. `localStorage.setItem('xp_debug', '1')` logs what each cell's check found (`X Plus · shorts thread lines`). Everything below (active / prev / next / far marks, centring, stepping, the settle timer, the auto-scroll countdown) works on units; the cells of the active unit share one `transform-origin` (`--xp-shorts-oy`) so the joins stay put while it grows.
 
-The nearest unit to the screen middle gets `data-xp-shorts="active"`, the cells before / after it `prev` / `next` and the rest `far` (opacity per setting: `prevOpacity`, `nextOpacity`; `far` follows the fainter one); `styles/shorts.css` scales / blurs the `article` inside (never the cell: X positions cells with transforms). `nav.js` draws the previous / next buttons (setting `buttons`): a fixed, vertically centred pair at the right edge of `dom.getPrimaryColumn` — in the gap before the right column when it is wide enough, over the feed's edge otherwise — hidden while a dialog / menu is open; `engine.js` feeds it the enabled states on every `update()`.
+The nearest unit to the screen middle gets `data-xp-shorts="active"`, the cells before / after it `prev` / `next` and the rest `far` (opacity per setting: `prevOpacity`, `nextOpacity`; `far` follows the fainter one); `styles/shorts.css` scales / blurs the `article` inside (never the cell: X positions cells with transforms). `nav.js` draws the previous / next buttons (setting `buttons`): a fixed, vertically centred pair at the right edge of `dom.getPrimaryColumn` — in the gap before the right column when it is wide enough, over the feed's edge otherwise — hidden while a dialog / menu is open; `engine.js` feeds it the enabled states on every `update()` and, while an overlay is open, looks again every 500 ms: X may close a sheet in place, without adding a node that the shared scan would see, and the buttons must come back.
 
 `autoplay.js` (setting `autoplay`) is the auto-scroll: one `requestAnimationFrame` loop counts `autoDelay` seconds on the current post (restarted whenever the post changes; frames longer than 100 ms are clipped so a background tab does not skip ahead; paused while the pointer is on the controls or an overlay is open; a non-looping `<video>` longer than the delay extends it) and calls the engine's `step()` when the countdown ends. The engine hands in `cell / moving / blocked / step` so the modules do not import each other. Progress goes to `setRing()` (SVG ring on the "next" button, `nav.js`) and/or a fixed bar over the post's top edge, depending on `autoStyle` (`auto` = ring while the buttons are visible, bar otherwise). The pause is a runtime flag (`isAutoPaused`), not a setting, but it is persisted under its own storage key (`SHORTS_PAUSED_KEY`) so it survives leaving the feed for a post page and a reload; switching `autoplay` off and on clears it (a fresh start runs). The play / pause button under the arrows and the `autoKey` hotkey (a `KeyboardEvent.code`, picked with the `hotkey` settings control; handled in `engine.js`'s key handler, only while `autoplay` is on) flip it, and the button starts auto-scroll when the setting is off. With the bar visible, a small chip at its right end shows the pause state and the key and does the same on click.
 
@@ -298,7 +298,7 @@ The nearest unit to the screen middle gets `data-xp-shorts="active"`, the cells 
 
 **Contract with other features** (names in `core/constants.js`): the current cell carries `data-xp-shorts="active"`; after it has stayed current for 450 ms (`SETTLE_MS`) it also gets `data-xp-shorts-settled` and the bus emits `shorts:settled(cell)`. With `translateOnlyCurrent` on, `<html data-xp-shorts-focus>` tells `translate/controller.js` that automatic translation may only run for a post inside the active + settled cell (`blockedByShorts`, checked in `enqueueAutoTranslate` and `pumpAutoQueue`); `translateInCell` runs on `shorts:active` and `shorts:settled`, because the visibility observer does not fire again for a post that is already on screen. A post that is active but not settled yet may show only a translation that is already at hand (`hasTranslation`: cache, or the in-memory *warm* store of `translate/api.js`), so arriving at a prepared post swaps the text at once while a post flown past still costs nothing. With `translateNext`, the settle timer also emits `shorts:ahead` for the unit after the current one; `prefetchInCell` then calls `prefetchTranslation` (request now, keep the result for one use for up to 5 minutes, show nothing).
 
-**Performance rules** (the mode runs on every scroll of a page X re-renders constantly): layout reads (`getBoundingClientRect`) happen in `collect()` once per update, and marking uses those rects instead of reading again; a step hands the units it has already collected to `update()`, so its first frame costs no second layout read; a wheel event that only continues a decision (the tail of a gesture, anything while we scroll) swallows itself without touching layout; scroll-driven re-marking is throttled (`UPDATE_EVERY_MS`) and skipped while our own tween runs; the tween re-measures its target every few frames and on the last one, and eases with smoothstep — half the peak speed of ease-in-out cubic, so a frame the browser drops moves the page less; thread lines are looked for only near the viewport and cached for seconds with jitter (all cells expiring together made a frame-long spike); the overlay check is cached for 200 ms; hover on the controls comes from pointer events, not `:hover` queries every frame; the auto-scroll loop skips redundant style writes and re-measures the bar rarely. In CSS the post's `filter` is **never transitioned**: animating a blur while the page scrolls makes the browser re-rasterise the whole post every frame — in the harness that was ~8 dropped frames per 10 steps against ~2 with the blur switching at once — so transform and opacity carry the motion, the blur snaps with the state, posts further away only fade, and only the three posts on screen get `will-change` (a layer per post X keeps in the DOM is memory the GPU pays for). A video is resumed only after the tween lands, so decoding does not start in the first frames of a step. After a step lands, one correction re-centres the post if the layout moved under it (`scheduleRecentre`).
+**Performance rules** (the mode runs on every scroll of a page X re-renders constantly): layout reads (`getBoundingClientRect`) happen in `collect()` once per update, and marking uses those rects instead of reading again; a step hands the units it has already collected to `update()`, so its first frame costs no second layout read; a wheel event that only continues a decision (the tail of a gesture, anything while we scroll) swallows itself without touching layout; scroll-driven re-marking is throttled (`UPDATE_EVERY_MS`) and skipped while our own tween runs; the tween re-measures its target every few frames and on the last one, and eases with smoothstep — half the peak speed of ease-in-out cubic, so a frame the browser drops moves the page less; thread lines are looked for only near the viewport and cached for seconds with jitter (all cells expiring together made a frame-long spike); the overlay check is cached for 200 ms, and repeated every 500 ms only while an overlay is open (so the controls return when it is closed in place); hover on the controls comes from pointer events, not `:hover` queries every frame; the auto-scroll loop skips redundant style writes and re-measures the bar rarely. In CSS the post's `filter` is **never transitioned**: animating a blur while the page scrolls makes the browser re-rasterise the whole post every frame — in the harness that was ~8 dropped frames per 10 steps against ~2 with the blur switching at once — so transform and opacity carry the motion, the blur snaps with the state, posts further away only fade, and only the three posts on screen get `will-change` (a layer per post X keeps in the DOM is memory the GPU pays for). A video is resumed only after the tween lands, so decoding does not start in the first frames of a step. After a step lands, one correction re-centres the post if the layout moved under it (`scheduleRecentre`).
 
 `<html data-xp-shorts-on>` exists only while the mode is engaged on the current page.
 
@@ -384,17 +384,40 @@ the tweet header actions row, reusing `findHeaderActionsSlot` /
 `mountHeaderButton` from `translate/placement.js`. It is placed after the
 Translate wrapper when that feature is on and works independently of it; the
 shared debounced `scan` re-mounts it after X re-renders the header and does
-nothing while the feature is off (default).
+nothing while the feature is off (default). A click opens the capture menu
+(`menu.js`) unless the `menu` setting is off; then it copies straight away,
+honouring `save`.
 
 ```
-click → capturePost(article)                  # modern-screenshot
+click → openCaptureMenu(article, btn)         # anchored panel, ui/popup.js content mode
+      → Copy image       → deliver('copy')     # ClipboardItem inside the menu click
+      → Save PNG / JPEG  → deliver('save', { format })
+      → Copy text / link → navigator.clipboard.writeText
+      → quick options    → updateFeatureSettings('screenshot', …)
+      → Screenshot settings… → openSettings('screenshot')
+```
+
+`menu.js` builds the panel with `el()` and reuses `openPopup({ content })` for
+placement, outside-click / Escape / scroll dismissal and initial focus, so the
+X-handler suppression stays in one place. Option changes persist immediately
+and keep the panel open; action rows close it first and then capture, which
+keeps the clipboard write inside the user gesture. The panel shows the post
+handle, the current scale / background, five actions, background swatches
+(including an `<input type="color">`), a scale segmented control and an
+action-row switch.
+
+```
+capturePost(article, overrides)               # modern-screenshot
       → clone → computed styles / fonts / images embedded
       → [data-xp-ui] filtered out; poster-less <video> filtered
-      → PNG blob
-      → ClipboardItem({ 'image/png': blobPromise })   # inside the click gesture
-      → navigator.clipboard.write
-          success → toast; failure / Firefox → saveBlob + warning toast
+      → PNG or JPEG blob
 ```
+
+`copy.js`'s `deliver(article, btn, action, options)` is the single action
+runner: `copy` starts `ClipboardItem({ 'image/png': blobPromise })` inside the
+click and falls back to a download; `save` downloads the chosen format; `text`
+and `link` use `navigator.clipboard.writeText`. File names follow the format
+(`.png` / `.jpg`).
 
 `modern-screenshot` clones the article and renders it through an SVG
 `foreignObject`. X's CDNs send `access-control-allow-origin: *` and x.com's CSP
@@ -408,20 +431,24 @@ article and falls back to the theme's own color (`#ffffff` / `#15202b` /
 black, transparent and a custom CSS color are also available. The scale comes
 from the `scale` setting (`auto` clamps the device pixel ratio to 2–3×). When
 the action row is turned off, that row is filtered out and the capture height
-is trimmed to its top edge, so the image has no empty gap. The `save` setting
-skips the clipboard and downloads the PNG. Poster videos come from their
-poster, and a video without one is filtered out (the renderer would wait for a
-`seeked` event that never fires) while its player container keeps a sized
-block. The render is raced against a timeout so a stuck renderer still ends in
-the error toast. The live post is never mutated.
+is trimmed to its top edge, so the image has no empty gap. JPEG uses
+`image/jpeg` at quality 0.92 and, because it has no alpha channel, a
+transparent choice falls back to the theme color (`ensureOpaque`). `overrides`
+lets the menu use its per-action choices without waiting for a settings
+round-trip. Poster videos come from their poster, and a video without one is
+filtered out (the renderer would wait for a `seeked` event that never fires)
+while its player container keeps a sized block. The render is raced against a
+timeout so a stuck renderer still ends in the error toast. The live post is
+never mutated.
 
 | File | Role |
 |------|------|
 | `button.js` | Mount / place / bind the header control; remove all on disable |
+| `menu.js` | Capture popover: actions, quick options, settings shortcut |
 | `capture.js` | Clone preparation and `domToBlob` options |
 | `background.js` | Pure background color parsing / fallbacks (unit-tested) |
-| `copy.js` | Clipboard write, download fallback, save mode, toasts, file naming |
-| `naming.js` | Pure scale / file-name rules (unit-tested) |
+| `copy.js` | Action runner: clipboard, download, text / link, toasts, file naming |
+| `naming.js` | Pure scale / format / file-name rules (unit-tested) |
 | `config.js` | Settings access, scoped `t()`, DOM markers, limits |
 
 ## Conventions
