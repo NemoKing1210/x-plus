@@ -35,6 +35,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The “Show N posts” switch is hidden on the new design instead of staying on and doing nothing
 - “Scroll the feed tabs with the page” no longer dims and blurs the whole timeline on the new design until the next scroll: the un-stuck page header keeps its position for X’s frosted backdrop
 
+## [0.16.4] - 2026-11-27
+
+### Fixed
+
+- The Translate and Screenshot buttons in the post header keep a gap between them instead of sitting edge to edge, and their hover discs no longer reach over the neighbouring button
+
 ## [0.16.3] - 2026-11-27
 
 ### Fixed
@@ -232,7 +238,8 @@ First release.
 - UI in 8 languages: English, Russian, Chinese, Spanish, Portuguese, German, French, Japanese
 - `npm run check:i18n` (all locales must contain every used key) and a local harness (`npm run harness`) for manual testing
 
-[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.16.3...HEAD
+[Unreleased]: https://github.com/NemoKing1210/x-plus/compare/v0.16.4...HEAD
+[0.16.4]: https://github.com/NemoKing1210/x-plus/compare/v0.16.3...v0.16.4
 [0.16.3]: https://github.com/NemoKing1210/x-plus/compare/v0.16.2...v0.16.3
 [0.16.2]: https://github.com/NemoKing1210/x-plus/compare/v0.16.1...v0.16.2
 [0.16.1]: https://github.com/NemoKing1210/x-plus/compare/v0.16.0...v0.16.1

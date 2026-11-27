@@ -35,6 +35,10 @@ you are about to work on here.
 
 ### Done ✓
 
+- [x] Give the post header buttons breathing room ~0.25h #interface @NemoKing1210 2026-11-27
+  - [x] The Translate and Screenshot wrappers (`.xp-header-action`) sat edge to edge — 20px buttons with 34px hover discs — so the icons nearly touched
+  - [x] `translate.css` spaces adjacent header wrappers by 8px, the smallest gap that keeps a hover disc off the neighbouring button
+  - [x] Verified in the harness `/modern` with both features on: wrappers 28px apart, icons visibly separated, quote rows unchanged; released as 0.16.4
 - [x] Fix Shorts pulling the next post into a post-and-reply card ~1h #shorts @NemoKing1210 2026-11-27
   - [x] X's 2026 build draws a post and its reply inside one cell; `threadLines()` read the first post's inner line below as a link to the next cell, so the unrelated post after the card became part of the unit and was highlighted with it
   - [x] Only the cell's first post can carry a line above and only its last post a line below; `shorts/units.js` drops quote embeds, so the inner join no longer links neighbours

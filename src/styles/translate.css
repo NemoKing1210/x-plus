@@ -116,6 +116,12 @@
   flex: 0 0 auto;
 }
 
+/* Space between our own header controls (Translate, Screenshot): 8px keeps the
+   34px hover discs from covering the neighbouring button. */
+.xp-header-action + .xp-header-action {
+  margin-inline-start: 8px;
+}
+
 .xp-header-action--quote {
   margin-left: auto;
   align-self: center;
